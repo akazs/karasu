@@ -8,16 +8,18 @@
       CSV += ',' + cut;
     });
     CSV += '\n';
-    structured_members.forEach((gen) => {
-      gen.members.forEach((member) => {
-        CSV += member;
-        let counts = sortedPhotos[member] || [0, 0, 0, 0];
-        counts.forEach((count) => {
-          CSV += ',' + count;
+    structured_members
+      .filter((gen) => gen.enabled)
+      .forEach((gen) => {
+        gen.members.forEach((member) => {
+          CSV += member;
+          let counts = sortedPhotos[member] || [0, 0, 0, 0];
+          counts.forEach((count) => {
+            CSV += ',' + count;
+          });
+          CSV += '\n';
         });
-        CSV += '\n';
       });
-    });
     return CSV;
   }
   let CSVButtonText = $state('CSVをコピー');
