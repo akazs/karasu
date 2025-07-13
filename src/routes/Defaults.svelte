@@ -34,7 +34,7 @@
         '村山 美羽',
         '山下 瞳月'
       ],
-      enabled: true,
+      enabled: true
     },
     {
       name: '四期生',

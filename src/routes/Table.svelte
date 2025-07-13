@@ -15,14 +15,14 @@
   <tbody>
     {#each structured_members as generation (generation.name)}
       {#if generation.enabled}
-      {#each generation.members as member (member)}
-        <tr>
-          <th scope="row">{member}</th>
-          {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut (cut)}
-            <td>{cut}</td>
-          {/each}
-        </tr>
-      {/each}
+        {#each generation.members as member (member)}
+          <tr>
+            <th scope="row">{member}</th>
+            {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut (cut)}
+              <td>{cut}</td>
+            {/each}
+          </tr>
+        {/each}
       {/if}
     {/each}
   </tbody>
@@ -46,7 +46,7 @@
   td {
     text-align: center;
     font-weight: bold;
-    width: 20%
+    width: 20%;
   }
 
   th {
