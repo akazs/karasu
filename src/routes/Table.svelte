@@ -1,0 +1,56 @@
+<script>
+  import { structured_members, cuts } from './Constants.svelte';
+  let { sortedPhotos } = $props();
+</script>
+
+<table>
+  <thead class="bg-rose-100">
+    <tr>
+      <th scope="col">メンバー</th>
+      {#each cuts as cut}
+        <th scope="col">{cut}</th>
+      {/each}
+    </tr>
+  </thead>
+  <tbody>
+    {#each structured_members as generation}
+      {#each generation.members as member}
+        <tr>
+          <th scope="row">{member}</th>
+          {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut}
+            <td>{cut}</td>
+          {/each}
+        </tr>
+      {/each}
+    {/each}
+  </tbody>
+</table>
+
+<style>
+  table {
+    border-collapse: collapse;
+    border: 2px solid rgb(140 140 140);
+    font-family: sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  th,
+  td {
+    border: 1px solid rgb(160 160 160);
+    padding: 8px 10px;
+  }
+
+  td {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  th {
+    text-align: left;
+  }
+
+  tbody > tr:nth-of-type(even) {
+    background-color: rgb(237 238 242);
+  }
+</style>
