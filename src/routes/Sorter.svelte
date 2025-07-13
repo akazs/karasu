@@ -70,7 +70,7 @@
           }
           data[i] += 1;
           sortedPhotos.set(selectedMember, data);
-          currentState += structured_members.filter((gen) => gen.enabled).length > 1 ? 2 : 1;
+          currentState += structured_members.filter((gen) => gen.enabled).length > 1 ? 1 : 2;
         }}>{cut}</button
       >
     {/each}
