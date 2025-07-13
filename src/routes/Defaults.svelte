@@ -1,5 +1,5 @@
 <script module>
-  export const structured_members = [
+  export let structured_members = $state([
     {
       name: '二期生',
       members: [
@@ -16,7 +16,8 @@
         '森田 ひかる',
         '守屋 麗奈',
         '山﨑 天'
-      ]
+      ],
+      enabled: true
     },
     {
       name: '三期生',
@@ -32,7 +33,8 @@
         '村井 優',
         '村山 美羽',
         '山下 瞳月'
-      ]
+      ],
+      enabled: true,
     },
     {
       name: '四期生',
@@ -46,8 +48,9 @@
         '目黒 陽色',
         '山川 宇衣',
         '山田 桃実'
-      ]
+      ],
+      enabled: true
     }
-  ];
+  ]);
   export const cuts = ['ヨリ', 'チュウ', 'ヒキ', '座り'];
 </script>

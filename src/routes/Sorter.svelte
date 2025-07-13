@@ -1,10 +1,8 @@
 <script>
   import { SvelteMap } from 'svelte/reactivity';
-  import { structured_members, cuts } from './Constants.svelte';
+  import { structured_members, cuts } from './Defaults.svelte';
 
   let { sortedPhotos } = $props();
-  let selectedGeneration = $state('');
-  let selectedMember = $state('');
 
   const states = [
     {
@@ -18,11 +16,20 @@
     }
   ];
   let currentState = $state(0);
+  let selectedGeneration = $state('');
+  let selectedMember = $state('');
+  if (structured_members.filter((gen) => gen.enabled).length == 1) {
+    currentState = 1
+    selectedGeneration = structured_members.find((gen) => gen.enabled).name
+  }
+
 </script>
 
 {#if currentState % 3 == 0}
+  {#if structured_members.filter((gen) => gen.enabled).length > 1}
   <div id="generation-buttons">
     {#each structured_members as generation}
+      {#if generation.enabled}
       <button
         class="bg-pink-300"
         aria-label={generation.name}
@@ -31,8 +38,10 @@
           currentState += 1;
         }}>{generation.name}</button
       >
+      {/if}
     {/each}
   </div>
+  {/if}
 {/if}
 
 {#if currentState % 3 == 1}
@@ -74,7 +83,7 @@
           }
           data[i] += 1;
           sortedPhotos.set(selectedMember, data);
-          currentState += 1;
+          currentState += (structured_members.filter((gen) => gen.enabled).length > 1) ? 2 : 1
         }}>{cut}</button
       >
     {/each}

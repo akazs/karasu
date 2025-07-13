@@ -1,5 +1,5 @@
 <script>
-  import { structured_members, cuts } from './Constants.svelte';
+  import { structured_members, cuts } from './Defaults.svelte';
   let { sortedPhotos } = $props();
 </script>
 
@@ -8,12 +8,13 @@
     <tr>
       <th scope="col">メンバー</th>
       {#each cuts as cut}
-        <th scope="col">{cut}</th>
+        <th scope="col" style="text-align: center">{cut}</th>
       {/each}
     </tr>
   </thead>
   <tbody>
     {#each structured_members as generation}
+      {#if generation.enabled}
       {#each generation.members as member}
         <tr>
           <th scope="row">{member}</th>
@@ -22,6 +23,7 @@
           {/each}
         </tr>
       {/each}
+      {/if}
     {/each}
   </tbody>
 </table>
@@ -44,6 +46,7 @@
   td {
     text-align: center;
     font-weight: bold;
+    width: 20%
   }
 
   th {
