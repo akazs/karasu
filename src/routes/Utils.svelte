@@ -13,7 +13,7 @@
       .forEach((gen) => {
         gen.members.forEach((member) => {
           CSV += member;
-          let counts = sortedPhotos[member] || [0, 0, 0, 0];
+          let counts = sortedPhotos.get(member) || [0, 0, 0, 0];
           counts.forEach((count) => {
             CSV += ',' + count;
           });
