@@ -18,7 +18,8 @@
         {#each generation.members as member (member)}
           <tr>
             <th scope="row">{member}</th>
-            {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut (cut)}
+            <!-- eslint-disable-next-line -->
+            {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut}
               <td>{cut}</td>
             {/each}
           </tr>
