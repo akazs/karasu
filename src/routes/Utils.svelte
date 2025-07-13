@@ -42,7 +42,7 @@
 </button>
 </div>
 
-{#each structured_members as generation}
+{#each structured_members as generation (generation.name)}
 <div class="options">
 <label>
 	<input type="checkbox" bind:checked={generation.enabled} />

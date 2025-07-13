@@ -6,15 +6,15 @@
 </script>
 
 <ul>
-  {#each tabs as tab}
-    <li class={activeTab === tab.Name ? 'active' : ''}>
-      <button onclick={handleClick(tab.Name)}>{tab.Name}</button>
+  {#each tabs as tab (tab.name)}
+    <li class={activeTab === tab.name ? 'active' : ''}>
+      <button onclick={handleClick(tab.name)}>{tab.name}</button>
     </li>
   {/each}
 </ul>
 
-{#each tabs as tab}
-  {#if activeTab == tab.Name}
+{#each tabs as tab (tab.name)}
+  {#if activeTab == tab.name}
     <div class="box">
       <svelte:component this={tab.component} />
     </div>

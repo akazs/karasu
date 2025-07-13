@@ -7,18 +7,18 @@
   <thead class="bg-rose-100">
     <tr>
       <th scope="col">メンバー</th>
-      {#each cuts as cut}
+      {#each cuts as cut (cut)}
         <th scope="col" style="text-align: center">{cut}</th>
       {/each}
     </tr>
   </thead>
   <tbody>
-    {#each structured_members as generation}
+    {#each structured_members as generation (generation.name)}
       {#if generation.enabled}
-      {#each generation.members as member}
+      {#each generation.members as member (member)}
         <tr>
           <th scope="row">{member}</th>
-          {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut}
+          {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut (cut)}
             <td>{cut}</td>
           {/each}
         </tr>

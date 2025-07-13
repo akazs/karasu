@@ -1,20 +1,8 @@
 <script>
-  import { SvelteMap } from 'svelte/reactivity';
   import { structured_members, cuts } from './Defaults.svelte';
 
   let { sortedPhotos } = $props();
 
-  const states = [
-    {
-      name: 'GenerationSelection'
-    },
-    {
-      name: 'MemberSelection'
-    },
-    {
-      name: 'CutSelection'
-    }
-  ];
   let currentState = $state(0);
   let selectedGeneration = $state('');
   let selectedMember = $state('');
@@ -28,7 +16,7 @@
 {#if currentState % 3 == 0}
   {#if structured_members.filter((gen) => gen.enabled).length > 1}
   <div id="generation-buttons">
-    {#each structured_members as generation}
+    {#each structured_members as generation (generation.name)}
       {#if generation.enabled}
       <button
         class="bg-pink-300"
@@ -46,9 +34,9 @@
 
 {#if currentState % 3 == 1}
   <div id="member-buttons">
-    {#each structured_members as generation}
+    {#each structured_members as generation (generation.name)}
       {#if generation.name == selectedGeneration}
-        {#each generation.members as member}
+        {#each generation.members as member (member)}
           <button
             class="bg-pink-300"
             aria-label={member}
@@ -72,7 +60,7 @@
 
 {#if currentState % 3 == 2}
   <div id="cut-buttons">
-    {#each cuts as cut, i}
+    {#each cuts as cut, i (cut)}
       <button
         class="bg-pink-300"
         aria-label={cut}

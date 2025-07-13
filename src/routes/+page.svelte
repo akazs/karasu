@@ -28,7 +28,7 @@
 </script>
 
 <ul>
-  {#each tabs as tab}
+  {#each tabs as tab (tab.name)}
     <li class={activeTab == tab.name ? 'active' : ''}>
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -37,7 +37,7 @@
   {/each}
 </ul>
 
-{#each tabs as tab}
+{#each tabs as tab (tab.name)}
   {#if activeTab == tab.name}
     {@const Component = tab.component}
     <div class="box">
