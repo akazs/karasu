@@ -8,7 +8,7 @@
 <svelte:window bind:innerWidth />
 
 <table
-  class="table-fixed w-fit text-sm md:text-base break-keep border-collapse border-2 border-gray-500"
+  class="table-fixed w-full text-sm md:text-base break-keep border-collapse border-2 border-gray-500"
 >
   <thead class="bg-rose-100">
     <tr>
