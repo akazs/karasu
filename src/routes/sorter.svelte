@@ -31,7 +31,7 @@
 {/if}
 
 {#if currentState % 3 == 1}
-  <div class="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-7 gap-2 md:gap-4">
     {#each structured_members as generation (generation.name)}
       {#if generation.name == selectedGeneration}
         {#each generation.members as member (member.fullname)}
@@ -46,7 +46,9 @@
         {/each}
       {/if}
     {/each}
-    {#if !oneGenerationMode}
+  </div>
+  {#if !oneGenerationMode}
+    <div class="grid grid-cols-1 mt-2 md:mt-4">
       <button
         class="btn-indigo"
         aria-label="back"
@@ -54,12 +56,12 @@
           currentState -= 1;
         }}>戻る</button
       >
-    {/if}
-  </div>
+    </div>
+  {/if}
 {/if}
 
 {#if currentState % 3 == 2}
-  <div class="grid gap-2 md:gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
     {#each cuts as cut, i (cut)}
       <button
         class="btn-pink"
@@ -75,6 +77,8 @@
         }}>{cut}</button
       >
     {/each}
+  </div>
+  <div class="grid grid-cols-1 mt-2 md:mt-4">
     <button
       class="btn-indigo"
       aria-label="back"
