@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+ul {
+  @apply flex;
+}
+
+.tab {
+  @apply w-20 text-center block border border-solid border-gray-100 hover:border-gray-400 text-gray-500 cursor-pointer;
+}
+
+li.active > .tab {
+  @apply border-gray-200 bg-[#f19db5] text-gray-600;
+}
+
+.box {
+  @apply border border-solid border-gray-300 rounded-lg;
+}

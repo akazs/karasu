@@ -1,5 +1,5 @@
 <script>
-  import { structured_members, cuts } from './Defaults.svelte';
+  import { structured_members, cuts } from './defaults.svelte';
   let { sortedPhotos } = $props();
 
   let currentState = $state(0);
@@ -14,11 +14,11 @@
 </script>
 
 {#if currentState % 3 == 0}
-  <div id="generation-buttons">
+  <div class="grid gap-2 md:gap-4">
     {#each structured_members as generation (generation.name)}
       {#if generation.enabled}
         <button
-          class="bg-pink-300"
+          class="btn-pink"
           aria-label={generation.name}
           onclick={() => {
             selectedGeneration = generation.name;
@@ -31,12 +31,12 @@
 {/if}
 
 {#if currentState % 3 == 1}
-  <div id="member-buttons">
+  <div class="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4">
     {#each structured_members as generation (generation.name)}
       {#if generation.name == selectedGeneration}
         {#each generation.members as member (member)}
           <button
-            class="bg-pink-300"
+            class="btn-pink"
             aria-label={member}
             onclick={() => {
               selectedMember = member;
@@ -48,7 +48,7 @@
     {/each}
     {#if !oneGenerationMode}
       <button
-        class="bg-indigo-200"
+        class="btn-indigo"
         aria-label="back"
         onclick={() => {
           currentState -= 1;
@@ -59,10 +59,10 @@
 {/if}
 
 {#if currentState % 3 == 2}
-  <div id="cut-buttons">
+  <div class="grid gap-2 md:gap-4">
     {#each cuts as cut, i (cut)}
       <button
-        class="bg-pink-300"
+        class="btn-pink"
         aria-label={cut}
         onclick={() => {
           let data = $state([0, 0, 0, 0]);
@@ -76,7 +76,7 @@
       >
     {/each}
     <button
-      class="bg-indigo-200"
+      class="btn-indigo"
       aria-label="back"
       onclick={() => {
         currentState -= 1;
@@ -86,27 +86,5 @@
 {/if}
 
 <style>
-  #member-buttons {
-    display: grid;
-    grid-gap: 1em;
-    grid-template-columns: repeat(6, 1fr);
-  }
-
-  @media (max-width: 1000px) {
-    #member-buttons {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  #cut-buttons,
-  #generation-buttons {
-    display: grid;
-    grid-gap: 1em;
-  }
-  /* 
-  button {
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-  } */
+  @import './buttons.css';
 </style>

@@ -1,5 +1,5 @@
 <script>
-  import { structured_members, cuts } from './Defaults.svelte';
+  import { structured_members, cuts } from './defaults.svelte';
   let { sortedPhotos } = $props();
 
   function sortedPhotosToCSV(sortedPhotos) {
@@ -25,10 +25,10 @@
   let CSVButtonText = $state('CSVをコピー');
 </script>
 
-<div id="output">
+<div>
   <button
     id="copy-csv"
-    class="bg-pink-300"
+    class="btn-pink btn-pink-focus-active w-35 text-center"
     aria-label="CSV"
     onclick={() => {
       let CSV = sortedPhotosToCSV(sortedPhotos);
@@ -45,7 +45,7 @@
 </div>
 
 {#each structured_members as generation (generation.name)}
-  <div class="options">
+  <div class="mt-4">
     <label>
       <input type="checkbox" bind:checked={generation.enabled} />
       {generation.name}を含む
@@ -54,7 +54,5 @@
 {/each}
 
 <style>
-  div.options {
-    margin-top: 1em;
-  }
+  @import './buttons.css';
 </style>

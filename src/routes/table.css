@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+td {
+    @apply text-center font-bold border border-solid py-1 md:py-2 px-3
+}
+
+th {
+    @apply text-center font-bold border border-solid
+}
+
+.th-row {
+    @apply py-1 md:py-2 px-3
+}
+
+.th-col {
+    @apply h-15 py-1 px-0
+}
+
+td {
+    @apply h-15 overflow-hidden
+}
