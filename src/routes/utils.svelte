@@ -12,8 +12,8 @@
       .filter((gen) => gen.enabled)
       .forEach((gen) => {
         gen.members.forEach((member) => {
-          CSV += member;
-          let counts = sortedPhotos.get(member) || [0, 0, 0, 0];
+          CSV += member.fullname;
+          let counts = sortedPhotos.get(member.fullname) || [0, 0, 0, 0];
           counts.forEach((count) => {
             CSV += ',' + count;
           });

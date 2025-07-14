@@ -1,7 +1,11 @@
 <script>
   import { structured_members, cuts } from './defaults.svelte';
   let { sortedPhotos } = $props();
+
+  let innerWidth = $state(0);
 </script>
+
+<svelte:window bind:innerWidth />
 
 <table
   class="table-fixed w-fit text-sm md:text-base break-keep border-collapse border-2 border-gray-500"
@@ -17,11 +21,15 @@
   <tbody>
     {#each structured_members as generation (generation.name)}
       {#if generation.enabled}
-        {#each generation.members as member (member)}
+        {#each generation.members as member (member.fullname)}
           <tr class="odd:bg-white even:bg-gray-100">
-            <th scope="row" class="th-row">{member}</th>
+            {#if innerWidth >= 768}
+              <th scope="row" class="th-row">{member.fullname}</th>
+            {:else}
+              <th scope="row" class="th-row">{member.shortname}</th>
+            {/if}
             <!-- eslint-disable-next-line -->
-            {#each sortedPhotos.get(member) || [0, 0, 0, 0] as cut}
+            {#each sortedPhotos.get(member.fullname) || [0, 0, 0, 0] as cut}
               <td>{cut}</td>
             {/each}
           </tr>

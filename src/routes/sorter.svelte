@@ -34,14 +34,14 @@
   <div class="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4">
     {#each structured_members as generation (generation.name)}
       {#if generation.name == selectedGeneration}
-        {#each generation.members as member (member)}
+        {#each generation.members as member (member.fullname)}
           <button
             class="btn-pink"
-            aria-label={member}
+            aria-label={member.fullname}
             onclick={() => {
-              selectedMember = member;
+              selectedMember = member.fullname;
               currentState += 1;
-            }}>{member}</button
+            }}>{member.fullname}</button
           >
         {/each}
       {/if}

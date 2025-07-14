@@ -13,9 +13,9 @@ th {
 }
 
 .th-col {
-    @apply h-15 py-1 px-0
+    @apply h-10 md:h-15 py-1 px-0
 }
 
 td {
-    @apply h-15 overflow-hidden
+    @apply h-10 md:h-15 overflow-hidden
 }
