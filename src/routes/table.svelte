@@ -1,11 +1,8 @@
 <script>
   import { structured_members, cuts } from './defaults.svelte';
+  import { innerWidth } from 'svelte/reactivity/window';
   let { sortedPhotos } = $props();
-
-  let innerWidth = $state(0);
 </script>
-
-<svelte:window bind:innerWidth />
 
 <table
   class="table-fixed w-full text-sm md:text-base break-keep border-collapse border-2 border-gray-500"
@@ -23,7 +20,7 @@
       {#if generation.enabled}
         {#each generation.members as member (member.fullname)}
           <tr class="odd:bg-white even:bg-gray-100">
-            {#if innerWidth >= 768}
+            {#if innerWidth.current >= 768}
               <th scope="row" class="th-row">{member.fullname}</th>
             {:else}
               <th scope="row" class="th-row">{member.shortname}</th>
