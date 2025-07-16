@@ -1,17 +1,17 @@
 @import 'tailwindcss';
 
 button {
-  @apply text-shadow-black py-2 md:py-3 px-4 rounded-md break-keep
+  @apply text-shadow-black py-2 md:py-3 px-4 rounded-md break-keep;
 }
 
 .btn-pink {
-  @apply bg-pink-300 hover:bg-pink-400 border border-pink-400
+  @apply bg-pink-300 hover:bg-pink-400 border border-pink-400;
 }
 
 .btn-pink-focus-active {
-  @apply focus:outline-2 focus:outline-offset-2 focus:outline-pink-300 active:bg-pink-500
+  @apply focus:outline-2 focus:outline-offset-2 focus:outline-pink-300 active:bg-pink-500;
 }
 
 .btn-indigo {
-  @apply bg-indigo-200 hover:bg-indigo-300 border border-pink-300
+  @apply bg-indigo-200 hover:bg-indigo-300 border border-pink-300;
 }
