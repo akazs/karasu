@@ -3,6 +3,7 @@
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
+  import Readme from './readme.svelte';
 
   let sortedPhotos = new SvelteMap();
 
@@ -10,17 +11,22 @@
     {
       name: '集計',
       component: Sorter,
-      props: sortedPhotos
+      props: { sortedPhotos: sortedPhotos }
     },
     {
       name: '結果',
       component: Table,
-      props: sortedPhotos
+      props: { sortedPhotos: sortedPhotos }
     },
     {
       name: 'その他',
       component: Utils,
-      props: sortedPhotos
+      props: { sortedPhotos: sortedPhotos }
+    },
+    {
+      name: 'ヘルプ',
+      component: Readme,
+      props: {}
     }
   ];
   let activeTab = $state('集計');
@@ -39,7 +45,7 @@
   {#if activeTab == tab.name}
     {@const Component = tab.component}
     <div class="box p-4 md:p-9">
-      <Component sortedPhotos={tab.props} />
+      <Component {...tab.props} />
     </div>
   {/if}
 {/each}

@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+h1 {
+    @apply mt-2 mb-1 text-xl md:text-2xl font-semibold text-gray-700
+}
+
+h2 {
+    @apply mt-2 mb-1 text-base md:text-lg font-semibold text-gray-700
+}
+
+p {
+    @apply font-normal text-gray-700
+}
+
+p + p {
+    @apply my-2
+}
