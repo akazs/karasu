@@ -1,5 +1,4 @@
 <script>
-  import { SvelteMap } from 'svelte/reactivity';
   import { structured_members, cuts } from '$lib/defaults.svelte';
   import { sortedPhotosKey } from '$lib/defaults.svelte';
   let { sortedPhotos } = $props();
