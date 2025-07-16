@@ -1,5 +1,7 @@
 <script>
-  import { structured_members, cuts } from './defaults.svelte';
+  import { SvelteMap } from 'svelte/reactivity';
+  import { structured_members, cuts } from '$lib/defaults.svelte';
+  import { sortedPhotosKey } from '$lib/defaults.svelte';
   let { sortedPhotos } = $props();
 
   function sortedPhotosToCSV(sortedPhotos) {
@@ -22,13 +24,14 @@
       });
     return CSV;
   }
+
   let CSVButtonText = $state('CSVをコピー');
 </script>
 
 <div>
   <button
     id="copy-csv"
-    class="btn-pink btn-pink-focus-active w-35 text-center"
+    class="btn-pink btn-pink-focus-active w-40 text-center"
     aria-label="CSV"
     onclick={() => {
       let CSV = sortedPhotosToCSV(sortedPhotos);
@@ -45,13 +48,28 @@
 </div>
 
 {#each structured_members as generation (generation.name)}
-  <div class="mt-4">
+  <div class="my-3 ml-2">
     <label>
       <input type="checkbox" bind:checked={generation.enabled} />
       {generation.name}を含む
     </label>
   </div>
 {/each}
+
+<div>
+  <button
+    class="btn-red w-40 text-center"
+    aira-label="clear"
+    onclick={() => {
+      if (confirm('データをクリアします。よろしいですか？')) {
+        sortedPhotos.clear();
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem(sortedPhotosKey);
+        }
+      }
+    }}>データをクリア</button
+  >
+</div>
 
 <style>
   @import './buttons.css';

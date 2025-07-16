@@ -1,5 +1,5 @@
 <script>
-  import { structured_members, cuts } from './defaults.svelte';
+  import { structured_members, cuts } from '$lib/defaults.svelte';
   import { innerWidth } from 'svelte/reactivity/window';
   let { sortedPhotos } = $props();
 </script>
