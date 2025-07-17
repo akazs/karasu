@@ -1,6 +1,6 @@
 <script module>
   import { SvelteMap } from 'svelte/reactivity';
-  import { structured_members, sortedPhotosKey } from './defaults.svelte';
+  import { structured_members, sortedPhotosKey } from './configs.svelte';
 
   function newSortedPhotos() {
     let sortedPhotos = new SvelteMap();

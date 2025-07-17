@@ -153,4 +153,5 @@
   ]);
   export const cuts = ['ヨリ', 'チュウ', 'ヒキ', '座り'];
   export const sortedPhotosKey = 'sortedPhotos20250716';
+  export let editMode = $state({ enabled: false });
 </script>

@@ -1,5 +1,5 @@
 <script>
-  import { structured_members, cuts } from '$lib/defaults.svelte';
+  import { structured_members, cuts, editMode } from '$lib/configs.svelte';
   import { clearSortedPhotos } from '$lib/sortedphotos.svelte';
 
   let { sortedPhotos } = $props();
@@ -66,6 +66,13 @@
       }
     }}>データをクリア</button
   >
+</div>
+
+<div class="my-3 ml-2">
+  <label>
+    <input type="checkbox" bind:checked={editMode.enabled} />
+    編集モード（試験機能）
+  </label>
 </div>
 
 <style>

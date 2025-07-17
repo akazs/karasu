@@ -1,8 +1,26 @@
 <script>
-  import { structured_members, cuts } from '$lib/defaults.svelte';
+  import { structured_members, cuts, editMode } from '$lib/configs.svelte';
+  import { saveSortedPhotosToLocalStorage } from '$lib/sortedphotos.svelte';
   import { innerWidth } from 'svelte/reactivity/window';
 
   let { sortedPhotos } = $props();
+
+  const increase = (sortedPhotos, memberName, cut) => () => {
+    let data = sortedPhotos.get(memberName);
+    data[cut]++;
+    sortedPhotos.set(memberName, data);
+    saveSortedPhotosToLocalStorage(sortedPhotos);
+  };
+
+  const decrease = (sortedPhotos, memberName, cut) => () => {
+    let data = sortedPhotos.get(memberName);
+    if (data[cut] < 1) {
+      return;
+    }
+    data[cut]--;
+    sortedPhotos.set(memberName, data);
+    saveSortedPhotosToLocalStorage(sortedPhotos);
+  };
 </script>
 
 <table
@@ -27,8 +45,24 @@
               <th scope="row" class="th-row">{member.shortname}</th>
             {/if}
             <!-- eslint-disable-next-line -->
-            {#each sortedPhotos.get(member.fullname) || [0, 0, 0, 0] as cut}
-              <td>{cut}</td>
+            {#each sortedPhotos.get(member.fullname) || [0, 0, 0, 0] as cut, i}
+              <td>
+                {#if editMode.enabled}
+                  <button
+                    class="btn-edit"
+                    aria-label="increase"
+                    onclick={increase(sortedPhotos, member.fullname, i)}>+</button
+                  >
+                {/if}
+                {cut}
+                {#if editMode.enabled}
+                  <button
+                    class="btn-edit"
+                    aria-label="decrease"
+                    onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
+                  >
+                {/if}
+              </td>
             {/each}
           </tr>
         {/each}

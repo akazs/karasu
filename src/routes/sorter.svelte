@@ -1,5 +1,5 @@
 <script>
-  import { structured_members, cuts } from '$lib/defaults.svelte';
+  import { structured_members, cuts } from '$lib/configs.svelte';
   import { saveSortedPhotosToLocalStorage } from '$lib/sortedphotos.svelte';
 
   let { sortedPhotos } = $props();

@@ -19,3 +19,7 @@ th {
 td {
   @apply h-10 md:h-15 overflow-hidden;
 }
+
+.btn-edit {
+  @apply w-10;
+}
