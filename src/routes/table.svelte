@@ -48,19 +48,35 @@
             {#each sortedPhotos.get(member.fullname) || [0, 0, 0, 0] as cut, i}
               <td>
                 {#if editMode.enabled}
-                  <button
-                    class="btn-edit"
-                    aria-label="increase"
-                    onclick={increase(sortedPhotos, member.fullname, i)}>+</button
-                  >
+                  {#if innerWidth.current >= 768}
+                    <button
+                      class="btn-edit"
+                      aria-label="decrease"
+                      onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
+                    >
+                  {:else}
+                    <button
+                      class="btn-edit"
+                      aria-label="increase"
+                      onclick={increase(sortedPhotos, member.fullname, i)}>+</button
+                    >
+                  {/if}
                 {/if}
                 {cut}
                 {#if editMode.enabled}
-                  <button
-                    class="btn-edit"
-                    aria-label="decrease"
-                    onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
-                  >
+                  {#if innerWidth.current >= 768}
+                    <button
+                      class="btn-edit"
+                      aria-label="increase"
+                      onclick={increase(sortedPhotos, member.fullname, i)}>+</button
+                    >
+                  {:else}
+                    <button
+                      class="btn-edit"
+                      aria-label="decrease"
+                      onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
+                    >
+                  {/if}
                 {/if}
               </td>
             {/each}
