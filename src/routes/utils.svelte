@@ -1,6 +1,7 @@
 <script>
   import { structured_members, cuts } from '$lib/defaults.svelte';
-  import { sortedPhotosKey } from '$lib/defaults.svelte';
+  import { clearSortedPhotos } from '$lib/sortedphotos.svelte';
+
   let { sortedPhotos } = $props();
 
   function sortedPhotosToCSV(sortedPhotos) {
@@ -61,10 +62,7 @@
     aira-label="clear"
     onclick={() => {
       if (confirm('データをクリアします。よろしいですか？')) {
-        sortedPhotos.clear();
-        if (typeof localStorage !== 'undefined') {
-          localStorage.removeItem(sortedPhotosKey);
-        }
+        clearSortedPhotos(sortedPhotos);
       }
     }}>データをクリア</button
   >

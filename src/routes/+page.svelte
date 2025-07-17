@@ -1,18 +1,11 @@
 <script>
-  import { SvelteMap } from 'svelte/reactivity';
-  import { JSONToSortedPhotos } from '$lib/sortedphotos.js';
-  import { sortedPhotosKey } from '$lib/defaults.svelte';
+  import { loadSortedPhotosFromLocalStorageOrNew } from '$lib/sortedphotos.svelte';
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
   import Readme from './readme.svelte';
 
-  let sortedPhotos;
-  if (typeof localStorage !== 'undefined') {
-    sortedPhotos = JSONToSortedPhotos(localStorage.getItem(sortedPhotosKey));
-  } else {
-    sortedPhotos = new SvelteMap();
-  }
+  let sortedPhotos = loadSortedPhotosFromLocalStorageOrNew();
 
   let tabs = [
     {

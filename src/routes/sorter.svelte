@@ -1,7 +1,6 @@
 <script>
   import { structured_members, cuts } from '$lib/defaults.svelte';
-  import { sortedPhotosToJSON } from '$lib/sortedphotos.js';
-  import { sortedPhotosKey } from '$lib/defaults.svelte';
+  import { saveSortedPhotosToLocalStorage } from '$lib/sortedphotos.svelte';
 
   let { sortedPhotos } = $props();
 
@@ -76,9 +75,7 @@
           }
           data[i] += 1;
           sortedPhotos.set(selectedMember, data);
-          if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(sortedPhotosKey, sortedPhotosToJSON(sortedPhotos));
-          }
+          saveSortedPhotosToLocalStorage(sortedPhotos);
           currentState += oneGenerationMode ? 2 : 1;
         }}>{cut}</button
       >
