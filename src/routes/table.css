@@ -12,12 +12,24 @@ th {
   @apply py-1 md:py-2 px-3;
 }
 
+.fullname {
+  @apply hidden md:inline;
+}
+
+.shortname {
+  @apply inline md:hidden;
+}
+
 .th-col {
   @apply h-10 md:h-15 py-1 px-0;
 }
 
 td {
   @apply h-10 md:h-15 overflow-hidden;
+}
+
+.cell-layout {
+  @apply flex flex-col md:flex-row-reverse justify-center items-center;
 }
 
 .btn-edit {

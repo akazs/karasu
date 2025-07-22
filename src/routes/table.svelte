@@ -1,7 +1,6 @@
 <script>
   import { structured_members, cuts, editMode } from '$lib/configs.svelte';
   import { saveSortedPhotosToLocalStorage } from '$lib/sortedphotos.svelte';
-  import { innerWidth } from 'svelte/reactivity/window';
 
   let { sortedPhotos } = $props();
 
@@ -39,46 +38,29 @@
       {#if generation.enabled}
         {#each generation.members as member (member.fullname)}
           <tr class="odd:bg-white even:bg-gray-100">
-            {#if innerWidth.current >= 768}
-              <th scope="row" class="th-row">{member.fullname}</th>
-            {:else}
-              <th scope="row" class="th-row">{member.shortname}</th>
-            {/if}
+            <th scope="row" class="th-row">
+              <span class="fullname">{member.fullname}</span>
+              <span class="shortname">{member.shortname}</span>
+            </th>
             <!-- eslint-disable-next-line -->
             {#each sortedPhotos.get(member.fullname) || [0, 0, 0, 0] as cut, i}
-              <td>
+              <td><div class="cell-layout">
                 {#if editMode.enabled}
-                  {#if innerWidth.current >= 768}
-                    <button
-                      class="btn-edit"
-                      aria-label="decrease"
-                      onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
-                    >
-                  {:else}
-                    <button
-                      class="btn-edit"
-                      aria-label="increase"
-                      onclick={increase(sortedPhotos, member.fullname, i)}>+</button
-                    >
-                  {/if}
+                  <button
+                    class="btn-edit"
+                    aria-label="increase"
+                    onclick={increase(sortedPhotos, member.fullname, i)}>+</button
+                  >
                 {/if}
                 {cut}
                 {#if editMode.enabled}
-                  {#if innerWidth.current >= 768}
-                    <button
-                      class="btn-edit"
-                      aria-label="increase"
-                      onclick={increase(sortedPhotos, member.fullname, i)}>+</button
-                    >
-                  {:else}
-                    <button
-                      class="btn-edit"
-                      aria-label="decrease"
-                      onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
-                    >
-                  {/if}
+                  <button
+                    class="btn-edit"
+                    aria-label="decrease"
+                    onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
+                  >
                 {/if}
-              </td>
+              </div></td>
             {/each}
           </tr>
         {/each}
