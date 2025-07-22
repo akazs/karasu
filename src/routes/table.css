@@ -13,23 +13,23 @@ th {
 }
 
 .fullname {
-  @apply hidden md:inline;
+  @apply hidden sm:inline;
 }
 
 .shortname {
-  @apply inline md:hidden;
+  @apply inline sm:hidden;
 }
 
 .th-col {
-  @apply h-10 md:h-15 py-1 px-0;
+  @apply h-10 sm:h-15 py-1 px-0;
 }
 
 td {
-  @apply h-10 md:h-15 overflow-hidden;
+  @apply h-10 sm:h-15 overflow-hidden;
 }
 
 .cell-layout {
-  @apply flex flex-col md:flex-row-reverse justify-center items-center;
+  @apply flex flex-col sm:flex-row-reverse justify-center items-center;
 }
 
 .btn-edit {
