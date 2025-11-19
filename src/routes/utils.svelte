@@ -1,6 +1,7 @@
 <script>
   import { structured_members, cuts, editMode } from '$lib/configs.svelte';
   import { clearSortedPhotos } from '$lib/sortedphotos.svelte';
+  import { simulate } from '$lib/simulate.svelte';
 
   let { sortedPhotos } = $props();
 
@@ -26,6 +27,17 @@
   }
 
   let CSVButtonText = $state('CSVをコピー');
+
+  let n_members = $state(
+    structured_members
+      .values()
+      .map((gen) => gen.members.length)
+      .reduce((a, b) => a + b)
+  );
+  let n_cuts = $state(4);
+  let n_onedraw = $state(5);
+  let n_packs = $state(10);
+  let simulate_result = $derived(simulate(n_packs, n_members, n_cuts, n_onedraw));
 </script>
 
 <div>
@@ -75,6 +87,28 @@
     <input type="checkbox" bind:checked={editMode.enabled} />
     編集モード（試験機能）
   </label>
+</div>
+
+<div class="my-3 ml-2">
+  <h2>シミュレーション（試験機能）</h2>
+  <input class="w-10 text-center border border-gray-300" type="text" bind:value={n_members} />名 ×
+  <input class="w-10 text-center border border-gray-300" type="text" bind:value={n_cuts} />カット
+  <input
+    class="w-10 text-center border border-gray-300"
+    type="text"
+    bind:value={n_onedraw}
+  />枚1セットの生写真を
+  <input
+    class="w-10 text-center border border-gray-300"
+    type="text"
+    bind:value={n_packs}
+  />パック買うと<br />
+  95%の確率で {simulate_result.comp_mean.toFixed(4)} ± {(simulate_result.comp_stderr * 2).toFixed(
+    4
+  )} コンプ、
+  {n_members * n_cuts} カット中 {simulate_result.coverage_mean.toFixed(4)}±{(
+    simulate_result.coverage_stderr * 2
+  ).toFixed(4)} カットが出ます
 </div>
 
 <style>
