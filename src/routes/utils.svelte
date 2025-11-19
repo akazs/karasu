@@ -37,11 +37,13 @@
       let CSV = sortedPhotosToCSV(sortedPhotos);
       navigator.clipboard
         .writeText(CSV)
-        .then(() => {})
+        .then(() => {
+          CSVButtonText = 'コピーしました';
+        })
         .catch((err) => {
           console.error(err);
+          CSVButtonText = 'コピー失敗';
         });
-      CSVButtonText = 'コピーしました';
     }}
     >{CSVButtonText}
   </button>
@@ -59,7 +61,7 @@
 <div>
   <button
     class="btn-red w-40 text-center"
-    aira-label="clear"
+    aria-label="clear"
     onclick={() => {
       if (confirm('データをクリアします。よろしいですか？')) {
         clearSortedPhotos(sortedPhotos);

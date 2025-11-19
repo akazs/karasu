@@ -35,5 +35,5 @@
 </div>
 
 <style>
-  @import './readme.css';
+  @import './instruction.css';
 </style>

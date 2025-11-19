@@ -3,7 +3,7 @@
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
-  import Readme from './readme.svelte';
+  import Instruction from './instruction.svelte';
 
   let sortedPhotos = loadSortedPhotosFromLocalStorageOrNew();
 
@@ -25,7 +25,7 @@
     },
     {
       name: 'ヘルプ',
-      component: Readme,
+      component: Instruction,
       props: {}
     }
   ];

@@ -6,8 +6,7 @@
     let sortedPhotos = new SvelteMap();
     structured_members.forEach((gen) => {
       gen.members.forEach((member) => {
-        let data = $state([0, 0, 0, 0]);
-        sortedPhotos.set(member.fullname, data);
+        sortedPhotos.set(member.fullname, [0, 0, 0, 0]);
       });
     });
     return sortedPhotos;
@@ -30,22 +29,25 @@
 
   function JSONToSortedPhotos(json) {
     let sortedPhotos = new SvelteMap();
-    const obj = JSON.parse(json);
-    if (obj === null) {
+    try {
+      const obj = JSON.parse(json);
+      if (obj === null) {
+        return newSortedPhotos();
+      }
+      structured_members.forEach((gen) => {
+        gen.members.forEach((member) => {
+          if (member.fullname in obj) {
+            sortedPhotos.set(member.fullname, obj[member.fullname]);
+          } else {
+            sortedPhotos.set(member.fullname, [0, 0, 0, 0]);
+          }
+        });
+      });
+      return sortedPhotos;
+    } catch (err) {
+      console.log('Error restoring data from localStorage:', err);
       return newSortedPhotos();
     }
-    structured_members.forEach((gen) => {
-      gen.members.forEach((member) => {
-        if (member.fullname in obj) {
-          let data = $state(obj[member.fullname]);
-          sortedPhotos.set(member.fullname, data);
-        } else {
-          let data = $state([0, 0, 0, 0]);
-          sortedPhotos.set(member.fullname, data);
-        }
-      });
-    });
-    return sortedPhotos;
   }
 
   export function saveSortedPhotosToLocalStorage(sortedPhotos) {
