@@ -91,26 +91,17 @@
 
 <div class="my-3 ml-2">
   <h2>シミュレーション（試験機能）</h2>
-  <input class="w-10 text-center border border-gray-300" type="text" bind:value={n_members} />名 ×
-  <input class="w-10 text-center border border-gray-300" type="text" bind:value={n_cuts} />カット
-  <input
-    class="w-10 text-center border border-gray-300"
-    type="text"
-    bind:value={n_onedraw}
-  />枚1セットの生写真を
-  <input
-    class="w-10 text-center border border-gray-300"
-    type="text"
-    bind:value={n_packs}
-  />パック買うと<br />
-  95%の確率で {simulate_result.comp_mean.toFixed(4)} ± {(simulate_result.comp_stderr * 2).toFixed(
-    4
-  )} コンプ、
-  {n_members * n_cuts} カット中 {simulate_result.coverage_mean.toFixed(4)}±{(
-    simulate_result.coverage_stderr * 2
-  ).toFixed(4)} カットが出ます
+  <input type="text" bind:value={n_members} />名 ×
+  <input type="text" bind:value={n_cuts} />カット ×
+  <input type="text" bind:value={n_onedraw} />枚 1 セットの生写真を
+  <input type="text" bind:value={n_packs} />パック買うと<br />
+  平均して 95% の確率で {simulate_result.comp_mean.toFixed(2)} ±
+  {(simulate_result.comp_stderr * 2).toFixed(2)} コンプ、
+  {n_members * n_cuts} カット中 {simulate_result.coverage_mean.toFixed(2)} ±
+  {(simulate_result.coverage_stderr * 2).toFixed(2)} カットが出ます
 </div>
 
 <style>
   @import './buttons.css';
+  @import './utils.css';
 </style>

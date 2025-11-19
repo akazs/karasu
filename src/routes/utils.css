@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+input[type='text'] {
+  @apply w-10 text-center mx-1 border border-gray-300 rounded-sm hover:bg-gray-100;
+}
