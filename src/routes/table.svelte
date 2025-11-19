@@ -44,23 +44,25 @@
             </th>
             <!-- eslint-disable-next-line -->
             {#each sortedPhotos.get(member.fullname) || [0, 0, 0, 0] as cut, i}
-              <td><div class="cell-layout">
-                {#if editMode.enabled}
-                  <button
-                    class="btn-edit"
-                    aria-label="increase"
-                    onclick={increase(sortedPhotos, member.fullname, i)}>+</button
-                  >
-                {/if}
-                {cut}
-                {#if editMode.enabled}
-                  <button
-                    class="btn-edit"
-                    aria-label="decrease"
-                    onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
-                  >
-                {/if}
-              </div></td>
+              <td
+                ><div class="cell-layout">
+                  {#if editMode.enabled}
+                    <button
+                      class="btn-edit"
+                      aria-label="increase"
+                      onclick={increase(sortedPhotos, member.fullname, i)}>+</button
+                    >
+                  {/if}
+                  {cut}
+                  {#if editMode.enabled}
+                    <button
+                      class="btn-edit"
+                      aria-label="decrease"
+                      onclick={decrease(sortedPhotos, member.fullname, i)}>-</button
+                    >
+                  {/if}
+                </div></td
+              >
             {/each}
           </tr>
         {/each}
