@@ -6,7 +6,8 @@
     let sortedPhotos = new SvelteMap();
     structured_members.forEach((gen) => {
       gen.members.forEach((member) => {
-        sortedPhotos.set(member.fullname, [0, 0, 0, 0]);
+        let data = $state([0, 0, 0, 0]);
+        sortedPhotos.set(member.fullname, data);
       });
     });
     return sortedPhotos;
@@ -37,9 +38,11 @@
       structured_members.forEach((gen) => {
         gen.members.forEach((member) => {
           if (member.fullname in obj) {
-            sortedPhotos.set(member.fullname, obj[member.fullname]);
+            let data = $state(obj[member.fullname]);
+            sortedPhotos.set(member.fullname, data);
           } else {
-            sortedPhotos.set(member.fullname, [0, 0, 0, 0]);
+            let data = $state([0, 0, 0, 0]);
+            sortedPhotos.set(member.fullname, data);
           }
         });
       });
