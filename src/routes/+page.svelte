@@ -1,5 +1,6 @@
 <script>
   import { loadSortedPhotosFromLocalStorageOrNew } from '$lib/sortedphotos.svelte';
+  import { groupState } from '$lib/configs.svelte';
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
@@ -31,11 +32,22 @@
   ];
   let activeTab = $state('集計');
   const handleClick = (tabName) => () => (activeTab = tabName);
+
+  // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
+  let primaryTheme = $state('sakurazaka');
+
+  $effect(() => {
+    const sakurazakaEnabled = groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled;
+    const result = sakurazakaEnabled
+      ? 'sakurazaka'
+      : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
+    primaryTheme = result;
+  });
 </script>
 
 <ul>
   {#each tabs as tab (tab.name)}
-    <li class={activeTab == tab.name ? 'active' : ''}>
+    <li class:active={activeTab == tab.name} class:active-sakurazaka={activeTab == tab.name && primaryTheme === 'sakurazaka'} class:active-hinatazaka={activeTab == tab.name && primaryTheme === 'hinatazaka'}>
       <button class="tab" onclick={handleClick(tab.name)}>{tab.name}</button>
     </li>
   {/each}

@@ -1,61 +1,59 @@
 <script>
-  import { structured_members, cuts, editMode } from '$lib/configs.svelte';
+  import { groupState, cuts, editMode } from '$lib/configs.svelte';
   import { clearSortedPhotos } from '$lib/sortedphotos.svelte';
   import { simulate } from '$lib/simulate.svelte';
+  import { photosToCSV } from '$lib/csv.js';
+  import { countEnabledMembers, setGroupEnabled, setGenerationEnabled, saveGroupStateToLocalStorage } from '$lib/group-state.js';
 
   let { sortedPhotos } = $props();
 
-  function sortedPhotosToCSV(sortedPhotos) {
-    let CSV = 'メンバー';
-    cuts.forEach((cut) => {
-      CSV += ',' + cut;
-    });
-    CSV += '\n';
-    structured_members
-      .filter((gen) => gen.enabled)
-      .forEach((gen) => {
-        gen.members.forEach((member) => {
-          CSV += member.fullname;
-          let counts = sortedPhotos.get(member.fullname) || [0, 0, 0, 0];
-          counts.forEach((count) => {
-            CSV += ',' + count;
-          });
-          CSV += '\n';
-        });
-      });
-    return CSV;
-  }
-
   let CSVButtonText = $state('CSVをコピー');
 
-  let n_members = $state(
-    structured_members
-      .values()
-      .map((gen) => gen.members.length)
-      .reduce((a, b) => a + b)
-  );
+  let n_members = $derived(countEnabledMembers(groupState));
   let n_cuts = $state(4);
   let n_onedraw = $state(5);
   let n_packs = $state(10);
   let simulate_result = $derived(
     simulate(Number(n_packs), Number(n_members), Number(n_cuts), Number(n_onedraw))
   );
+
+  // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
+  let primaryTheme = $state('sakurazaka');
+
+  $effect(() => {
+    const sakurazakaEnabled = groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled;
+    const result = sakurazakaEnabled
+      ? 'sakurazaka'
+      : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
+    primaryTheme = result;
+  });
+
+  function toggleGroupEnabled(groupId, enabled) {
+    const newState = setGroupEnabled(groupState, groupId, enabled);
+    groupState.groups = newState.groups;
+    saveGroupStateToLocalStorage(groupState);
+  }
+
+  function toggleGenerationEnabled(groupId, genName, enabled) {
+    const newState = setGenerationEnabled(groupState, groupId, genName, enabled);
+    groupState.groups = newState.groups;
+    saveGroupStateToLocalStorage(groupState);
+  }
 </script>
 
 <div>
   <button
     id="copy-csv"
-    class="btn-pink btn-pink-focus-active w-40 text-center"
+    class="{primaryTheme === 'sakurazaka' ? 'btn-pink btn-pink-focus-active' : 'btn-sky btn-sky-focus-active'} w-40 text-center"
     aria-label="CSV"
     onclick={() => {
-      let CSV = sortedPhotosToCSV(sortedPhotos);
+      let CSV = photosToCSV(sortedPhotos, groupState.groups, cuts);
       navigator.clipboard
         .writeText(CSV)
         .then(() => {
           CSVButtonText = 'コピーしました';
         })
-        .catch((err) => {
-          console.error(err);
+        .catch(() => {
           CSVButtonText = 'コピー失敗';
         });
     }}
@@ -63,12 +61,28 @@
   </button>
 </div>
 
-{#each structured_members as generation (generation.name)}
+{#each groupState.groups as group (group.id)}
   <div class="my-3 ml-2">
-    <label>
-      <input type="checkbox" bind:checked={generation.enabled} />
-      {generation.name}を含む
+    <label class="font-bold">
+      <input
+        type="checkbox"
+        checked={group.enabled}
+        onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
+      />
+      {group.name}を含む
     </label>
+    <div class="ml-6">
+      {#each group.generations as generation (generation.name)}
+        <label class="block">
+          <input
+            type="checkbox"
+            checked={generation.enabled}
+            onchange={(e) => toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
+          />
+          {generation.name}
+        </label>
+      {/each}
+    </div>
   </div>
 {/each}
 

@@ -12,6 +12,14 @@ button {
   @apply focus:outline-2 focus:outline-offset-2 focus:outline-pink-300 active:bg-pink-500;
 }
 
+.btn-sky {
+  @apply bg-sky-300 hover:bg-sky-400 border border-sky-400;
+}
+
+.btn-sky-focus-active {
+  @apply focus:outline-2 focus:outline-offset-2 focus:outline-sky-300 active:bg-sky-500;
+}
+
 .btn-indigo {
   @apply bg-indigo-200 hover:bg-indigo-300 border border-pink-300;
 }

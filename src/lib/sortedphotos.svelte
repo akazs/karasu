@@ -1,68 +1,47 @@
 <script module>
   import { SvelteMap } from 'svelte/reactivity';
-  import { structured_members, sortedPhotosKey } from './configs.svelte';
+  import { structured_groups } from './groups.js';
+  import { makeCompositeKey } from './groups.js';
+  import { buildEmptyPhotos, serializePhotos, deserializePhotos, STORAGE_KEY } from './storage.js';
 
   function newSortedPhotos() {
-    let sortedPhotos = new SvelteMap();
-    structured_members.forEach((gen) => {
-      gen.members.forEach((member) => {
-        let data = $state([0, 0, 0, 0]);
-        sortedPhotos.set(member.fullname, data);
-      });
-    });
+    const plain = buildEmptyPhotos(structured_groups);
+    const sortedPhotos = new SvelteMap();
+    for (const [key, value] of plain) {
+      let data = $state(value);
+      sortedPhotos.set(key, data);
+    }
     return sortedPhotos;
   }
 
   function sortedPhotosToJSON(sortedPhotos) {
-    let obj = {};
-    structured_members.forEach((gen) => {
-      gen.members.forEach((member) => {
-        if (sortedPhotos.has(member.fullname)) {
-          const counts = sortedPhotos.get(member.fullname);
-          if (!counts.every((v) => v == 0)) {
-            obj[member.fullname] = counts;
-          }
-        }
-      });
-    });
-    return JSON.stringify(obj);
+    return serializePhotos(sortedPhotos, structured_groups);
   }
 
   function JSONToSortedPhotos(json) {
-    let sortedPhotos = new SvelteMap();
     try {
-      const obj = JSON.parse(json);
-      if (obj === null) {
-        return newSortedPhotos();
+      const plain = deserializePhotos(json, structured_groups);
+      const sortedPhotos = new SvelteMap();
+      for (const [key, value] of plain) {
+        let data = $state(value);
+        sortedPhotos.set(key, data);
       }
-      structured_members.forEach((gen) => {
-        gen.members.forEach((member) => {
-          if (member.fullname in obj) {
-            let data = $state(obj[member.fullname]);
-            sortedPhotos.set(member.fullname, data);
-          } else {
-            let data = $state([0, 0, 0, 0]);
-            sortedPhotos.set(member.fullname, data);
-          }
-        });
-      });
       return sortedPhotos;
     } catch (err) {
-      console.log('Error restoring data from localStorage:', err);
       return newSortedPhotos();
     }
   }
 
   export function saveSortedPhotosToLocalStorage(sortedPhotos) {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(sortedPhotosKey, sortedPhotosToJSON(sortedPhotos));
+      localStorage.setItem(STORAGE_KEY, sortedPhotosToJSON(sortedPhotos));
     }
   }
 
   export function loadSortedPhotosFromLocalStorageOrNew() {
     let sortedPhotos;
     if (typeof localStorage !== 'undefined') {
-      const localStorageItem = localStorage.getItem(sortedPhotosKey);
+      const localStorageItem = localStorage.getItem(STORAGE_KEY);
       if (localStorageItem === null) {
         sortedPhotos = newSortedPhotos();
       } else {
@@ -75,12 +54,29 @@
   }
 
   export function clearSortedPhotos(sortedPhotos) {
-    sortedPhotos.forEach((_, member) => {
+    sortedPhotos.forEach((_, key) => {
       let data = $state([0, 0, 0, 0]);
-      sortedPhotos.set(member, data);
+      sortedPhotos.set(key, data);
     });
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(sortedPhotosKey);
+      localStorage.removeItem(STORAGE_KEY);
     }
+  }
+
+  /**
+   * Helper to get photo data by groupId and fullname.
+   * Falls back to [0,0,0,0] if not found.
+   */
+  export function getPhotoData(sortedPhotos, groupId, fullname) {
+    const key = makeCompositeKey(groupId, fullname);
+    return sortedPhotos.get(key) || [0, 0, 0, 0];
+  }
+
+  /**
+   * Helper to set photo data by groupId and fullname.
+   */
+  export function setPhotoData(sortedPhotos, groupId, fullname, data) {
+    const key = makeCompositeKey(groupId, fullname);
+    sortedPhotos.set(key, data);
   }
 </script>
