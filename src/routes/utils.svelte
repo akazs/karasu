@@ -37,7 +37,9 @@
   let n_cuts = $state(4);
   let n_onedraw = $state(5);
   let n_packs = $state(10);
-  let simulate_result = $derived(simulate(Number(n_packs), Number(n_members), Number(n_cuts), Number(n_onedraw)));
+  let simulate_result = $derived(
+    simulate(Number(n_packs), Number(n_members), Number(n_cuts), Number(n_onedraw))
+  );
 </script>
 
 <div>
