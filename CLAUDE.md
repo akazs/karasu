@@ -1,9 +1,9 @@
 # Project: karasu
 
 ## Quick Reference
-**Language**: JavaScript
-**Framework**: Svelte, Tailwind CSS
-**Package Manager**: npm
+- **Language**: JavaScript
+- **Framework**: Svelte, Tailwind CSS
+- **Package Manager**: npm
 
 ## Project Overview
 
