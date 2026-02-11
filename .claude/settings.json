@@ -2,13 +2,23 @@
   "permissions": {
     "defaultMode": "default",
     "allow": [
+      "Bash(npm run build)",
       "Bash(npm run lint)",
+      "Bash(npm run dev)",
+      "Bash(npm test)",
       "Bash(npx eslint:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx svelte-kit:*)",
+      "Bash(npx vite:*)",
+      "mcp__svelte__svelte-autofixer"
     ],
     "ask": [
       "Bash(npm install)",
       "Bash(npx:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "svelte"
+  ]
 }
