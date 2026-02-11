@@ -64,15 +64,18 @@ describe('storage', () => {
   });
 
   describe('serializePhotos', () => {
-    it('converts a Map to a JSON string with composite keys', () => {
+    it('converts a Map to nested JSON format', () => {
       const photos = new Map();
       photos.set('sakurazaka:井上 梨名', [1, 2, 3, 0]);
-      photos.set('sakurazaka:大園 玲', [0, 0, 0, 0]);
+      photos.set('hinatazaka:金村 美玖', [2, 1, 0, 0]);
 
       const json = serializePhotos(photos, structured_groups);
       const parsed = JSON.parse(json);
 
-      expect(parsed['sakurazaka:井上 梨名']).toEqual([1, 2, 3, 0]);
+      expect(parsed).toEqual({
+        sakurazaka: { '井上 梨名': [1, 2, 3, 0] },
+        hinatazaka: { '金村 美玖': [2, 1, 0, 0] }
+      });
     });
 
     it('omits entries that are all zeros', () => {
@@ -83,8 +86,20 @@ describe('storage', () => {
       const json = serializePhotos(photos, structured_groups);
       const parsed = JSON.parse(json);
 
-      expect(parsed['sakurazaka:井上 梨名']).toEqual([1, 0, 0, 0]);
-      expect(parsed['sakurazaka:大園 玲']).toBeUndefined();
+      expect(parsed.sakurazaka['井上 梨名']).toEqual([1, 0, 0, 0]);
+      expect(parsed.sakurazaka['大園 玲']).toBeUndefined();
+    });
+
+    it('omits groups with no non-zero entries', () => {
+      const photos = new Map();
+      photos.set('sakurazaka:井上 梨名', [1, 0, 0, 0]);
+      photos.set('hinatazaka:金村 美玖', [0, 0, 0, 0]);
+
+      const json = serializePhotos(photos, structured_groups);
+      const parsed = JSON.parse(json);
+
+      expect(parsed.sakurazaka).toBeDefined();
+      expect(parsed.hinatazaka).toBeUndefined();
     });
 
     it('returns empty object JSON when all zeros', () => {
@@ -95,12 +110,40 @@ describe('storage', () => {
   });
 
   describe('deserializePhotos', () => {
-    it('restores a Map from JSON', () => {
+    it('restores a Map from nested JSON format', () => {
       const input = JSON.stringify({
-        'sakurazaka:井上 梨名': [1, 2, 3, 0]
+        sakurazaka: { '井上 梨名': [1, 2, 3, 0] },
+        hinatazaka: { '金村 美玖': [2, 1, 0, 0] }
       });
       const photos = deserializePhotos(input, structured_groups);
       expect(photos.get('sakurazaka:井上 梨名')).toEqual([1, 2, 3, 0]);
+      expect(photos.get('hinatazaka:金村 美玖')).toEqual([2, 1, 0, 0]);
+    });
+
+    it('fills missing members with zeros in nested format', () => {
+      const input = JSON.stringify({
+        sakurazaka: { '井上 梨名': [1, 0, 0, 0] }
+      });
+      const photos = deserializePhotos(input, structured_groups);
+
+      let totalMembers = 0;
+      for (const group of structured_groups) {
+        for (const gen of group.generations) {
+          totalMembers += gen.members.length;
+        }
+      }
+      expect(photos.size).toBe(totalMembers);
+      expect(photos.get('sakurazaka:井上 梨名')).toEqual([1, 0, 0, 0]);
+      expect(photos.get('sakurazaka:大園 玲')).toEqual([0, 0, 0, 0]);
+    });
+
+    it('handles missing groups in nested format', () => {
+      const input = JSON.stringify({
+        sakurazaka: { '井上 梨名': [1, 0, 0, 0] }
+      });
+      const photos = deserializePhotos(input, structured_groups);
+      // Hinatazaka members should be filled with zeros
+      expect(photos.get('hinatazaka:金村 美玖')).toEqual([0, 0, 0, 0]);
     });
 
     it('fills missing members with zeros', () => {
@@ -142,16 +185,15 @@ describe('storage', () => {
       });
       const photos = deserializePhotos(legacy, structured_groups);
       expect(photos.get('sakurazaka:井上 梨名')).toEqual([5, 3, 1, 0]);
-      // The old key should not exist
       expect(photos.has('井上 梨名')).toBe(false);
     });
 
-    it('handles composite keys correctly (no double migration)', () => {
-      const modern = JSON.stringify({
+    it('migrates flat composite format to nested format', () => {
+      const flat = JSON.stringify({
         'sakurazaka:井上 梨名': [5, 3, 1, 0],
         'hinatazaka:金村 美玖': [2, 1, 0, 0]
       });
-      const photos = deserializePhotos(modern, structured_groups);
+      const photos = deserializePhotos(flat, structured_groups);
       expect(photos.get('sakurazaka:井上 梨名')).toEqual([5, 3, 1, 0]);
       expect(photos.get('hinatazaka:金村 美玖')).toEqual([2, 1, 0, 0]);
     });

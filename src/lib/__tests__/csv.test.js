@@ -9,7 +9,7 @@ describe('csv', () => {
       const photos = buildEmptyPhotos(structured_groups);
       const csv = photosToCSV(photos, structured_groups, CUTS);
       const lines = csv.split('\n');
-      expect(lines[0]).toBe('グループ,メンバー,ヨリ,チュウ,ヒキ,座り');
+      expect(lines[0]).toBe('メンバー,ヨリ,チュウ,ヒキ,座り');
     });
 
     it('includes all enabled members across all groups', () => {
@@ -31,7 +31,7 @@ describe('csv', () => {
       photos.set('sakurazaka:井上 梨名', [1, 2, 3, 4]);
       const csv = photosToCSV(photos, structured_groups, CUTS);
       const inoue_line = csv.split('\n').find((l) => l.includes('井上 梨名'));
-      expect(inoue_line).toBe('櫻坂46,井上 梨名,1,2,3,4');
+      expect(inoue_line).toBe('井上 梨名,1,2,3,4');
     });
 
     it('respects group enabled flag', () => {
@@ -43,8 +43,10 @@ describe('csv', () => {
           : g
       );
       const csv = photosToCSV(photos, groups, CUTS);
-      expect(csv).not.toContain('日向坂46');
-      expect(csv).toContain('櫻坂46');
+      // Hinatazaka member should not appear
+      expect(csv).not.toContain('金村 美玖');
+      // But sakurazaka member should
+      expect(csv).toContain('井上 梨名');
     });
 
     it('respects generation enabled flag', () => {
