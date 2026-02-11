@@ -65,7 +65,7 @@ const hinataGenerations = [
     members: [
       { fullname: '金村 美玖', shortname: '金村' },
       { fullname: '小坂 菜緒', shortname: '小坂' },
-      { fullname: '松田 好花', shortname: '松田' },
+      { fullname: '松田 好花', shortname: '松田' }
     ],
     enabled: true
   },

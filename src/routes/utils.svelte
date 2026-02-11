@@ -3,7 +3,12 @@
   import { clearSortedPhotos } from '$lib/sortedphotos.svelte';
   import { simulate } from '$lib/simulate.svelte';
   import { photosToCSV } from '$lib/csv.js';
-  import { countEnabledMembers, setGroupEnabled, setGenerationEnabled, saveGroupStateToLocalStorage } from '$lib/group-state.js';
+  import {
+    countEnabledMembers,
+    setGroupEnabled,
+    setGenerationEnabled,
+    saveGroupStateToLocalStorage
+  } from '$lib/group-state.js';
 
   let { sortedPhotos } = $props();
 
@@ -44,7 +49,9 @@
 <div>
   <button
     id="copy-csv"
-    class="{primaryTheme === 'sakurazaka' ? 'btn-pink btn-pink-focus-active' : 'btn-sky btn-sky-focus-active'} w-40 text-center"
+    class="{primaryTheme === 'sakurazaka'
+      ? 'btn-pink btn-pink-focus-active'
+      : 'btn-sky btn-sky-focus-active'} w-40 text-center"
     aria-label="CSV"
     onclick={() => {
       let CSV = photosToCSV(sortedPhotos, groupState.groups, cuts);

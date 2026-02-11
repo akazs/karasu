@@ -26,13 +26,9 @@
   });
 
   // Determine enabled generations for the selected group
-  let selectedGroupData = $derived(
-    groupState.groups.find((g) => g.id === selectedGroupId)
-  );
+  let selectedGroupData = $derived(groupState.groups.find((g) => g.id === selectedGroupId));
   let enabledGenerations = $derived(
-    selectedGroupData
-      ? selectedGroupData.generations.filter((g) => g.enabled)
-      : []
+    selectedGroupData ? selectedGroupData.generations.filter((g) => g.enabled) : []
   );
   let oneGenerationMode = $derived(enabledGenerations.length === 1);
 
@@ -131,17 +127,19 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
     {#each cuts as cut, i (cut)}
       <button
-        class={primaryTheme === 'sakurazaka' ? 'btn-pink btn-pink-focus-active' : 'btn-sky btn-sky-focus-active'}
+        class={primaryTheme === 'sakurazaka'
+          ? 'btn-pink btn-pink-focus-active'
+          : 'btn-sky btn-sky-focus-active'}
         aria-label={cut}
         onclick={() => {
           let data = getPhotoData(sortedPhotos, selectedGroupId, selectedMember);
-          const updated = data.map((v, idx) => idx === i ? v + 1 : v);
+          const updated = data.map((v, idx) => (idx === i ? v + 1 : v));
           setPhotoData(sortedPhotos, selectedGroupId, selectedMember, updated);
           saveSortedPhotosToLocalStorage(sortedPhotos);
           let stepsBack = 1;
           if (oneGenerationMode) stepsBack += 1;
           if (oneGroupMode) stepsBack += 1;
-          currentState += (4 - stepsBack);
+          currentState += 4 - stepsBack;
         }}>{cut}</button
       >
     {/each}

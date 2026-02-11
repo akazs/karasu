@@ -47,7 +47,11 @@
 
 <ul>
   {#each tabs as tab (tab.name)}
-    <li class:active={activeTab == tab.name} class:active-sakurazaka={activeTab == tab.name && primaryTheme === 'sakurazaka'} class:active-hinatazaka={activeTab == tab.name && primaryTheme === 'hinatazaka'}>
+    <li
+      class:active={activeTab == tab.name}
+      class:active-sakurazaka={activeTab == tab.name && primaryTheme === 'sakurazaka'}
+      class:active-hinatazaka={activeTab == tab.name && primaryTheme === 'hinatazaka'}
+    >
       <button class="tab" onclick={handleClick(tab.name)}>{tab.name}</button>
     </li>
   {/each}

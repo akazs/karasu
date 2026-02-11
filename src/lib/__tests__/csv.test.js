@@ -38,9 +38,7 @@ describe('csv', () => {
       const photos = buildEmptyPhotos(structured_groups);
       // Create groups config with hinatazaka disabled
       const groups = structured_groups.map((g) =>
-        g.id === 'hinatazaka'
-          ? { ...g, enabled: false }
-          : g
+        g.id === 'hinatazaka' ? { ...g, enabled: false } : g
       );
       const csv = photosToCSV(photos, groups, CUTS);
       // Hinatazaka member should not appear
@@ -81,7 +79,10 @@ describe('csv', () => {
       const photos = new Map();
       const csv = photosToCSV(photos, structured_groups, CUTS);
       // All members should have 0,0,0,0
-      const dataLines = csv.split('\n').filter((l) => l.length > 0).slice(1);
+      const dataLines = csv
+        .split('\n')
+        .filter((l) => l.length > 0)
+        .slice(1);
       for (const line of dataLines) {
         expect(line).toMatch(/,0,0,0,0$/);
       }

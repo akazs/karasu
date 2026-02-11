@@ -27,7 +27,7 @@
         sortedPhotos.set(key, data);
       }
       return sortedPhotos;
-    } catch (err) {
+    } catch {
       return newSortedPhotos();
     }
   }

@@ -1,6 +1,7 @@
 # Project: karasu
 
 ## Quick Reference
+
 - **Language**: JavaScript
 - **Framework**: Svelte, Tailwind CSS
 - **Package Manager**: npm
@@ -13,7 +14,7 @@ Users can edit the table by toggling on an "edit" option, or by using a generati
 
 It also provides tools such as photo draw simulator that let users estimate how many they'll get if they buy a specific amount.
 
- ## Data Structure
+## Data Structure
 
 - **Groups**: sakurazaka (櫻坂46), hinatazaka (日向坂46)
 - **Storage**: Composite keys format `groupId:fullname`

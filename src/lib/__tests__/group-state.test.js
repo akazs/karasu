@@ -7,8 +7,7 @@ import {
   getActiveGroupId,
   setActiveGroupId,
   countEnabledMembers,
-  saveGroupStateToLocalStorage,
-  loadGroupStateFromLocalStorage
+  saveGroupStateToLocalStorage
 } from '../group-state.js';
 import { structured_groups } from '../groups.js';
 

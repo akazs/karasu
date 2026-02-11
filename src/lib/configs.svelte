@@ -9,9 +9,7 @@
   // Backward-compatible: returns generations for the active group.
   // Exported as a function since $derived cannot be exported from module scripts.
   export function getActiveGenerations() {
-    const activeGroup = groupState.groups.find(
-      (g) => g.id === groupState.activeGroupId
-    );
+    const activeGroup = groupState.groups.find((g) => g.id === groupState.activeGroupId);
     return activeGroup ? activeGroup.generations : [];
   }
 

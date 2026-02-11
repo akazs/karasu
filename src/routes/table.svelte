@@ -20,30 +20,15 @@
     }
   });
 
-  let activeGroupData = $derived(
-    groupState.groups.find((g) => g.id === activeTableGroup)
-  );
+  let activeGroupData = $derived(groupState.groups.find((g) => g.id === activeTableGroup));
 
   let enabledGenerations = $derived(
-    activeGroupData
-      ? activeGroupData.generations.filter((g) => g.enabled)
-      : []
+    activeGroupData ? activeGroupData.generations.filter((g) => g.enabled) : []
   );
-
-  // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
-  let primaryTheme = $state('sakurazaka');
-
-  $effect(() => {
-    const sakurazakaEnabled = groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled;
-    const result = sakurazakaEnabled
-      ? 'sakurazaka'
-      : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
-    primaryTheme = result;
-  });
 
   const increase = (groupId, memberName, cut) => () => {
     let data = getPhotoData(sortedPhotos, groupId, memberName);
-    const updated = data.map((v, idx) => idx === cut ? v + 1 : v);
+    const updated = data.map((v, idx) => (idx === cut ? v + 1 : v));
     setPhotoData(sortedPhotos, groupId, memberName, updated);
     saveSortedPhotosToLocalStorage(sortedPhotos);
   };
@@ -53,7 +38,7 @@
     if (data[cut] < 1) {
       return;
     }
-    const updated = data.map((v, idx) => idx === cut ? v - 1 : v);
+    const updated = data.map((v, idx) => (idx === cut ? v - 1 : v));
     setPhotoData(sortedPhotos, groupId, memberName, updated);
     saveSortedPhotosToLocalStorage(sortedPhotos);
   };
@@ -67,8 +52,10 @@
         class:active={activeTableGroup === group.id}
         class:tab-sakurazaka={group.id === 'sakurazaka'}
         class:tab-hinatazaka={group.id === 'hinatazaka'}
-        onclick={() => { activeTableGroup = group.id; }}
-      >{group.name}</button>
+        onclick={() => {
+          activeTableGroup = group.id;
+        }}>{group.name}</button
+      >
     {/each}
   </div>
 {/if}
