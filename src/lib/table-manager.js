@@ -9,6 +9,7 @@ const LEGACY_PHOTOS_KEY = 'sortedPhotos20250716';
 const LEGACY_GROUP_STATE_KEY = 'karasu-group-state';
 
 export const MAX_TABLES = 10;
+export const MAX_TABLE_NAME_LENGTH = 30;
 
 /**
  * Generate a unique table ID using crypto.randomUUID()
@@ -23,8 +24,13 @@ export function generateTableId() {
  * @param {string} name - Table name
  * @param {string[]} groupIds - Array of group IDs to enable (e.g., ['sakurazaka', 'hinatazaka'])
  * @returns {object} New table object
+ * @throws {Error} If name exceeds MAX_TABLE_NAME_LENGTH
  */
 export function createNewTable(name, groupIds = []) {
+  if (name.length > MAX_TABLE_NAME_LENGTH) {
+    throw new Error(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
+  }
+
   const now = new Date().toISOString();
   const photoData = {};
   const groupSettings = {};
@@ -94,8 +100,13 @@ export function setActiveTable(tables, id) {
  * @param {string} id - Table ID to rename
  * @param {string} newName - New table name
  * @returns {object} New tables state
+ * @throws {Error} If newName exceeds MAX_TABLE_NAME_LENGTH
  */
 export function renameTable(tables, id, newName) {
+  if (newName.length > MAX_TABLE_NAME_LENGTH) {
+    throw new Error(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
+  }
+
   const tableIndex = tables.tables.findIndex(t => t.id === id);
   if (tableIndex === -1) {
     return tables;

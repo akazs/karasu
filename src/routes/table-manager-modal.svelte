@@ -14,6 +14,7 @@
 
   let tables = $derived($tablesStore.tables);
   let activeTableId = $derived($tablesStore.activeTableId);
+  let canCreateNew = $derived(canCreate());
 
   // State for rename dialog
   let renamingTableId = $state(null);
@@ -29,9 +30,13 @@
 
   function confirmRename() {
     if (newTableName.trim() && renamingTableId) {
-      renameTableById(renamingTableId, newTableName.trim());
-      renamingTableId = null;
-      newTableName = '';
+      try {
+        renameTableById(renamingTableId, newTableName.trim());
+        renamingTableId = null;
+        newTableName = '';
+      } catch (error) {
+        alert(error.message);
+      }
     }
   }
 
@@ -151,7 +156,7 @@
 
     <div class="mb-4 text-sm text-gray-600">
       {tables.length}/10 テーブル
-      {#if !canCreate()}
+      {#if !canCreateNew}
         <span class="text-red-600">（最大数に達しました）</span>
       {/if}
     </div>
@@ -172,6 +177,7 @@
                     bind:value={newTableName}
                     class="flex-1 px-3 py-1 border rounded"
                     placeholder="テーブル名"
+                    maxlength="30"
                     onkeydown={(e) => {
                       if (e.key === 'Enter') confirmRename();
                       if (e.key === 'Escape') cancelRename();
@@ -194,7 +200,7 @@
                 </div>
               {:else}
                 <!-- Table Name -->
-                <div class="font-semibold text-lg mb-1 truncate">
+                <div class="font-semibold text-lg mb-1 truncate" title={table.name}>
                   {table.name}
                   {#if table.id === activeTableId}
                     <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded ml-2">
@@ -225,7 +231,7 @@
                   onclick={() => handleDuplicate(table.id)}
                   class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
                   title="複製"
-                  disabled={!canCreate()}
+                  disabled={!canCreateNew}
                 >
                   📋 複製
                 </button>

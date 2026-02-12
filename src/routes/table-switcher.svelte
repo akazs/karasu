@@ -26,9 +26,18 @@
       return;
     }
 
-    const tableName = prompt('テーブル名を入力してください:', '新しいテーブル');
+    const tableName = prompt('テーブル名を入力してください (最大30文字):', '新しいテーブル');
     if (tableName && tableName.trim()) {
-      createTable(tableName.trim(), ['sakurazaka', 'hinatazaka']);
+      const trimmedName = tableName.trim();
+      if (trimmedName.length > 30) {
+        alert('テーブル名は30文字以内で入力してください。');
+        return;
+      }
+      try {
+        createTable(trimmedName, ['sakurazaka', 'hinatazaka']);
+      } catch (error) {
+        alert(error.message);
+      }
     }
   }
 
@@ -62,9 +71,10 @@
       value={activeTableId}
       onchange={handleSwitchTable}
       class="px-3 py-2 border rounded"
+      title={tables.find(t => t.id === activeTableId)?.name || ''}
     >
       {#each tables as table (table.id)}
-        <option value={table.id}>{table.name}</option>
+        <option value={table.id} title={table.name}>{table.name}</option>
       {/each}
     </select>
 

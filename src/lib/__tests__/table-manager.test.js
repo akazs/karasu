@@ -17,7 +17,8 @@ import {
   duplicateTable,
   migrateFromLegacyStorage,
   generateTableId,
-  MAX_TABLES
+  MAX_TABLES,
+  MAX_TABLE_NAME_LENGTH
 } from '../table-manager.js';
 
 // Mock localStorage
@@ -89,6 +90,20 @@ describe('table-manager', () => {
 
       expect(table.photoData).toEqual({});
       expect(table.groupSettings).toEqual({});
+    });
+
+    it('should throw error if table name exceeds MAX_TABLE_NAME_LENGTH', () => {
+      const longName = 'a'.repeat(MAX_TABLE_NAME_LENGTH + 1);
+
+      expect(() => createNewTable(longName, ['sakurazaka']))
+        .toThrow(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
+    });
+
+    it('should accept table name at MAX_TABLE_NAME_LENGTH', () => {
+      const maxLengthName = 'a'.repeat(MAX_TABLE_NAME_LENGTH);
+
+      const table = createNewTable(maxLengthName, ['sakurazaka']);
+      expect(table.name).toBe(maxLengthName);
     });
   });
 
@@ -250,6 +265,34 @@ describe('table-manager', () => {
       const updated = renameTable(original, 'non-existent', 'New Name');
 
       expect(updated).toBe(original);
+    });
+
+    it('should throw error if new name exceeds MAX_TABLE_NAME_LENGTH', () => {
+      const original = {
+        version: 1,
+        tables: [{ id: 'uuid-1', name: 'Old Name', lastModified: '2026-01-01' }],
+        activeTableId: 'uuid-1',
+        maxTables: MAX_TABLES
+      };
+
+      const longName = 'a'.repeat(MAX_TABLE_NAME_LENGTH + 1);
+
+      expect(() => renameTable(original, 'uuid-1', longName))
+        .toThrow(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
+    });
+
+    it('should accept new name at MAX_TABLE_NAME_LENGTH', () => {
+      const original = {
+        version: 1,
+        tables: [{ id: 'uuid-1', name: 'Old Name', lastModified: '2026-01-01' }],
+        activeTableId: 'uuid-1',
+        maxTables: MAX_TABLES
+      };
+
+      const maxLengthName = 'a'.repeat(MAX_TABLE_NAME_LENGTH);
+      const updated = renameTable(original, 'uuid-1', maxLengthName);
+
+      expect(updated.tables[0].name).toBe(maxLengthName);
     });
   });
 
