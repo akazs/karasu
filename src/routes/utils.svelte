@@ -1,16 +1,15 @@
 <script>
-  import { groupState, cuts, editMode } from '$lib/configs.svelte';
-  import { clearSortedPhotos } from '$lib/sortedphotos.svelte';
+  import { cuts, editMode } from '$lib/configs.svelte';
+  import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
   import { simulate } from '$lib/simulate.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import {
     countEnabledMembers,
     setGroupEnabled,
-    setGenerationEnabled,
-    saveGroupStateToLocalStorage
+    setGenerationEnabled
   } from '$lib/group-state.js';
 
-  let { sortedPhotos } = $props();
+  let { sortedPhotos, groupState } = $props();
 
   let CSVButtonText = $state('CSVをコピー');
 
@@ -36,13 +35,13 @@
   function toggleGroupEnabled(groupId, enabled) {
     const newState = setGroupEnabled(groupState, groupId, enabled);
     groupState.groups = newState.groups;
-    saveGroupStateToLocalStorage(groupState);
+    // No need to save - parent component auto-saves via $effect
   }
 
   function toggleGenerationEnabled(groupId, genName, enabled) {
     const newState = setGenerationEnabled(groupState, groupId, genName, enabled);
     groupState.groups = newState.groups;
-    saveGroupStateToLocalStorage(groupState);
+    // No need to save - parent component auto-saves via $effect
   }
 </script>
 
