@@ -48,37 +48,53 @@
 
   let groupState = $state(initializeGroupState());
 
+  // Track if we're currently loading to prevent save during load
+  let isLoading = $state(false);
+  let currentTableId = $state($activeTableStore?.id);
+
   // Reload sortedPhotos and groupState when active table changes
   $effect(() => {
     const tableId = $activeTableStore?.id;
-    if (tableId) {
+    if (tableId && tableId !== currentTableId) {
+      isLoading = true;
+      currentTableId = tableId;
+
       // Reload sortedPhotos from the new active table
       sortedPhotos = loadSortedPhotosFromActiveTable();
       // Reload groupState from the new active table
       groupState = initializeGroupState();
+
+      // Use setTimeout to defer setting isLoading to false
+      setTimeout(() => {
+        isLoading = false;
+      }, 0);
     }
   });
 
-  // Auto-save sortedPhotos when it changes
+  // Auto-save sortedPhotos when it changes (but not during loading)
   $effect(() => {
     // Touch sortedPhotos to establish reactivity
     const size = sortedPhotos.size;
-    saveSortedPhotosToActiveTable(sortedPhotos);
+    if (!isLoading) {
+      saveSortedPhotosToActiveTable(sortedPhotos);
+    }
   });
 
-  // Auto-save groupState when it changes
+  // Auto-save groupState when it changes (but not during loading)
   $effect(() => {
-    const savedSettings = {};
-    for (const group of groupState.groups) {
-      savedSettings[group.id] = {
-        enabled: group.enabled,
-        generations: {}
-      };
-      for (const gen of group.generations) {
-        savedSettings[group.id].generations[gen.name] = gen.enabled;
+    if (!isLoading) {
+      const savedSettings = {};
+      for (const group of groupState.groups) {
+        savedSettings[group.id] = {
+          enabled: group.enabled,
+          generations: {}
+        };
+        for (const gen of group.generations) {
+          savedSettings[group.id].generations[gen.name] = gen.enabled;
+        }
       }
+      updateActiveTableGroupSettings(savedSettings);
     }
-    updateActiveTableGroupSettings(savedSettings);
   });
 
   let tabs = $derived([
