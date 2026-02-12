@@ -5,6 +5,7 @@
     createTable,
     canCreate
   } from '$lib/table-state.js';
+  import TableManagerModal from './table-manager-modal.svelte';
 
   // Subscribe to tables store using $ prefix
   let tables = $derived($tablesStore.tables);
@@ -26,8 +27,8 @@
     }
 
     const tableName = prompt('テーブル名を入力してください:', '新しいテーブル');
-    if (tableName) {
-      createTable(tableName, ['sakurazaka', 'hinatazaka']);
+    if (tableName && tableName.trim()) {
+      createTable(tableName.trim(), ['sakurazaka', 'hinatazaka']);
     }
   }
 
@@ -76,35 +77,7 @@
 </div>
 
 {#if showManageModal}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    onclick={closeManageModal}
-    role="button"
-    tabindex="-1"
-  >
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-      class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
-      onclick={(e) => e.stopPropagation()}
-      role="dialog"
-      aria-labelledby="manage-modal-title"
-      tabindex="0"
-    >
-      <h2 id="manage-modal-title" class="text-xl font-bold mb-4">テーブル管理</h2>
-      <p class="text-gray-600 mb-4">
-        テーブル管理機能は次のフェーズで実装予定です。
-      </p>
-      <button
-        onclick={closeManageModal}
-        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-      >
-        閉じる
-      </button>
-    </div>
-  </div>
+  <TableManagerModal onClose={closeManageModal} />
 {/if}
 
 <style>
