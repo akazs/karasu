@@ -26,7 +26,7 @@ function loadAndInitializeTables() {
     const now = new Date().toISOString();
     const emptyTable = {
       id: 'default',
-      name: '既存データ',
+      name: 'デフォルト',
       createdAt: now,
       lastModified: now,
       photoData: {},

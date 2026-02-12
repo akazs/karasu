@@ -250,7 +250,7 @@ export function migrateFromLegacyStorage() {
   const now = new Date().toISOString();
   const firstTable = {
     id: generateTableId(),
-    name: '既存データ',
+    name: 'デフォルト',
     createdAt: now,
     lastModified: now,
     photoData,

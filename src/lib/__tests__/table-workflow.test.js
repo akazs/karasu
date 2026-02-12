@@ -51,7 +51,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
 
       let state = migrateFromLegacyStorage();
       expect(state.tables).toHaveLength(1);
-      expect(state.tables[0].name).toBe('既存データ');
+      expect(state.tables[0].name).toBe('デフォルト');
       expect(state.tables[0].photoData.sakurazaka['井上 梨名']).toEqual([1, 2, 0, 0]);
 
       // 2. Create second table
@@ -373,7 +373,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
       const migrated = migrateFromLegacyStorage();
 
       expect(migrated.tables).toHaveLength(1);
-      expect(migrated.tables[0].name).toBe('既存データ');
+      expect(migrated.tables[0].name).toBe('デフォルト');
       expect(migrated.tables[0].photoData).toEqual({});
       expect(migrated.tables[0].groupSettings).toEqual({});
     });

@@ -423,7 +423,7 @@ describe('table-manager', () => {
 
       expect(tables.version).toBe(1);
       expect(tables.tables).toHaveLength(1);
-      expect(tables.tables[0].name).toBe('既存データ');
+      expect(tables.tables[0].name).toBe('デフォルト');
       expect(tables.tables[0].photoData).toEqual({
         sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
       });
@@ -438,7 +438,7 @@ describe('table-manager', () => {
 
       expect(tables.version).toBe(1);
       expect(tables.tables).toHaveLength(1);
-      expect(tables.tables[0].name).toBe('既存データ');
+      expect(tables.tables[0].name).toBe('デフォルト');
       expect(tables.tables[0].photoData).toEqual({});
       expect(tables.tables[0].groupSettings).toEqual({});
     });
