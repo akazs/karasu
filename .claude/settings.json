@@ -5,7 +5,7 @@
       "Bash(npm run build)",
       "Bash(npm run lint)",
       "Bash(npm run dev)",
-      "Bash(npm test)",
+      "Bash(npm test:*)",
       "Bash(npx eslint:*)",
       "Bash(npx prettier:*)",
       "Bash(npx vitest:*)",
