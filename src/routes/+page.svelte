@@ -10,11 +10,21 @@
   } from '$lib/table-sortedphotos.svelte';
   import { createGroupState } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
+  import { debounce } from '$lib/debounce.js';
   import TableSwitcher from './table-switcher.svelte';
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
   import Instruction from './instruction.svelte';
+
+  // Debounced save functions for better performance
+  const debouncedSavePhotos = debounce((photos) => {
+    saveSortedPhotosToActiveTable(photos);
+  }, 500);
+
+  const debouncedSaveGroupSettings = debounce((settings) => {
+    updateActiveTableGroupSettings(settings);
+  }, 500);
 
   // Subscribe to active table store
   let activeTable = $derived($activeTableStore);
@@ -71,16 +81,16 @@
     }
   });
 
-  // Auto-save sortedPhotos when it changes (but not during loading)
+  // Auto-save sortedPhotos when it changes (debounced, but not during loading)
   $effect(() => {
     // Touch sortedPhotos to establish reactivity
     const size = sortedPhotos.size;
     if (!isLoading) {
-      saveSortedPhotosToActiveTable(sortedPhotos);
+      debouncedSavePhotos(sortedPhotos);
     }
   });
 
-  // Auto-save groupState when it changes (but not during loading)
+  // Auto-save groupState when it changes (debounced, but not during loading)
   $effect(() => {
     if (!isLoading) {
       const savedSettings = {};
@@ -93,7 +103,7 @@
           savedSettings[group.id].generations[gen.name] = gen.enabled;
         }
       }
-      updateActiveTableGroupSettings(savedSettings);
+      debouncedSaveGroupSettings(savedSettings);
     }
   });
 

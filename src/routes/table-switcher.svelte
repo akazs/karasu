@@ -39,7 +39,22 @@
   function closeManageModal() {
     showManageModal = false;
   }
+
+  // Keyboard shortcuts
+  function handleKeydown(event) {
+    // Cmd/Ctrl + K to toggle manage modal
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      event.preventDefault();
+      showManageModal = !showManageModal;
+    }
+    // Escape to close modal
+    if (event.key === 'Escape' && showManageModal) {
+      closeManageModal();
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="table-switcher">
   <div class="flex items-center gap-2">
@@ -64,10 +79,11 @@
 
     <button
       onclick={openManageModal}
-      class="px-3 py-2 border rounded hover:bg-gray-100"
-      title="テーブル管理"
+      class="px-3 py-2 border rounded hover:bg-gray-100 flex items-center gap-1"
+      title="テーブル管理 (Ctrl+K)"
     >
       ⚙️
+      <span class="text-xs text-gray-500 hidden md:inline">Ctrl+K</span>
     </button>
 
     <span class="text-sm text-gray-600">
