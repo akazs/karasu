@@ -14,7 +14,7 @@
 
   let tables = $derived($tablesStore.tables);
   let activeTableId = $derived($tablesStore.activeTableId);
-  let canCreateNew = $derived(canCreate());
+  let canCreateNew = $derived($tablesStore.tables.length < 10);
 
   // State for rename dialog
   let renamingTableId = $state(null);

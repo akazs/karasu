@@ -159,7 +159,7 @@ export function deleteTable(tables, id) {
 
 /**
  * Duplicate a table (immutable).
- * Creates a copy with new ID and "(Copy)" suffix.
+ * Keeps the same name as the original (users can rename afterward).
  * Sets the duplicated table as active.
  * @param {object} tables - Tables state object
  * @param {string} id - Table ID to duplicate
@@ -181,7 +181,7 @@ export function duplicateTable(tables, id) {
 
   const duplicate = {
     id: generateTableId(),
-    name: `${original.name} (Copy)`,
+    name: original.name,
     createdAt: now,
     lastModified: now,
     photoData: JSON.parse(JSON.stringify(original.photoData)),

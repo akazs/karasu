@@ -359,7 +359,7 @@ describe('table-manager', () => {
   });
 
   describe('duplicateTable', () => {
-    it('should duplicate table with new id and "(Copy)" suffix', () => {
+    it('should duplicate table with same name', () => {
       const original = {
         version: 1,
         tables: [
@@ -379,11 +379,37 @@ describe('table-manager', () => {
       const updated = duplicateTable(original, 'uuid-1');
 
       expect(updated.tables).toHaveLength(2);
-      expect(updated.tables[1].name).toBe('Original (Copy)');
+      expect(updated.tables[1].name).toBe('Original');
       expect(updated.tables[1].id).not.toBe('uuid-1');
       expect(updated.tables[1].photoData).toEqual(original.tables[0].photoData);
       expect(updated.tables[1].photoData).not.toBe(original.tables[0].photoData); // Deep copy
       expect(updated.activeTableId).toBe(updated.tables[1].id); // Switched to new table
+    });
+
+    it('should allow multiple tables with the same name', () => {
+      const original = {
+        version: 1,
+        tables: [
+          {
+            id: 'uuid-1',
+            name: 'My Table',
+            photoData: {},
+            groupSettings: {}
+          }
+        ],
+        activeTableId: 'uuid-1',
+        maxTables: MAX_TABLES
+      };
+
+      const updated1 = duplicateTable(original, 'uuid-1');
+      const updated2 = duplicateTable(updated1, 'uuid-1');
+
+      expect(updated2.tables).toHaveLength(3);
+      expect(updated2.tables[0].name).toBe('My Table');
+      expect(updated2.tables[1].name).toBe('My Table');
+      expect(updated2.tables[2].name).toBe('My Table');
+      // But all have unique IDs
+      expect(new Set(updated2.tables.map(t => t.id)).size).toBe(3);
     });
 
     it('should prevent duplicating when at MAX_TABLES', () => {
