@@ -1,15 +1,14 @@
 <script>
   import {
-    getTablesState,
+    tablesStore,
     switchTable,
     createTable,
     canCreate
-  } from '$lib/table-state.svelte';
+  } from '$lib/table-state.js';
 
-  // Get reactive access to tables state
-  let tablesState = $derived(getTablesState());
-  let tables = $derived(tablesState.tables);
-  let activeTableId = $derived(tablesState.activeTableId);
+  // Subscribe to tables store using $ prefix
+  let tables = $derived($tablesStore.tables);
+  let activeTableId = $derived($tablesStore.activeTableId);
   let canCreateNew = $derived(canCreate());
 
   // Modal state

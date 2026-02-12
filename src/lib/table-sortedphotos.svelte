@@ -2,7 +2,7 @@
   import { SvelteMap } from 'svelte/reactivity';
   import { structured_groups } from './groups.js';
   import { makeCompositeKey } from './groups.js';
-  import { getActiveTableData, updateActiveTablePhotoData } from './table-state.svelte';
+  import { getActiveTableData, updateActiveTablePhotoData } from './table-state.js';
 
   /**
    * Convert nested photoData to SvelteMap with composite keys.

@@ -1,9 +1,9 @@
 <script>
   import {
-    getTablesState,
-    getActiveTableData,
+    tablesStore,
+    activeTableStore,
     updateActiveTableGroupSettings
-  } from '$lib/table-state.svelte';
+  } from '$lib/table-state.js';
   import {
     loadSortedPhotosFromActiveTable,
     saveSortedPhotosToActiveTable
@@ -19,8 +19,8 @@
   // Load sortedPhotos from active table
   let sortedPhotos = loadSortedPhotosFromActiveTable();
 
-  // Get active table
-  let activeTable = $derived(getActiveTableData());
+  // Subscribe to active table store
+  let activeTable = $derived($activeTableStore);
 
   // Initialize groupState from active table's groupSettings
   // This is mutable so child components can modify it
