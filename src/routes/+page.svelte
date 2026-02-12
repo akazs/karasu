@@ -10,6 +10,7 @@
   } from '$lib/table-sortedphotos.svelte';
   import { createGroupState } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
+  import TableSwitcher from './table-switcher.svelte';
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
@@ -108,6 +109,8 @@
     primaryTheme = result;
   });
 </script>
+
+<TableSwitcher />
 
 <ul>
   {#each tabs as tab (tab.name)}
