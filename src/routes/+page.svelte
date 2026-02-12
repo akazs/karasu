@@ -16,14 +16,12 @@
   import Utils from './utils.svelte';
   import Instruction from './instruction.svelte';
 
-  // Load sortedPhotos from active table
-  let sortedPhotos = loadSortedPhotosFromActiveTable();
-
   // Subscribe to active table store
   let activeTable = $derived($activeTableStore);
 
-  // Initialize groupState from active table's groupSettings
-  // This is mutable so child components can modify it
+  // Initialize sortedPhotos and groupState from active table
+  let sortedPhotos = $state(loadSortedPhotosFromActiveTable());
+
   function initializeGroupState() {
     const baseState = createGroupState(structured_groups);
     const savedSettings = activeTable?.groupSettings || {};
@@ -49,6 +47,17 @@
   }
 
   let groupState = $state(initializeGroupState());
+
+  // Reload sortedPhotos and groupState when active table changes
+  $effect(() => {
+    const tableId = $activeTableStore?.id;
+    if (tableId) {
+      // Reload sortedPhotos from the new active table
+      sortedPhotos = loadSortedPhotosFromActiveTable();
+      // Reload groupState from the new active table
+      groupState = initializeGroupState();
+    }
+  });
 
   // Auto-save sortedPhotos when it changes
   $effect(() => {
