@@ -205,6 +205,29 @@ export function saveTablesToLocalStorage(tables) {
 }
 
 /**
+ * Clear all data from localStorage except language setting.
+ * Removes tables, legacy photos, and legacy group state.
+ */
+export function clearAllData() {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+
+  // Save language setting before clearing
+  const locale = localStorage.getItem('karasu-locale');
+
+  // Clear all karasu-related data
+  localStorage.removeItem(TABLES_STORAGE_KEY);
+  localStorage.removeItem(LEGACY_PHOTOS_KEY);
+  localStorage.removeItem(LEGACY_GROUP_STATE_KEY);
+
+  // Restore language setting
+  if (locale) {
+    localStorage.setItem('karasu-locale', locale);
+  }
+}
+
+/**
  * Load tables from localStorage.
  * @returns {object|null} Tables state object or null if not found
  */

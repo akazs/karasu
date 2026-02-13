@@ -11,6 +11,7 @@
     deleteTableById,
     duplicateTableById
   } from '$lib/table-state.js';
+  import { clearAllData } from '$lib/table-manager.js';
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import { structured_groups } from '$lib/groups.js';
@@ -386,15 +387,25 @@
   <!-- Data Management Section -->
   <section class="mb-6">
     <h2 class="text-lg font-bold mb-3">{t('management.dataManagement')}</h2>
-    <div>
+    <div class="flex flex-col gap-3">
       <button
-        class="btn-red w-40 text-center"
-        aria-label="clear"
+        class="btn-red text-center"
+        aria-label="clear current table"
         onclick={() => {
-          if (confirm(t('alerts.confirmClearData'))) {
+          if (confirm(t('alerts.confirmClearCurrentTable'))) {
             clearSortedPhotos(sortedPhotos);
           }
-        }}>{t('management.clearData')}</button
+        }}>{t('management.clearCurrentTable')}</button
+      >
+      <button
+        class="btn-red text-center"
+        aria-label="clear all data"
+        onclick={() => {
+          if (confirm(t('alerts.confirmClearAllData'))) {
+            clearAllData();
+            window.location.reload();
+          }
+        }}>{t('management.clearAllData')}</button
       >
     </div>
   </section>
