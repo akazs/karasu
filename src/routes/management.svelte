@@ -197,7 +197,25 @@
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300'}"
         >
-          <div class="flex items-center justify-between gap-3">
+          <div class="flex items-start gap-2">
+            <!-- Status Badge / Use Button (Top-Left) -->
+            {#if renamingTableId !== table.id}
+              {#if table.id === activeTableId}
+                <span class="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded flex-shrink-0">
+                  使用中
+                </span>
+              {:else}
+                <button
+                  onclick={() => handleSwitchTable(table.id)}
+                  class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+                  title="このテーブルに切り替え"
+                >
+                  使用
+                </button>
+              {/if}
+            {/if}
+
+            <!-- Table Info (Middle) -->
             <div class="flex-1 min-w-0">
               {#if renamingTableId === table.id}
                 <!-- Rename Input -->
@@ -232,11 +250,6 @@
                 <!-- Table Name -->
                 <div class="font-medium text-sm mb-0.5 truncate" title={table.name}>
                   {table.name}
-                  {#if table.id === activeTableId}
-                    <span class="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded ml-1.5">
-                      使用中
-                    </span>
-                  {/if}
                 </div>
                 <!-- Table Metadata -->
                 <div class="text-xs text-gray-500">
@@ -245,18 +258,9 @@
               {/if}
             </div>
 
-            <!-- Action Buttons -->
+            <!-- Action Buttons (Right) -->
             {#if renamingTableId !== table.id}
               <div class="flex flex-col md:flex-row gap-1 flex-shrink-0">
-                {#if table.id !== activeTableId}
-                  <button
-                    onclick={() => handleSwitchTable(table.id)}
-                    class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                    title="このテーブルに切り替え"
-                  >
-                    使用
-                  </button>
-                {/if}
                 <button
                   onclick={() => startRename(table)}
                   class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
