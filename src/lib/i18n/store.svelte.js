@@ -33,35 +33,29 @@ function initializeLocale() {
 }
 
 /**
- * Internal locale state (private)
+ * Reactive i18n state using Svelte 5 runes
  */
-let _locale = $state(initializeLocale());
+class I18nState {
+  locale = $state(initializeLocale());
 
-/**
- * Gets the current locale value
- * @returns {'ja-JP' | 'zh-TW'} The current locale
- */
-export function locale() {
-  return _locale;
-}
-
-/**
- * Sets the current locale and persists to localStorage.
- * @param {string} newLocale - The locale to set ('ja-JP' or 'zh-TW')
- */
-export function setLocale(newLocale) {
-  if (!SUPPORTED_LOCALES.includes(newLocale)) {
-    console.warn(`Unsupported locale: ${newLocale}`);
-    return;
+  get translations() {
+    return TRANSLATIONS[this.locale] || TRANSLATIONS['ja-JP'];
   }
-  _locale = newLocale;
-  saveLocaleToStorage(newLocale);
+
+  setLocale(newLocale) {
+    if (!SUPPORTED_LOCALES.includes(newLocale)) {
+      console.warn(`Unsupported locale: ${newLocale}`);
+      return;
+    }
+    this.locale = newLocale;
+    saveLocaleToStorage(newLocale);
+  }
 }
 
 /**
- * Current translations object (derived from locale) - internal use only
+ * Singleton i18n store instance
  */
-const translations = $derived(TRANSLATIONS[_locale] || TRANSLATIONS['ja-JP']);
+export const i18n = new I18nState();
 
 /**
  * Translation function with interpolation support.
@@ -74,7 +68,7 @@ const translations = $derived(TRANSLATIONS[_locale] || TRANSLATIONS['ja-JP']);
  * t('alerts.csvCopied', { name: 'Table 1' }) // => '「Table 1」のCSVをクリップボードにコピーしました'
  */
 export function t(key, params = {}) {
-  const value = getNestedValue(translations, key);
+  const value = getNestedValue(i18n.translations, key);
   if (value === undefined) {
     console.warn(`Missing translation key: ${key}`);
     return key;

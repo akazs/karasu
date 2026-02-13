@@ -1,6 +1,6 @@
 <script>
   import { editMode } from '$lib/configs.svelte';
-  import { locale, setLocale, t } from '$lib/i18n/store.svelte.js';
+  import { i18n, t } from '$lib/i18n/store.svelte.js';
   import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
   import { setGroupEnabled, setGenerationEnabled } from '$lib/group-state.js';
   import {
@@ -365,8 +365,8 @@
           type="radio"
           name="language"
           value="ja-JP"
-          checked={locale() === 'ja-JP'}
-          onchange={() => setLocale('ja-JP')}
+          checked={i18n.locale === 'ja-JP'}
+          onchange={() => i18n.setLocale('ja-JP')}
         />
         <span class="ml-1">{t('management.languageJa')}</span>
       </label>
@@ -375,8 +375,8 @@
           type="radio"
           name="language"
           value="zh-TW"
-          checked={locale() === 'zh-TW'}
-          onchange={() => setLocale('zh-TW')}
+          checked={i18n.locale === 'zh-TW'}
+          onchange={() => i18n.setLocale('zh-TW')}
         />
         <span class="ml-1">{t('management.languageZh')}</span>
       </label>
