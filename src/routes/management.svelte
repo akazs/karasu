@@ -178,12 +178,12 @@
           : 'opacity-50 cursor-not-allowed bg-gray-200'}"
         title={canCreateNew ? '新しいテーブルを作成' : '最大10個のテーブルに達しました'}
       >
-        + 新規テーブル
+        + <span class="hidden md:inline">新規テーブル</span>
       </button>
     </div>
 
     <div class="mb-4 text-sm text-gray-600">
-      {tables.length}/10 テーブル
+      {tables.length}/10 <span class="hidden md:inline">テーブル</span>
       {#if !canCreateNew}
         <span class="text-red-600">（最大数に達しました）</span>
       {/if}
@@ -201,16 +201,18 @@
             <!-- Status Badge / Use Button (Top-Left) -->
             {#if renamingTableId !== table.id}
               {#if table.id === activeTableId}
-                <span class="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded flex-shrink-0">
+                <span
+                  class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
+                >
                   使用中
                 </span>
               {:else}
                 <button
                   onclick={() => handleSwitchTable(table.id)}
-                  class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+                  class="px-1.5 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
                   title="このテーブルに切り替え"
                 >
-                  使用
+                  切替
                 </button>
               {/if}
             {/if}
@@ -263,14 +265,14 @@
               <div class="flex flex-col md:flex-row gap-1 flex-shrink-0">
                 <button
                   onclick={() => startRename(table)}
-                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
                   title="名前変更"
                 >
                   編集
                 </button>
                 <button
                   onclick={() => handleDuplicate(table.id)}
-                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
                   title="複製"
                   disabled={!canCreateNew}
                 >
@@ -278,14 +280,14 @@
                 </button>
                 <button
                   onclick={() => handleExport(table)}
-                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
                   title="CSVエクスポート"
                 >
                   CSV
                 </button>
                 <button
                   onclick={() => startDelete(table.id)}
-                  class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                  class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 md:w-16"
                   title="削除"
                   disabled={tables.length === 1}
                 >
