@@ -1,8 +1,11 @@
 <script module>
-  import { CUTS, STORAGE_KEY } from './storage.js';
+  import { STORAGE_KEY } from './storage.js';
+  import { t } from './i18n/store.svelte.js';
 
   // Global constants
-  export const cuts = CUTS;
+  export function cuts() {
+    return [t('app.cuts.yori'), t('app.cuts.chu'), t('app.cuts.hiki'), t('app.cuts.suwari')];
+  }
   export const sortedPhotosKey = STORAGE_KEY;
 
   // Global edit mode state (not table-specific)

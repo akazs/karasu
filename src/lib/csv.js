@@ -8,14 +8,15 @@ import { makeCompositeKey } from './groups.js';
 /**
  * Convert photo data to CSV string.
  * Respects group.enabled and generation.enabled flags.
- * Format: メンバー,ヨリ,チュウ,ヒキ,座り
+ * Format: メンバー,ヨリ,チュウ,ヒキ,座り (or translated equivalents)
  * @param {Map<string, number[]>} photos
  * @param {Array} groups - Group config array with enabled flags
  * @param {string[]} cuts - Cut type labels
+ * @param {string} memberHeader - Translated "member" header (default: 'メンバー')
  * @returns {string}
  */
-export function photosToCSV(photos, groups, cuts) {
-  const header = 'メンバー,' + cuts.join(',');
+export function photosToCSV(photos, groups, cuts, memberHeader = 'メンバー') {
+  const header = memberHeader + ',' + cuts.join(',');
   const lines = [header];
 
   for (const group of groups) {

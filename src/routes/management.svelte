@@ -1,5 +1,6 @@
 <script>
   import { editMode } from '$lib/configs.svelte';
+  import { i18n, t } from '$lib/i18n/store.svelte.js';
   import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
   import { setGroupEnabled, setGenerationEnabled } from '$lib/group-state.js';
   import {
@@ -40,17 +41,15 @@
 
   function handleCreateNew() {
     if (!canCreateNew) {
-      alert(
-        '最大10個のテーブルに達しました。新しいテーブルを作成するには、既存のテーブルを削除してください。'
-      );
+      alert(t('alerts.maxTables'));
       return;
     }
 
-    const tableName = prompt('テーブル名を入力してください (最大30文字):', '新しいテーブル');
+    const tableName = prompt(t('alerts.enterTableName'), t('alerts.defaultTableName'));
     if (tableName && tableName.trim()) {
       const trimmedName = tableName.trim();
       if (trimmedName.length > 30) {
-        alert('テーブル名は30文字以内で入力してください。');
+        alert(t('alerts.tableNameTooLong'));
         return;
       }
       try {
@@ -142,14 +141,14 @@
       };
     });
 
-    const csv = photosToCSV(photoMap, groups, cuts);
+    const csv = photosToCSV(photoMap, groups, cuts(), t('table.member'));
     navigator.clipboard
       .writeText(csv)
       .then(() => {
-        alert(`「${table.name}」のCSVをクリップボードにコピーしました`);
+        alert(t('alerts.csvCopied', { name: table.name }));
       })
       .catch(() => {
-        alert('CSVのコピーに失敗しました');
+        alert(t('alerts.csvFailed'));
       });
   }
 
@@ -179,23 +178,23 @@
   <!-- Table Management Section -->
   <section class="mb-6">
     <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-bold">テーブル管理</h2>
+      <h2 class="text-lg font-bold">{t('management.title')}</h2>
       <button
         onclick={handleCreateNew}
         disabled={!canCreateNew}
         class="px-3 py-2 border rounded {canCreateNew
           ? 'bg-blue-500 text-white hover:bg-blue-600'
           : 'opacity-50 cursor-not-allowed bg-gray-200'}"
-        title={canCreateNew ? '新しいテーブルを作成' : '最大10個のテーブルに達しました'}
+        title={canCreateNew ? t('management.newTable') : t('alerts.maxTables')}
       >
-        + <span class="hidden md:inline">新規テーブル</span>
+        + <span class="hidden md:inline">{t('management.newTableShort')}</span>
       </button>
     </div>
 
     <div class="mb-4 text-sm text-gray-600">
-      {tables.length}/10 <span class="hidden md:inline">テーブル</span>
+      {tables.length}/10 <span class="hidden md:inline">{t('management.tableCount')}</span>
       {#if !canCreateNew}
-        <span class="text-red-600">（最大数に達しました）</span>
+        <span class="text-red-600">{t('management.maxReached')}</span>
       {/if}
     </div>
 
@@ -219,15 +218,15 @@
                 <span
                   class="text-xs {badgeColor} text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
                 >
-                  使用中
+                  {t('management.inUse')}
                 </span>
               {:else}
                 <button
                   onclick={() => handleSwitchTable(table.id)}
                   class="px-1.5 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
-                  title="このテーブルに切り替え"
+                  title={t('management.switchTooltip')}
                 >
-                  切替
+                  {t('management.switchButton')}
                 </button>
               {/if}
             {/if}
@@ -241,7 +240,7 @@
                     type="text"
                     bind:value={newTableName}
                     class="flex-1 px-2 py-1 text-sm border rounded"
-                    placeholder="テーブル名"
+                    placeholder={t('management.tableName')}
                     maxlength="30"
                     onkeydown={(e) => {
                       if (e.key === 'Enter') confirmRename();
@@ -254,13 +253,13 @@
                     class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
                     disabled={!newTableName.trim()}
                   >
-                    保存
+                    {t('management.save')}
                   </button>
                   <button
                     onclick={cancelRename}
                     class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
                   >
-                    キャンセル
+                    {t('management.cancel')}
                   </button>
                 </div>
               {:else}
@@ -270,7 +269,7 @@
                 </div>
                 <!-- Table Metadata -->
                 <div class="text-xs text-gray-500">
-                  更新: {formatDate(table.lastModified)}
+                  {t('management.updated')}: {formatDate(table.lastModified)}
                 </div>
               {/if}
             </div>
@@ -281,32 +280,32 @@
                 <button
                   onclick={() => startRename(table)}
                   class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
-                  title="名前変更"
+                  title={t('management.renameTooltip')}
                 >
-                  編集
+                  {t('management.editButton')}
                 </button>
                 <button
                   onclick={() => handleDuplicate(table.id)}
                   class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
-                  title="複製"
+                  title={t('management.duplicateTooltip')}
                   disabled={!canCreateNew}
                 >
-                  コピー
+                  {t('management.copyButton')}
                 </button>
                 <button
                   onclick={() => handleExport(table)}
                   class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
-                  title="CSVエクスポート"
+                  title={t('management.csvTooltip')}
                 >
-                  CSV
+                  {t('management.csvButton')}
                 </button>
                 <button
                   onclick={() => startDelete(table.id)}
                   class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 md:w-16"
-                  title="削除"
+                  title={t('management.deleteTooltip')}
                   disabled={tables.length === 1}
                 >
-                  削除
+                  {t('management.deleteButton')}
                 </button>
               </div>
             {/if}
@@ -318,7 +317,7 @@
 
   <!-- Group Selection Section -->
   <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">グループ選択</h2>
+    <h2 class="text-lg font-bold mb-3">{t('management.groupSelection')}</h2>
     {#each groupState.groups as group (group.id)}
       <div class="my-3 ml-2">
         <label class="font-bold">
@@ -327,7 +326,7 @@
             checked={group.enabled}
             onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
           />
-          {group.name}を含む
+          {group.name}
         </label>
         <div class="ml-6">
           {#each group.generations as generation (generation.name)}
@@ -348,27 +347,54 @@
 
   <!-- Edit Mode Section -->
   <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">編集モード</h2>
+    <h2 class="text-lg font-bold mb-3">{t('management.editMode')}</h2>
     <div class="ml-2">
       <label>
         <input type="checkbox" bind:checked={editMode.enabled} />
-        編集モード
+        {t('management.editModeLabel')}
+      </label>
+    </div>
+  </section>
+
+  <!-- Language Settings Section -->
+  <section class="mb-6">
+    <h2 class="text-lg font-bold mb-3">{t('management.language')}</h2>
+    <div class="ml-2 flex gap-3">
+      <label class="cursor-pointer">
+        <input
+          type="radio"
+          name="language"
+          value="ja-JP"
+          checked={i18n.locale === 'ja-JP'}
+          onchange={() => i18n.setLocale('ja-JP')}
+        />
+        <span class="ml-1">{t('management.languageJa')}</span>
+      </label>
+      <label class="cursor-pointer">
+        <input
+          type="radio"
+          name="language"
+          value="zh-TW"
+          checked={i18n.locale === 'zh-TW'}
+          onchange={() => i18n.setLocale('zh-TW')}
+        />
+        <span class="ml-1">{t('management.languageZh')}</span>
       </label>
     </div>
   </section>
 
   <!-- Data Management Section -->
   <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">データ管理</h2>
+    <h2 class="text-lg font-bold mb-3">{t('management.dataManagement')}</h2>
     <div>
       <button
         class="btn-red w-40 text-center"
         aria-label="clear"
         onclick={() => {
-          if (confirm('データをクリアします。よろしいですか？')) {
+          if (confirm(t('alerts.confirmClearData'))) {
             clearSortedPhotos(sortedPhotos);
           }
-        }}>データをクリア</button
+        }}>{t('management.clearData')}</button
       >
     </div>
   </section>
@@ -390,22 +416,26 @@
       aria-labelledby="delete-title"
       tabindex="0"
     >
-      <h3 id="delete-title" class="text-lg font-bold mb-4 text-red-700">⚠️ 削除の確認</h3>
+      <h3 id="delete-title" class="text-lg font-bold mb-4 text-red-700">
+        {t('management.deleteConfirmTitle')}
+      </h3>
       <p class="mb-4">
-        テーブル「<strong>{deletingTable?.name}</strong>」を削除してもよろしいですか？
+        {t('alerts.confirmDeleteTablePrefix')}<strong>{deletingTable?.name}</strong>{t(
+          'alerts.confirmDeleteTableSuffix'
+        )}
       </p>
       <p class="text-sm text-gray-600 mb-6">
-        この操作は取り消せません。すべての写真カウントとグループ設定が失われます。
+        {t('alerts.deleteWarning')}
       </p>
       <div class="flex gap-3 justify-end">
         <button onclick={cancelDelete} class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-          キャンセル
+          {t('management.cancel')}
         </button>
         <button
           onclick={confirmDelete}
           class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
-          削除する
+          {t('alerts.confirmDelete')}
         </button>
       </div>
     </div>

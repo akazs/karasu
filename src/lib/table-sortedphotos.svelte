@@ -117,5 +117,7 @@
   export function setPhotoData(sortedPhotos, groupId, fullname, data) {
     const key = makeCompositeKey(groupId, fullname);
     sortedPhotos.set(key, data);
+    // Manually trigger save since SvelteMap value updates don't trigger size changes
+    saveSortedPhotosToActiveTable(sortedPhotos);
   }
 </script>

@@ -1,0 +1,101 @@
+{
+  "app": {
+    "tabs": {
+      "management": "管理",
+      "sorter": "集計",
+      "results": "結果",
+      "utils": "その他",
+      "help": "ヘルプ"
+    },
+    "cuts": {
+      "yori": "ヨリ",
+      "chu": "チュウ",
+      "hiki": "ヒキ",
+      "suwari": "座り"
+    }
+  },
+  "management": {
+    "title": "テーブル管理",
+    "newTable": "新しいテーブルを作成",
+    "newTableShort": "新規テーブル",
+    "tableCount": "テーブル",
+    "maxReached": "（最大数に達しました）",
+    "inUse": "使用中",
+    "switchButton": "切替",
+    "switchTooltip": "このテーブルに切り替え",
+    "tableName": "テーブル名",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "updated": "更新",
+    "editButton": "編集",
+    "renameTooltip": "名前変更",
+    "copyButton": "コピー",
+    "duplicateTooltip": "コピーを作成",
+    "csvButton": "CSV",
+    "csvTooltip": "CSV エクスポート",
+    "deleteButton": "削除",
+    "deleteTooltip": "削除",
+    "groupSelection": "グループ選択",
+    "editMode": "編集モード",
+    "editModeLabel": "編集モード",
+    "dataManagement": "データ管理",
+    "clearData": "データをクリア",
+    "deleteConfirmTitle": "⚠️ 削除の確認",
+    "language": "言語設定",
+    "languageJa": "日本語",
+    "languageZh": "繁體中文"
+  },
+  "table": {
+    "member": "メンバー"
+  },
+  "sorter": {
+    "back": "戻る"
+  },
+  "utils": {
+    "simulation": "シミュレーション",
+    "labelPeople": "メンバー数",
+    "labelCuts": "カット数",
+    "labelSheetsPerPack": "パックあたりの枚数",
+    "labelPacksToBuy": "購入パック数",
+    "resultText": "平均して 95% の確率で {compMean} ± {compStderr} コンプ、{totalCuts} カット中 {coverageMean} ± {coverageStderr} カットが出ます"
+  },
+  "instruction": {
+    "warningTitle": "注意事項",
+    "warningText1": "このツールは開発中です。予告なく仕様が変更されることがあります。",
+    "warningText2": "不具合や仕様変更による損害は一切責任を負いかねます。ご了承の上ご利用ください。",
+    "warningText3": "ツールの提供に必要な IP アドレス、アクセス環境などの情報を除き、個人情報の収集は一切ございません。",
+    "warningText4": "入力データはすべて利用者の端末にのみ存在します。",
+    "usageTitle": "使い方",
+    "managementTabTitle": "管理タブ",
+    "tableManagementTitle": "テーブル管理",
+    "tableManagementDesc": "テーブルの作成、コピー、CSV エクスポートなどが行えます。切替ボタンを押すことでテーブル間切り替えられます。",
+    "groupSelectionTitle": "グループ選択",
+    "groupSelectionDesc": "グループ、期生の ON / OFF を切り替えます。この設定はテーブルごとに保持されます。メンバーが変動した際可能な限り早めにアップデートしますが、保証は致しかねます。",
+    "editModeTitle": "編集モード",
+    "editModeDesc": "ON にするとテーブル上に + と - が表示され、テーブルに直接編集を加えます。",
+    "dataManagementTitle": "データ管理",
+    "dataManagementDesc": "全ての保存データをクリアします。復元することは一切できませんのでご注意ください。",
+    "sorterTabTitle": "集計タブ",
+    "sorterTabDesc1": "グループ→期別→メンバー→カットの順で生写真の種類を選んでください。",
+    "sorterTabDesc2": "選択する必要がない場合はスキップされます。",
+    "resultsTabTitle": "結果タブ",
+    "resultsTabDesc1": "現時点の集計結果を一覧することができます。",
+    "resultsTabDesc2": "スクリーンショットして利用することは可能ですが、管理タブの CSV エクスポート機能を活用してスプレッドシートなどで利用することをおすすめします。",
+    "utilsTabTitle": "その他タブ",
+    "utilsTabDesc1": "生写真のコンプ数などをシミュレートできます。",
+    "utilsTabDesc2": "ローカルで計算するため、デバイスの計算資源を利用することになります。"
+  },
+  "alerts": {
+    "maxTables": "最大10個のテーブルに達しました。新しいテーブルを作成するには、既存のテーブルを削除してください。",
+    "enterTableName": "テーブル名を入力してください (最大30文字):",
+    "defaultTableName": "新しいテーブル",
+    "tableNameTooLong": "テーブル名は 30 文字以内で入力してください。",
+    "csvCopied": "「{name}」の CSV をクリップボードにコピーしました",
+    "csvFailed": "CSV のコピーに失敗しました",
+    "confirmClearData": "データをクリアします。よろしいですか？",
+    "confirmDeleteTablePrefix": "テーブル「",
+    "confirmDeleteTableSuffix": "」を削除してもよろしいですか？",
+    "deleteWarning": "この操作は取り消せません。すべての生写真カウントとグループ設定が失われます。",
+    "confirmDelete": "削除する"
+  }
+}

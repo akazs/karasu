@@ -1,4 +1,5 @@
 <script>
+  import { t } from '$lib/i18n/store.svelte.js';
   import { activeTableStore, updateActiveTableGroupSettings } from '$lib/table-state.js';
   import {
     loadSortedPhotosFromActiveTable,
@@ -105,34 +106,39 @@
 
   let tabs = $derived([
     {
-      name: '管理',
+      id: 'management',
+      name: t('app.tabs.management'),
       component: Management,
       props: { sortedPhotos, groupState }
     },
     {
-      name: '集計',
+      id: 'sorter',
+      name: t('app.tabs.sorter'),
       component: Sorter,
       props: { sortedPhotos, groupState }
     },
     {
-      name: '結果',
+      id: 'results',
+      name: t('app.tabs.results'),
       component: Table,
       props: { sortedPhotos, groupState }
     },
     {
-      name: 'その他',
+      id: 'utils',
+      name: t('app.tabs.utils'),
       component: Utils,
       props: { groupState }
     },
     {
-      name: 'ヘルプ',
+      id: 'help',
+      name: t('app.tabs.help'),
       component: Instruction,
       props: {}
     }
   ]);
 
-  let activeTab = $state('管理');
-  const handleClick = (tabName) => () => (activeTab = tabName);
+  let activeTab = $state('management');
+  const handleClick = (tabId) => () => (activeTab = tabId);
 
   // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
   let primaryTheme = $state('sakurazaka');
@@ -147,19 +153,19 @@
 </script>
 
 <ul>
-  {#each tabs as tab (tab.name)}
+  {#each tabs as tab (tab.id)}
     <li
-      class:active={activeTab == tab.name}
-      class:active-sakurazaka={activeTab == tab.name && primaryTheme === 'sakurazaka'}
-      class:active-hinatazaka={activeTab == tab.name && primaryTheme === 'hinatazaka'}
+      class:active={activeTab == tab.id}
+      class:active-sakurazaka={activeTab == tab.id && primaryTheme === 'sakurazaka'}
+      class:active-hinatazaka={activeTab == tab.id && primaryTheme === 'hinatazaka'}
     >
-      <button class="tab" onclick={handleClick(tab.name)}>{tab.name}</button>
+      <button class="tab" onclick={handleClick(tab.id)}>{tab.name}</button>
     </li>
   {/each}
 </ul>
 
-{#each tabs as tab (tab.name)}
-  {#if activeTab == tab.name}
+{#each tabs as tab (tab.id)}
+  {#if activeTab == tab.id}
     {@const Component = tab.component}
     <div class="box p-4 md:p-9">
       <Component {...tab.props} />
