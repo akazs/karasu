@@ -1,6 +1,5 @@
 <script>
   import {
-    tablesStore,
     activeTableStore,
     updateActiveTableGroupSettings
   } from '$lib/table-state.js';
@@ -11,7 +10,7 @@
   import { createGroupState } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
   import { debounce } from '$lib/debounce.js';
-  import TableSwitcher from './table-switcher.svelte';
+  import Management from './management.svelte';
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
@@ -84,7 +83,7 @@
   // Auto-save sortedPhotos when it changes (debounced, but not during loading)
   $effect(() => {
     // Touch sortedPhotos to establish reactivity
-    const size = sortedPhotos.size;
+    sortedPhotos.size;
     if (!isLoading) {
       debouncedSavePhotos(sortedPhotos);
     }
@@ -109,6 +108,11 @@
 
   let tabs = $derived([
     {
+      name: '管理',
+      component: Management,
+      props: { sortedPhotos, groupState }
+    },
+    {
       name: '集計',
       component: Sorter,
       props: { sortedPhotos, groupState }
@@ -130,7 +134,7 @@
     }
   ]);
 
-  let activeTab = $state('集計');
+  let activeTab = $state('管理');
   const handleClick = (tabName) => () => (activeTab = tabName);
 
   // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
@@ -144,8 +148,6 @@
     primaryTheme = result;
   });
 </script>
-
-<TableSwitcher />
 
 <ul>
   {#each tabs as tab (tab.name)}

@@ -1,17 +1,25 @@
 <script>
+  import { editMode } from '$lib/configs.svelte';
+  import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
+  import {
+    setGroupEnabled,
+    setGenerationEnabled
+  } from '$lib/group-state.js';
   import {
     tablesStore,
+    switchTable,
+    createTable,
     renameTableById,
     deleteTableById,
-    duplicateTableById,
-    canCreate
+    duplicateTableById
   } from '$lib/table-state.js';
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import { structured_groups } from '$lib/groups.js';
 
-  let { onClose } = $props();
+  let { sortedPhotos, groupState } = $props();
 
+  // Table management state
   let tables = $derived($tablesStore.tables);
   let activeTableId = $derived($tablesStore.activeTableId);
   let canCreateNew = $derived($tablesStore.tables.length < 10);
@@ -22,6 +30,27 @@
 
   // State for delete confirmation
   let deletingTableId = $state(null);
+
+  function handleCreateNew() {
+    if (!canCreateNew) {
+      alert('最大10個のテーブルに達しました。新しいテーブルを作成するには、既存のテーブルを削除してください。');
+      return;
+    }
+
+    const tableName = prompt('テーブル名を入力してください (最大30文字):', '新しいテーブル');
+    if (tableName && tableName.trim()) {
+      const trimmedName = tableName.trim();
+      if (trimmedName.length > 30) {
+        alert('テーブル名は30文字以内で入力してください。');
+        return;
+      }
+      try {
+        createTable(trimmedName, ['sakurazaka', 'hinatazaka']);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  }
 
   function startRename(table) {
     renamingTableId = table.id;
@@ -73,8 +102,11 @@
     }
   }
 
+  function handleSwitchTable(tableId) {
+    switchTable(tableId);
+  }
+
   function handleExport(table) {
-    // Convert table's photoData to SvelteMap format for CSV export
     const photoMap = new Map();
     for (const group of structured_groups) {
       const groupData = table.photoData[group.id] || {};
@@ -87,7 +119,6 @@
       }
     }
 
-    // Convert groupSettings to groups array format
     const groups = structured_groups.map(group => {
       const saved = table.groupSettings[group.id];
       return {
@@ -122,35 +153,30 @@
       minute: '2-digit'
     });
   }
+
+  function toggleGroupEnabled(groupId, enabled) {
+    const newState = setGroupEnabled(groupState, groupId, enabled);
+    groupState.groups = newState.groups;
+  }
+
+  function toggleGenerationEnabled(groupId, genName, enabled) {
+    const newState = setGenerationEnabled(groupState, groupId, genName, enabled);
+    groupState.groups = newState.groups;
+  }
 </script>
 
-<!-- Modal Overlay -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-  onclick={onClose}
-  role="button"
-  tabindex="-1"
->
-  <!-- Modal Content -->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-    onclick={(e) => e.stopPropagation()}
-    role="dialog"
-    aria-labelledby="modal-title"
-    tabindex="0"
-  >
-    <div class="flex items-center justify-between mb-4">
-      <h2 id="modal-title" class="text-xl font-bold">テーブル管理</h2>
+<div class="management-container">
+  <!-- Table Management Section -->
+  <section class="mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-bold">テーブル管理</h2>
       <button
-        onclick={onClose}
-        class="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-        aria-label="閉じる"
+        onclick={handleCreateNew}
+        disabled={!canCreateNew}
+        class="px-3 py-2 border rounded {canCreateNew ? 'bg-blue-500 text-white hover:bg-blue-600' : 'opacity-50 cursor-not-allowed bg-gray-200'}"
+        title={canCreateNew ? '新しいテーブルを作成' : '最大10個のテーブルに達しました'}
       >
-        ×
+        + 新規テーブル
       </button>
     </div>
 
@@ -162,20 +188,20 @@
     </div>
 
     <!-- Table List -->
-    <div class="space-y-2">
+    <div class="space-y-1.5">
       {#each tables as table (table.id)}
         <div
-          class="border rounded-lg p-4 {table.id === activeTableId ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}"
+          class="border rounded p-2.5 {table.id === activeTableId ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}"
         >
-          <div class="flex items-start justify-between gap-4">
+          <div class="flex items-center justify-between gap-3">
             <div class="flex-1 min-w-0">
               {#if renamingTableId === table.id}
                 <!-- Rename Input -->
-                <div class="flex gap-2 mb-2">
+                <div class="flex gap-1.5">
                   <input
                     type="text"
                     bind:value={newTableName}
-                    class="flex-1 px-3 py-1 border rounded"
+                    class="flex-1 px-2 py-1 text-sm border rounded"
                     placeholder="テーブル名"
                     maxlength="30"
                     onkeydown={(e) => {
@@ -186,69 +212,76 @@
                   />
                   <button
                     onclick={confirmRename}
-                    class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
                     disabled={!newTableName.trim()}
                   >
                     保存
                   </button>
                   <button
                     onclick={cancelRename}
-                    class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
                   >
                     キャンセル
                   </button>
                 </div>
               {:else}
                 <!-- Table Name -->
-                <div class="font-semibold text-lg mb-1 truncate" title={table.name}>
+                <div class="font-medium text-sm mb-0.5 truncate" title={table.name}>
                   {table.name}
                   {#if table.id === activeTableId}
-                    <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded ml-2">
+                    <span class="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded ml-1.5">
                       使用中
                     </span>
                   {/if}
                 </div>
+                <!-- Table Metadata -->
+                <div class="text-xs text-gray-500">
+                  更新: {formatDate(table.lastModified)}
+                </div>
               {/if}
-
-              <!-- Table Metadata -->
-              <div class="text-xs text-gray-600 space-y-0.5">
-                <div>作成: {formatDate(table.createdAt)}</div>
-                <div>更新: {formatDate(table.lastModified)}</div>
-              </div>
             </div>
 
             <!-- Action Buttons -->
             {#if renamingTableId !== table.id}
-              <div class="flex flex-col gap-2 flex-shrink-0">
+              <div class="flex gap-1 flex-shrink-0">
+                {#if table.id !== activeTableId}
+                  <button
+                    onclick={() => handleSwitchTable(table.id)}
+                    class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                    title="このテーブルに切り替え"
+                  >
+                    使用
+                  </button>
+                {/if}
                 <button
                   onclick={() => startRename(table)}
-                  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
                   title="名前変更"
                 >
-                  ✏️ 名前変更
+                  編集
                 </button>
                 <button
                   onclick={() => handleDuplicate(table.id)}
-                  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
                   title="複製"
                   disabled={!canCreateNew}
                 >
-                  📋 複製
+                  コピー
                 </button>
                 <button
                   onclick={() => handleExport(table)}
-                  class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
                   title="CSVエクスポート"
                 >
-                  📤 CSV
+                  CSV
                 </button>
                 <button
                   onclick={() => startDelete(table.id)}
-                  class="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
+                  class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
                   title="削除"
                   disabled={tables.length === 1}
                 >
-                  🗑️ 削除
+                  削除
                 </button>
               </div>
             {/if}
@@ -256,32 +289,74 @@
         </div>
       {/each}
     </div>
+  </section>
 
-    <!-- Close Button -->
-    <div class="mt-6 flex justify-end">
-      <button
-        onclick={onClose}
-        class="px-6 py-2 bg-gray-200 rounded hover:bg-gray-300"
-      >
-        閉じる
-      </button>
+  <!-- Group Selection Section -->
+  <section class="mb-6">
+    <h2 class="text-lg font-bold mb-3">グループ選択</h2>
+    {#each groupState.groups as group (group.id)}
+      <div class="my-3 ml-2">
+        <label class="font-bold">
+          <input
+            type="checkbox"
+            checked={group.enabled}
+            onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
+          />
+          {group.name}を含む
+        </label>
+        <div class="ml-6">
+          {#each group.generations as generation (generation.name)}
+            <label class="block">
+              <input
+                type="checkbox"
+                checked={generation.enabled}
+                onchange={(e) => toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
+              />
+              {generation.name}
+            </label>
+          {/each}
+        </div>
+      </div>
+    {/each}
+  </section>
+
+  <!-- Edit Mode Section -->
+  <section class="mb-6">
+    <h2 class="text-lg font-bold mb-3">編集</h2>
+    <div class="ml-2">
+      <label>
+        <input type="checkbox" bind:checked={editMode.enabled} />
+        編集モード（試験機能）
+      </label>
     </div>
-  </div>
+  </section>
+
+  <!-- Data Management Section -->
+  <section class="mb-6">
+    <h2 class="text-lg font-bold mb-3">データ管理</h2>
+    <div>
+      <button
+        class="btn-red w-40 text-center"
+        aria-label="clear"
+        onclick={() => {
+          if (confirm('データをクリアします。よろしいですか？')) {
+            clearSortedPhotos(sortedPhotos);
+          }
+        }}>データをクリア</button
+      >
+    </div>
+  </section>
 </div>
 
 <!-- Delete Confirmation Dialog -->
 {#if deletingTableId}
   {@const deletingTable = tables.find(t => t.id === deletingTableId)}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[60]"
     onclick={cancelDelete}
     role="button"
     tabindex="-1"
   >
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
       onclick={(e) => e.stopPropagation()}
@@ -315,6 +390,12 @@
 {/if}
 
 <style>
+  @import './buttons.css';
+
+  .management-container {
+    max-width: 900px;
+  }
+
   /* Ensure disabled buttons look disabled */
   button:disabled {
     opacity: 0.5;

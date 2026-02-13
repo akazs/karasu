@@ -1,13 +1,8 @@
 <script>
-  import { cuts, editMode } from '$lib/configs.svelte';
-  import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
+  import { cuts } from '$lib/configs.svelte';
   import { simulate } from '$lib/simulate.svelte';
   import { photosToCSV } from '$lib/csv.js';
-  import {
-    countEnabledMembers,
-    setGroupEnabled,
-    setGenerationEnabled
-  } from '$lib/group-state.js';
+  import { countEnabledMembers } from '$lib/group-state.js';
 
   let { sortedPhotos, groupState } = $props();
 
@@ -31,21 +26,10 @@
       : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
     primaryTheme = result;
   });
-
-  function toggleGroupEnabled(groupId, enabled) {
-    const newState = setGroupEnabled(groupState, groupId, enabled);
-    groupState.groups = newState.groups;
-    // No need to save - parent component auto-saves via $effect
-  }
-
-  function toggleGenerationEnabled(groupId, genName, enabled) {
-    const newState = setGenerationEnabled(groupState, groupId, genName, enabled);
-    groupState.groups = newState.groups;
-    // No need to save - parent component auto-saves via $effect
-  }
 </script>
 
-<div>
+<section class="mb-6">
+  <h2 class="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2">CSV エクスポート</h2>
   <button
     id="copy-csv"
     class="{primaryTheme === 'sakurazaka'
@@ -65,63 +49,21 @@
     }}
     >{CSVButtonText}
   </button>
-</div>
+</section>
 
-{#each groupState.groups as group (group.id)}
-  <div class="my-3 ml-2">
-    <label class="font-bold">
-      <input
-        type="checkbox"
-        checked={group.enabled}
-        onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
-      />
-      {group.name}を含む
-    </label>
-    <div class="ml-6">
-      {#each group.generations as generation (generation.name)}
-        <label class="block">
-          <input
-            type="checkbox"
-            checked={generation.enabled}
-            onchange={(e) => toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
-          />
-          {generation.name}
-        </label>
-      {/each}
-    </div>
+<section class="mb-6">
+  <h2 class="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2">シミュレーション（試験機能）</h2>
+  <div class="ml-2">
+    <input type="text" bind:value={n_members} />名 ×
+    <input type="text" bind:value={n_cuts} />カット ×
+    <input type="text" bind:value={n_onedraw} />枚 1 セットの生写真を
+    <input type="text" bind:value={n_packs} />パック買うと<br />
+    平均して 95% の確率で {simulate_result.comp_mean.toFixed(2)} ±
+    {(simulate_result.comp_stderr * 2).toFixed(2)} コンプ、
+    {n_members * n_cuts} カット中 {simulate_result.coverage_mean.toFixed(2)} ±
+    {(simulate_result.coverage_stderr * 2).toFixed(2)} カットが出ます
   </div>
-{/each}
-
-<div>
-  <button
-    class="btn-red w-40 text-center"
-    aria-label="clear"
-    onclick={() => {
-      if (confirm('データをクリアします。よろしいですか？')) {
-        clearSortedPhotos(sortedPhotos);
-      }
-    }}>データをクリア</button
-  >
-</div>
-
-<div class="my-3 ml-2">
-  <label>
-    <input type="checkbox" bind:checked={editMode.enabled} />
-    編集モード（試験機能）
-  </label>
-</div>
-
-<div class="my-3 ml-2">
-  <h2>シミュレーション（試験機能）</h2>
-  <input type="text" bind:value={n_members} />名 ×
-  <input type="text" bind:value={n_cuts} />カット ×
-  <input type="text" bind:value={n_onedraw} />枚 1 セットの生写真を
-  <input type="text" bind:value={n_packs} />パック買うと<br />
-  平均して 95% の確率で {simulate_result.comp_mean.toFixed(2)} ±
-  {(simulate_result.comp_stderr * 2).toFixed(2)} コンプ、
-  {n_members * n_cuts} カット中 {simulate_result.coverage_mean.toFixed(2)} ±
-  {(simulate_result.coverage_stderr * 2).toFixed(2)} カットが出ます
-</div>
+</section>
 
 <style>
   @import './buttons.css';

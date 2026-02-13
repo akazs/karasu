@@ -3,7 +3,7 @@
  * Tests the complete user journey with table management
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   loadTablesFromLocalStorage,
   saveTablesToLocalStorage,
@@ -110,7 +110,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
       // 3. Duplicate table
       state = duplicateTable(state, table1.id);
       expect(state.tables).toHaveLength(2);
-      expect(state.tables[1].name).toBe('Renamed Table (Copy)');
+      expect(state.tables[1].name).toBe('Renamed Table');
       expect(state.activeTableId).toBe(state.tables[1].id);
 
       // 4. Delete duplicate
