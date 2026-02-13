@@ -14,9 +14,7 @@
 </script>
 
 <section class="mb-6">
-  <h2 class="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2">
-    シミュレーション（試験機能）
-  </h2>
+  <h2 class="text-lg font-bold mb-3 border-gray-300 pb-2">シミュレーション</h2>
   <div class="ml-2">
     <input type="text" bind:value={n_members} />名 ×
     <input type="text" bind:value={n_cuts} />カット ×
