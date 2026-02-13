@@ -28,6 +28,16 @@
   // State for delete confirmation
   let deletingTableId = $state(null);
 
+  // Determine theme for a table based on its group settings
+  function getTableTheme(table) {
+    const sakurazakaEnabled = table.groupSettings?.sakurazaka?.enabled ?? true;
+    const hinataEnabled = table.groupSettings?.hinatazaka?.enabled ?? true;
+
+    if (sakurazakaEnabled && !hinataEnabled) return 'sakurazaka';
+    if (!sakurazakaEnabled && hinataEnabled) return 'hinatazaka';
+    return 'sakurazaka'; // Default or both enabled
+  }
+
   function handleCreateNew() {
     if (!canCreateNew) {
       alert(
@@ -192,17 +202,28 @@
     <!-- Table List -->
     <div class="space-y-1.5">
       {#each tables as table (table.id)}
-        <div
-          class="border rounded p-2.5 {table.id === activeTableId
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300'}"
-        >
+        {@const theme = getTableTheme(table)}
+        {@const isActive = table.id === activeTableId}
+        {@const borderColor = isActive
+          ? theme === 'sakurazaka'
+            ? 'border-pink-400'
+            : 'border-sky-400'
+          : 'border-gray-300'}
+        {@const bgColor = isActive
+          ? theme === 'sakurazaka'
+            ? 'bg-pink-50'
+            : 'bg-sky-50'
+          : ''}
+        {@const badgeColor = theme === 'sakurazaka'
+          ? 'bg-pink-500'
+          : 'bg-sky-500'}
+        <div class="border rounded p-2.5 {borderColor} {bgColor}">
           <div class="flex items-start gap-2">
             <!-- Status Badge / Use Button (Top-Left) -->
             {#if renamingTableId !== table.id}
-              {#if table.id === activeTableId}
+              {#if isActive}
                 <span
-                  class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
+                  class="text-xs {badgeColor} text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
                 >
                   使用中
                 </span>
