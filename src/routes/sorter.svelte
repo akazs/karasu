@@ -37,16 +37,13 @@
     }
   });
 
-  // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
-  let primaryTheme = $state('sakurazaka');
-
-  $effect(() => {
-    const sakurazakaEnabled = groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled;
-    const result = sakurazakaEnabled
-      ? 'sakurazaka'
-      : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
-    primaryTheme = result;
-  });
+  // Determine primary theme: use selected group if set, otherwise sakurazaka if enabled
+  let primaryTheme = $derived(
+    selectedGroupId ||
+      (groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled
+        ? 'sakurazaka'
+        : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka')
+  );
 </script>
 
 {#if currentState % 4 === 0}
