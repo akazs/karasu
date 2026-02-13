@@ -348,11 +348,11 @@
 
   <!-- Edit Mode Section -->
   <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">編集</h2>
+    <h2 class="text-lg font-bold mb-3">編集モード</h2>
     <div class="ml-2">
       <label>
         <input type="checkbox" bind:checked={editMode.enabled} />
-        編集モード（試験機能）
+        編集モード
       </label>
     </div>
   </section>
