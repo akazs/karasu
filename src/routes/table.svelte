@@ -1,4 +1,5 @@
 <script>
+  import { t } from '$lib/i18n/store.svelte.js';
   import { cuts, editMode } from '$lib/configs.svelte';
   import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
 
@@ -61,8 +62,8 @@
 >
   <thead class={activeTableGroup === 'sakurazaka' ? 'bg-rose-100' : 'bg-sky-100'}>
     <tr>
-      <th scope="col" class="th-col">メンバー</th>
-      {#each cuts as cut (cut)}
+      <th scope="col" class="th-col">{t('table.member')}</th>
+      {#each cuts() as cut (cut)}
         <th scope="col" class="th-col">{cut}</th>
       {/each}
     </tr>

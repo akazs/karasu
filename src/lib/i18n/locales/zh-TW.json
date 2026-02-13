@@ -1,0 +1,101 @@
+{
+  "app": {
+    "tabs": {
+      "management": "管理",
+      "sorter": "統計",
+      "results": "結果",
+      "utils": "其他",
+      "help": "說明"
+    },
+    "cuts": {
+      "yori": "大頭",
+      "chu": "半身",
+      "hiki": "全身",
+      "suwari": "坐姿"
+    }
+  },
+  "management": {
+    "title": "表格管理",
+    "newTable": "建立新表格",
+    "newTableShort": "新增表格",
+    "tableCount": "表格",
+    "maxReached": "（已達上限）",
+    "inUse": "使用中",
+    "switchButton": "切換",
+    "switchTooltip": "切換至此表格",
+    "tableName": "表格名稱",
+    "save": "儲存",
+    "cancel": "取消",
+    "updated": "更新",
+    "editButton": "編輯",
+    "renameTooltip": "更改名稱",
+    "copyButton": "複製",
+    "duplicateTooltip": "複製",
+    "csvButton": "CSV",
+    "csvTooltip": "CSV 匯出",
+    "deleteButton": "刪除",
+    "deleteTooltip": "刪除",
+    "groupSelection": "團體選擇",
+    "editMode": "編輯模式",
+    "editModeLabel": "編輯模式",
+    "dataManagement": "資料管理",
+    "clearData": "清除資料",
+    "deleteConfirmTitle": "⚠️ 刪除確認",
+    "language": "語言設定",
+    "languageJa": "日本語",
+    "languageZh": "繁體中文"
+  },
+  "table": {
+    "member": "成員"
+  },
+  "sorter": {
+    "back": "返回"
+  },
+  "utils": {
+    "simulation": "模擬",
+    "labelPeople": "成員人數",
+    "labelCuts": "生寫種類",
+    "labelSheetsPerPack": "每包張數",
+    "labelPacksToBuy": "購買包數",
+    "resultText": "平均有 95% 的機率可湊成 {compMean} ± {compStderr} 成套，{totalCuts} 種中會出現 {coverageMean} ± {coverageStderr} 種"
+  },
+  "instruction": {
+    "warningTitle": "注意事項",
+    "warningText1": "此工具正在開發中，規格可能會在不事前通知的情況下變更。",
+    "warningText2": "對於錯誤或規格變更所造成的損害，我們概不負責。請理解後使用。",
+    "warningText3": "除了提供工具所需的 IP 位址、存取環境等資訊外，我們不會收集任何個人資料。",
+    "warningText4": "輸入的資料僅存在於使用者的裝置中。",
+    "usageTitle": "使用方法",
+    "managementTabTitle": "管理分頁",
+    "tableManagementTitle": "表格管理",
+    "tableManagementDesc": "可以建立表格、複製、CSV 匯出等。按下切換按鈕即可在表格間切換。",
+    "groupSelectionTitle": "團體選擇",
+    "groupSelectionDesc": "切換團體、期別的 ON / OFF。此設定會保留在每個表格中。當成員變動時我們會盡快更新，但無法保證。",
+    "editModeTitle": "編輯模式",
+    "editModeDesc": "開啟後表格上會顯示 + 和 -，可直接編輯表格。",
+    "dataManagementTitle": "資料管理",
+    "dataManagementDesc": "清除所有儲存的資料。請注意，一旦清除將無法復原。",
+    "sorterTabTitle": "統計分頁",
+    "sorterTabDesc1": "請依團體→期別→成員→種類的順序選擇生寫的種類。",
+    "sorterTabDesc2": "如果不需要選擇則會自動跳過。",
+    "resultsTabTitle": "結果分頁",
+    "resultsTabDesc1": "可以一覽目前的統計結果。",
+    "resultsTabDesc2": "雖然也可以截圖使用，但建議使用管理分頁的 CSV 匯出功能，在 Google Sheet 等試算表工具中使用。",
+    "utilsTabTitle": "其他分頁",
+    "utilsTabDesc1": "可以模擬生寫的成套數等。",
+    "utilsTabDesc2": "因為是在本地計算，會使用裝置的計算資源。"
+  },
+  "alerts": {
+    "maxTables": "已達到最大 10 個表格的上限。若要建立新表格，請刪除現有表格。",
+    "enterTableName": "請輸入表格名稱（最多 30 個字元）：",
+    "defaultTableName": "新表格",
+    "tableNameTooLong": "表格名稱僅可輸入最多 30 個字元。",
+    "csvCopied": "已將「{name}」的 CSV 複製到剪貼簿",
+    "csvFailed": "CSV 複製失敗",
+    "confirmClearData": "即將清除資料。確定要繼續嗎？",
+    "confirmDeleteTablePrefix": "確定要刪除表格「",
+    "confirmDeleteTableSuffix": "」嗎？",
+    "deleteWarning": "此操作無法復原。所有生寫計數和團體設定都將消失。",
+    "confirmDelete": "刪除"
+  }
+}

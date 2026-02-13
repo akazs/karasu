@@ -1,4 +1,5 @@
 <script>
+  import { t } from '$lib/i18n/store.svelte.js';
   import { cuts } from '$lib/configs.svelte';
   import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
 
@@ -83,7 +84,7 @@
         aria-label="back"
         onclick={() => {
           currentState -= 1;
-        }}>戻る</button
+        }}>{t('sorter.back')}</button
       >
     </div>
   {/if}
@@ -113,7 +114,7 @@
         aria-label="back"
         onclick={() => {
           currentState -= 1;
-        }}>戻る</button
+        }}>{t('sorter.back')}</button
       >
     </div>
   {/if}
@@ -121,7 +122,7 @@
 
 {#if currentState % 4 === 3}
   <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-    {#each cuts as cut, i (cut)}
+    {#each cuts() as cut, i (cut)}
       <button
         class={primaryTheme === 'sakurazaka'
           ? 'btn-pink btn-pink-focus-active'
@@ -146,7 +147,7 @@
       aria-label="back"
       onclick={() => {
         currentState -= 1;
-      }}>戻る</button
+      }}>{t('sorter.back')}</button
     >
   </div>
 {/if}

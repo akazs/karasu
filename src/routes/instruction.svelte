@@ -1,48 +1,44 @@
 <script>
+  import { t } from '$lib/i18n/store.svelte.js';
 </script>
 
 <div class="w-full text-left break-normal tracking-tight">
   <div class="section">
-    <h1>注意事項</h1>
+    <h1>{t('instruction.warningTitle')}</h1>
     <p>
-      このツールは開発中です。予告なく仕様が変更されることがあります。<br
-      />不具合や仕様変更による損害は一切責任を負いかねます。ご了承の上ご利用ください。
+      {t('instruction.warningText1')}<br />{t('instruction.warningText2')}
     </p>
     <p>
-      ツールの提供に必要なIPアドレス、アクセス環境などの情報を除き、個人情報の収集は一切ございません。<br
-      />
-      入力データはすべて利用者の端末にのみ存在します。
+      {t('instruction.warningText3')}<br />
+      {t('instruction.warningText4')}
     </p>
   </div>
   <div class="section">
-    <h1>使い方</h1>
-    <h2>管理タブ</h2>
+    <h1>{t('instruction.usageTitle')}</h1>
+    <h2>{t('instruction.managementTabTitle')}</h2>
     <p>
-      <b>テーブル管理</b>:
-      テーブルの作成、コピー、CSVエクスポートなどが行えます。切替ボタンを押すことでテーブル間切り替えられます。
+      <b>{t('instruction.tableManagementTitle')}</b>: {t('instruction.tableManagementDesc')}
     </p>
     <p>
-      <b>グループ選択</b>: グループ、期生の ON/OFF
-      を切り替えます。この設定はテーブルごとに保持されます。メンバーが変動した際可能な限り早めにアップデートしますが、保証は致しかねます。
+      <b>{t('instruction.groupSelectionTitle')}</b>: {t('instruction.groupSelectionDesc')}
     </p>
     <p>
-      <b>編集モード</b>: ON にするとテーブル上に + と - が表示され、テーブルに直接編集を加えます。
+      <b>{t('instruction.editModeTitle')}</b>: {t('instruction.editModeDesc')}
     </p>
     <p>
-      <b>データ管理</b>:
-      全ての保存データをクリアします。復元することは一切できませんのでご注意ください。
+      <b>{t('instruction.dataManagementTitle')}</b>: {t('instruction.dataManagementDesc')}
     </p>
-    <h2>集計タブ</h2>
-    <p>グループ→期別→メンバー→カットの順で生写真の種類を選んでください。</p>
-    <p>選択する必要がない場合はスキップされます。</p>
-    <h2>結果タブ</h2>
-    <p>現時点の集計結果を一覧することができます。</p>
+    <h2>{t('instruction.sorterTabTitle')}</h2>
+    <p>{t('instruction.sorterTabDesc1')}</p>
+    <p>{t('instruction.sorterTabDesc2')}</p>
+    <h2>{t('instruction.resultsTabTitle')}</h2>
+    <p>{t('instruction.resultsTabDesc1')}</p>
     <p>
-      スクリーンショットして利用することは可能ですが、管理タブのCSVエクスポート機能を活用してスプレッドシートなどで利用することをおすすめします。
+      {t('instruction.resultsTabDesc2')}
     </p>
-    <h2>その他タブ</h2>
-    <p>生写真のコンプ数などをシミュレートできます。</p>
-    <p>ローカルで計算するため、デバイスの計算資源を利用することになります。</p>
+    <h2>{t('instruction.utilsTabTitle')}</h2>
+    <p>{t('instruction.utilsTabDesc1')}</p>
+    <p>{t('instruction.utilsTabDesc2')}</p>
   </div>
 </div>
 
