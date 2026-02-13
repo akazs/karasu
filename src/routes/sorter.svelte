@@ -104,13 +104,18 @@
       {/if}
     {/each}
   </div>
-  {#if !oneGenerationMode}
+  {#if !(oneGroupMode && oneGenerationMode)}
     <div class="grid grid-cols-1 mt-2 md:mt-4">
       <button
         class="btn-indigo"
         aria-label="back"
         onclick={() => {
-          currentState -= 1;
+          // Go back, skipping auto-selected screens
+          if (oneGenerationMode) {
+            currentState -= 2; // Skip generation selection, go to group
+          } else {
+            currentState -= 1; // Go to generation selection
+          }
         }}>{t('sorter.back')}</button
       >
     </div>
