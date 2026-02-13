@@ -22,22 +22,25 @@ It also provides tools such as photo draw simulator that let users estimate how 
 ### Storage Format
 
 **Photo Counts** (`localStorage: sortedPhotos20250716`)
+
 ```json
 {
   "sakurazaka": {
-    "井上 梨名": [0,0,0,0],
-    "遠藤 光莉": [1,2,0,0]
+    "井上 梨名": [0, 0, 0, 0],
+    "遠藤 光莉": [1, 2, 0, 0]
   },
   "hinatazaka": {
-    "金村 美玖": [2,0,0,0]
+    "金村 美玖": [2, 0, 0, 0]
   }
 }
 ```
+
 - Nested by group, then member
 - Internal keys: `groupId:fullname` (composite)
 - Auto-migrates from legacy formats
 
 **Group Settings** (`localStorage: karasu-group-state`)
+
 ```json
 {
   "sakurazaka": {
@@ -47,12 +50,14 @@ It also provides tools such as photo draw simulator that let users estimate how 
   "hinatazaka": { "enabled": true, "generations": {...} }
 }
 ```
+
 - Persists group/generation enabled state
 - Loaded on app initialization
 
 ### CSV Export
 
 Format: `メンバー,ヨリ,チュウ,ヒキ,座り`
+
 - No group column (member names are unique)
 - Only includes enabled groups/generations
 

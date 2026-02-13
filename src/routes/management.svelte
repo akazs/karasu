@@ -1,10 +1,7 @@
 <script>
   import { editMode } from '$lib/configs.svelte';
   import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
-  import {
-    setGroupEnabled,
-    setGenerationEnabled
-  } from '$lib/group-state.js';
+  import { setGroupEnabled, setGenerationEnabled } from '$lib/group-state.js';
   import {
     tablesStore,
     switchTable,
@@ -33,7 +30,9 @@
 
   function handleCreateNew() {
     if (!canCreateNew) {
-      alert('最大10個のテーブルに達しました。新しいテーブルを作成するには、既存のテーブルを削除してください。');
+      alert(
+        '最大10個のテーブルに達しました。新しいテーブルを作成するには、既存のテーブルを削除してください。'
+      );
       return;
     }
 
@@ -119,13 +118,13 @@
       }
     }
 
-    const groups = structured_groups.map(group => {
+    const groups = structured_groups.map((group) => {
       const saved = table.groupSettings[group.id];
       return {
         id: group.id,
         name: group.name,
         enabled: saved?.enabled ?? true,
-        generations: group.generations.map(gen => ({
+        generations: group.generations.map((gen) => ({
           name: gen.name,
           members: gen.members,
           enabled: saved?.generations?.[gen.name] ?? true
@@ -134,7 +133,8 @@
     });
 
     const csv = photosToCSV(photoMap, groups, cuts);
-    navigator.clipboard.writeText(csv)
+    navigator.clipboard
+      .writeText(csv)
       .then(() => {
         alert(`「${table.name}」のCSVをクリップボードにコピーしました`);
       })
@@ -173,7 +173,9 @@
       <button
         onclick={handleCreateNew}
         disabled={!canCreateNew}
-        class="px-3 py-2 border rounded {canCreateNew ? 'bg-blue-500 text-white hover:bg-blue-600' : 'opacity-50 cursor-not-allowed bg-gray-200'}"
+        class="px-3 py-2 border rounded {canCreateNew
+          ? 'bg-blue-500 text-white hover:bg-blue-600'
+          : 'opacity-50 cursor-not-allowed bg-gray-200'}"
         title={canCreateNew ? '新しいテーブルを作成' : '最大10個のテーブルに達しました'}
       >
         + 新規テーブル
@@ -191,7 +193,9 @@
     <div class="space-y-1.5">
       {#each tables as table (table.id)}
         <div
-          class="border rounded p-2.5 {table.id === activeTableId ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}"
+          class="border rounded p-2.5 {table.id === activeTableId
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300'}"
         >
           <div class="flex items-center justify-between gap-3">
             <div class="flex-1 min-w-0">
@@ -310,7 +314,8 @@
               <input
                 type="checkbox"
                 checked={generation.enabled}
-                onchange={(e) => toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
+                onchange={(e) =>
+                  toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
               />
               {generation.name}
             </label>
@@ -350,7 +355,7 @@
 
 <!-- Delete Confirmation Dialog -->
 {#if deletingTableId}
-  {@const deletingTable = tables.find(t => t.id === deletingTableId)}
+  {@const deletingTable = tables.find((t) => t.id === deletingTableId)}
   <div
     class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[60]"
     onclick={cancelDelete}
@@ -372,10 +377,7 @@
         この操作は取り消せません。すべての写真カウントとグループ設定が失われます。
       </p>
       <div class="flex gap-3 justify-end">
-        <button
-          onclick={cancelDelete}
-          class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-        >
+        <button onclick={cancelDelete} class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
           キャンセル
         </button>
         <button

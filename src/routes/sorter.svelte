@@ -1,9 +1,6 @@
 <script>
   import { cuts } from '$lib/configs.svelte';
-  import {
-    getPhotoData,
-    setPhotoData
-  } from '$lib/table-sortedphotos.svelte';
+  import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
 
   let { sortedPhotos, groupState } = $props();
 

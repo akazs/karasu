@@ -69,7 +69,7 @@ export function canCreateNewTable(tables) {
  * @returns {object|undefined}
  */
 export function getTableById(tables, id) {
-  return tables.tables.find(t => t.id === id);
+  return tables.tables.find((t) => t.id === id);
 }
 
 /**
@@ -107,7 +107,7 @@ export function renameTable(tables, id, newName) {
     throw new Error(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
   }
 
-  const tableIndex = tables.tables.findIndex(t => t.id === id);
+  const tableIndex = tables.tables.findIndex((t) => t.id === id);
   if (tableIndex === -1) {
     return tables;
   }
@@ -136,7 +136,7 @@ export function renameTable(tables, id, newName) {
  * @throws {Error} If attempting to delete the last table
  */
 export function deleteTable(tables, id) {
-  const tableIndex = tables.tables.findIndex(t => t.id === id);
+  const tableIndex = tables.tables.findIndex((t) => t.id === id);
   if (tableIndex === -1) {
     return tables;
   }
@@ -145,10 +145,8 @@ export function deleteTable(tables, id) {
     throw new Error('Cannot delete the last table');
   }
 
-  const newTables = tables.tables.filter(t => t.id !== id);
-  const newActiveId = tables.activeTableId === id
-    ? newTables[0].id
-    : tables.activeTableId;
+  const newTables = tables.tables.filter((t) => t.id !== id);
+  const newActiveId = tables.activeTableId === id ? newTables[0].id : tables.activeTableId;
 
   return {
     ...tables,
@@ -171,7 +169,7 @@ export function duplicateTable(tables, id) {
     throw new Error('Maximum table limit reached');
   }
 
-  const tableIndex = tables.tables.findIndex(t => t.id === id);
+  const tableIndex = tables.tables.findIndex((t) => t.id === id);
   if (tableIndex === -1) {
     return tables;
   }

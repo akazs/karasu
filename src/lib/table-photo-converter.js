@@ -50,7 +50,7 @@ export function mapToPhotoData(map, groups) {
         if (map.has(key)) {
           const counts = map.get(key);
           // Only include non-zero counts
-          if (!counts.every(v => v === 0)) {
+          if (!counts.every((v) => v === 0)) {
             groupData[member.fullname] = [...counts];
           }
         }

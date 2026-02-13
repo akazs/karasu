@@ -95,8 +95,9 @@ describe('table-manager', () => {
     it('should throw error if table name exceeds MAX_TABLE_NAME_LENGTH', () => {
       const longName = 'a'.repeat(MAX_TABLE_NAME_LENGTH + 1);
 
-      expect(() => createNewTable(longName, ['sakurazaka']))
-        .toThrow(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
+      expect(() => createNewTable(longName, ['sakurazaka'])).toThrow(
+        `Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`
+      );
     });
 
     it('should accept table name at MAX_TABLE_NAME_LENGTH', () => {
@@ -111,7 +112,9 @@ describe('table-manager', () => {
     it('should return true when tables count is less than MAX_TABLES', () => {
       const tables = {
         version: 1,
-        tables: Array(5).fill(null).map((_, i) => ({ id: `id-${i}`, name: `Table ${i}` })),
+        tables: Array(5)
+          .fill(null)
+          .map((_, i) => ({ id: `id-${i}`, name: `Table ${i}` })),
         activeTableId: 'id-0',
         maxTables: MAX_TABLES
       };
@@ -122,7 +125,9 @@ describe('table-manager', () => {
     it('should return false when tables count equals MAX_TABLES', () => {
       const tables = {
         version: 1,
-        tables: Array(MAX_TABLES).fill(null).map((_, i) => ({ id: `id-${i}`, name: `Table ${i}` })),
+        tables: Array(MAX_TABLES)
+          .fill(null)
+          .map((_, i) => ({ id: `id-${i}`, name: `Table ${i}` })),
         activeTableId: 'id-0',
         maxTables: MAX_TABLES
       };
@@ -133,7 +138,9 @@ describe('table-manager', () => {
     it('should return false when tables count exceeds MAX_TABLES', () => {
       const tables = {
         version: 1,
-        tables: Array(MAX_TABLES + 1).fill(null).map((_, i) => ({ id: `id-${i}`, name: `Table ${i}` })),
+        tables: Array(MAX_TABLES + 1)
+          .fill(null)
+          .map((_, i) => ({ id: `id-${i}`, name: `Table ${i}` })),
         activeTableId: 'id-0',
         maxTables: MAX_TABLES
       };
@@ -277,8 +284,9 @@ describe('table-manager', () => {
 
       const longName = 'a'.repeat(MAX_TABLE_NAME_LENGTH + 1);
 
-      expect(() => renameTable(original, 'uuid-1', longName))
-        .toThrow(`Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`);
+      expect(() => renameTable(original, 'uuid-1', longName)).toThrow(
+        `Table name must not exceed ${MAX_TABLE_NAME_LENGTH} characters`
+      );
     });
 
     it('should accept new name at MAX_TABLE_NAME_LENGTH', () => {
@@ -312,7 +320,7 @@ describe('table-manager', () => {
       const updated = deleteTable(original, 'uuid-2');
 
       expect(updated.tables).toHaveLength(2);
-      expect(updated.tables.find(t => t.id === 'uuid-2')).toBeUndefined();
+      expect(updated.tables.find((t) => t.id === 'uuid-2')).toBeUndefined();
       expect(updated.activeTableId).toBe('uuid-1'); // Switched to first
       expect(original.tables).toHaveLength(3); // Original unchanged
     });
@@ -409,18 +417,20 @@ describe('table-manager', () => {
       expect(updated2.tables[1].name).toBe('My Table');
       expect(updated2.tables[2].name).toBe('My Table');
       // But all have unique IDs
-      expect(new Set(updated2.tables.map(t => t.id)).size).toBe(3);
+      expect(new Set(updated2.tables.map((t) => t.id)).size).toBe(3);
     });
 
     it('should prevent duplicating when at MAX_TABLES', () => {
       const tables = {
         version: 1,
-        tables: Array(MAX_TABLES).fill(null).map((_, i) => ({
-          id: `id-${i}`,
-          name: `Table ${i}`,
-          photoData: {},
-          groupSettings: {}
-        })),
+        tables: Array(MAX_TABLES)
+          .fill(null)
+          .map((_, i) => ({
+            id: `id-${i}`,
+            name: `Table ${i}`,
+            photoData: {},
+            groupSettings: {}
+          })),
         activeTableId: 'id-0',
         maxTables: MAX_TABLES
       };
@@ -481,12 +491,18 @@ describe('table-manager', () => {
   describe('migrateFromLegacyStorage', () => {
     it('should migrate legacy data to first table', () => {
       // Setup legacy localStorage
-      localStorage.setItem('sortedPhotos20250716', JSON.stringify({
-        sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
-      }));
-      localStorage.setItem('karasu-group-state', JSON.stringify({
-        sakurazaka: { enabled: true, generations: { '二期生': true } }
-      }));
+      localStorage.setItem(
+        'sortedPhotos20250716',
+        JSON.stringify({
+          sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
+        })
+      );
+      localStorage.setItem(
+        'karasu-group-state',
+        JSON.stringify({
+          sakurazaka: { enabled: true, generations: { 二期生: true } }
+        })
+      );
 
       const tables = migrateFromLegacyStorage();
 
@@ -497,7 +513,7 @@ describe('table-manager', () => {
         sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
       });
       expect(tables.tables[0].groupSettings).toEqual({
-        sakurazaka: { enabled: true, generations: { '二期生': true } }
+        sakurazaka: { enabled: true, generations: { 二期生: true } }
       });
       expect(tables.activeTableId).toBe(tables.tables[0].id);
     });
@@ -513,10 +529,13 @@ describe('table-manager', () => {
     });
 
     it('should handle nested format for photoData', () => {
-      localStorage.setItem('sortedPhotos20250716', JSON.stringify({
-        sakurazaka: { '井上 梨名': [1, 2, 0, 0] },
-        hinatazaka: { '金村 美玖': [0, 1, 0, 0] }
-      }));
+      localStorage.setItem(
+        'sortedPhotos20250716',
+        JSON.stringify({
+          sakurazaka: { '井上 梨名': [1, 2, 0, 0] },
+          hinatazaka: { '金村 美玖': [0, 1, 0, 0] }
+        })
+      );
 
       const tables = migrateFromLegacyStorage();
 

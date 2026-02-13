@@ -1,8 +1,5 @@
 <script>
-  import {
-    activeTableStore,
-    updateActiveTableGroupSettings
-  } from '$lib/table-state.js';
+  import { activeTableStore, updateActiveTableGroupSettings } from '$lib/table-state.js';
   import {
     loadSortedPhotosFromActiveTable,
     saveSortedPhotosToActiveTable

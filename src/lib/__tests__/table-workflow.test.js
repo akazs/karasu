@@ -45,9 +45,12 @@ describe('Multi-Table Workflow Integration Tests', () => {
   describe('Complete User Journey', () => {
     it('should handle full workflow: create → add data → switch → verify independence', () => {
       // 1. Start with migrated data
-      localStorage.setItem('sortedPhotos20250716', JSON.stringify({
-        sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
-      }));
+      localStorage.setItem(
+        'sortedPhotos20250716',
+        JSON.stringify({
+          sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
+        })
+      );
 
       let state = migrateFromLegacyStorage();
       expect(state.tables).toHaveLength(1);
@@ -66,7 +69,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
       // 3. Add data to second table
       state = {
         ...state,
-        tables: state.tables.map(t =>
+        tables: state.tables.map((t) =>
           t.id === table2.id
             ? {
                 ...t,
@@ -117,7 +120,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
       const duplicateId = state.tables[1].id;
       state = deleteTable(state, duplicateId);
       expect(state.tables).toHaveLength(1);
-      expect(state.tables.find(t => t.id === duplicateId)).toBeUndefined();
+      expect(state.tables.find((t) => t.id === duplicateId)).toBeUndefined();
     });
 
     it('should handle group settings independence across tables', () => {
@@ -135,12 +138,12 @@ describe('Multi-Table Workflow Integration Tests', () => {
       // 2. Update group settings for table 1
       state = {
         ...state,
-        tables: state.tables.map(t =>
+        tables: state.tables.map((t) =>
           t.id === table1.id
             ? {
                 ...t,
                 groupSettings: {
-                  sakurazaka: { enabled: true, generations: { '二期生': true } },
+                  sakurazaka: { enabled: true, generations: { 二期生: true } },
                   hinatazaka: { enabled: false, generations: {} }
                 }
               }
@@ -151,13 +154,13 @@ describe('Multi-Table Workflow Integration Tests', () => {
       // 3. Update group settings for table 2 (different settings)
       state = {
         ...state,
-        tables: state.tables.map(t =>
+        tables: state.tables.map((t) =>
           t.id === table2.id
             ? {
                 ...t,
                 groupSettings: {
                   sakurazaka: { enabled: false, generations: {} },
-                  hinatazaka: { enabled: true, generations: { '二期生': true } }
+                  hinatazaka: { enabled: true, generations: { 二期生: true } }
                 }
               }
             : t
@@ -165,8 +168,8 @@ describe('Multi-Table Workflow Integration Tests', () => {
       };
 
       // 4. Verify independence
-      const t1 = state.tables.find(t => t.id === table1.id);
-      const t2 = state.tables.find(t => t.id === table2.id);
+      const t1 = state.tables.find((t) => t.id === table1.id);
+      const t2 = state.tables.find((t) => t.id === table2.id);
 
       expect(t1.groupSettings.sakurazaka.enabled).toBe(true);
       expect(t1.groupSettings.hinatazaka.enabled).toBe(false);
@@ -314,7 +317,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
       };
 
       // Wait a bit to ensure timestamp difference
-      const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       return delay(10).then(() => {
         state = renameTable(state, table.id, 'Renamed');
@@ -325,15 +328,18 @@ describe('Multi-Table Workflow Integration Tests', () => {
 
   describe('Migration Scenarios', () => {
     it('should migrate nested format correctly', () => {
-      localStorage.setItem('sortedPhotos20250716', JSON.stringify({
-        sakurazaka: {
-          '井上 梨名': [1, 2, 0, 0],
-          '遠藤 光莉': [0, 0, 3, 0]
-        },
-        hinatazaka: {
-          '金村 美玖': [1, 1, 1, 1]
-        }
-      }));
+      localStorage.setItem(
+        'sortedPhotos20250716',
+        JSON.stringify({
+          sakurazaka: {
+            '井上 梨名': [1, 2, 0, 0],
+            '遠藤 光莉': [0, 0, 3, 0]
+          },
+          hinatazaka: {
+            '金村 美玖': [1, 1, 1, 1]
+          }
+        })
+      );
 
       const migrated = migrateFromLegacyStorage();
 
@@ -349,22 +355,28 @@ describe('Multi-Table Workflow Integration Tests', () => {
     });
 
     it('should migrate with group settings', () => {
-      localStorage.setItem('sortedPhotos20250716', JSON.stringify({
-        sakurazaka: { '井上 梨名': [1, 0, 0, 0] }
-      }));
-      localStorage.setItem('karasu-group-state', JSON.stringify({
-        sakurazaka: {
-          enabled: true,
-          generations: { '二期生': true, '三期生': false }
-        }
-      }));
+      localStorage.setItem(
+        'sortedPhotos20250716',
+        JSON.stringify({
+          sakurazaka: { '井上 梨名': [1, 0, 0, 0] }
+        })
+      );
+      localStorage.setItem(
+        'karasu-group-state',
+        JSON.stringify({
+          sakurazaka: {
+            enabled: true,
+            generations: { 二期生: true, 三期生: false }
+          }
+        })
+      );
 
       const migrated = migrateFromLegacyStorage();
 
       expect(migrated.tables[0].groupSettings).toEqual({
         sakurazaka: {
           enabled: true,
-          generations: { '二期生': true, '三期生': false }
+          generations: { 二期生: true, 三期生: false }
         }
       });
     });
@@ -396,10 +408,12 @@ describe('Multi-Table Workflow Integration Tests', () => {
       const table = createNewTable('Large Table', ['sakurazaka', 'hinatazaka']);
       const state = {
         version: 1,
-        tables: [{
-          ...table,
-          photoData: largePhotoData
-        }],
+        tables: [
+          {
+            ...table,
+            photoData: largePhotoData
+          }
+        ],
         activeTableId: table.id,
         maxTables: MAX_TABLES
       };

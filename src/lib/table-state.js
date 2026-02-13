@@ -54,17 +54,14 @@ function loadAndInitializeTables() {
 export const tablesStore = writable(loadAndInitializeTables());
 
 // Auto-save to localStorage whenever store changes
-tablesStore.subscribe(state => {
+tablesStore.subscribe((state) => {
   if (typeof localStorage !== 'undefined') {
     saveTablesToLocalStorage(state);
   }
 });
 
 // Derived store for active table
-export const activeTableStore = derived(
-  tablesStore,
-  $tables => getActiveTable($tables)
-);
+export const activeTableStore = derived(tablesStore, ($tables) => getActiveTable($tables));
 
 /**
  * Get the current tables state (synchronous).
@@ -91,7 +88,7 @@ export function canCreate() {
  * Create a new table and switch to it.
  */
 export function createTable(name, groupIds = []) {
-  tablesStore.update(state => {
+  tablesStore.update((state) => {
     if (!canCreateNewTable(state)) {
       throw new Error('Maximum table limit reached');
     }
@@ -109,14 +106,14 @@ export function createTable(name, groupIds = []) {
  * Switch to a different table.
  */
 export function switchTable(tableId) {
-  tablesStore.update(state => setActiveTableLogic(state, tableId));
+  tablesStore.update((state) => setActiveTableLogic(state, tableId));
 }
 
 /**
  * Delete the current active table.
  */
 export function deleteCurrentTable() {
-  tablesStore.update(state => {
+  tablesStore.update((state) => {
     const activeId = state.activeTableId;
     return deleteTableLogic(state, activeId);
   });
@@ -126,14 +123,14 @@ export function deleteCurrentTable() {
  * Delete a specific table by ID.
  */
 export function deleteTableById(tableId) {
-  tablesStore.update(state => deleteTableLogic(state, tableId));
+  tablesStore.update((state) => deleteTableLogic(state, tableId));
 }
 
 /**
  * Rename the current active table.
  */
 export function renameCurrentTable(newName) {
-  tablesStore.update(state => {
+  tablesStore.update((state) => {
     const activeId = state.activeTableId;
     return renameTableLogic(state, activeId, newName);
   });
@@ -143,14 +140,14 @@ export function renameCurrentTable(newName) {
  * Rename a specific table by ID.
  */
 export function renameTableById(tableId, newName) {
-  tablesStore.update(state => renameTableLogic(state, tableId, newName));
+  tablesStore.update((state) => renameTableLogic(state, tableId, newName));
 }
 
 /**
  * Duplicate the current active table.
  */
 export function duplicateCurrentTable() {
-  tablesStore.update(state => {
+  tablesStore.update((state) => {
     const activeId = state.activeTableId;
     return duplicateTableLogic(state, activeId);
   });
@@ -160,14 +157,14 @@ export function duplicateCurrentTable() {
  * Duplicate a specific table by ID.
  */
 export function duplicateTableById(tableId) {
-  tablesStore.update(state => duplicateTableLogic(state, tableId));
+  tablesStore.update((state) => duplicateTableLogic(state, tableId));
 }
 
 /**
  * Update photo data for the active table.
  */
 export function updateActiveTablePhotoData(newPhotoData) {
-  tablesStore.update(state => {
+  tablesStore.update((state) => {
     const activeTable = getActiveTable(state);
     if (!activeTable) {
       return state;
@@ -175,7 +172,7 @@ export function updateActiveTablePhotoData(newPhotoData) {
 
     return {
       ...state,
-      tables: state.tables.map(table =>
+      tables: state.tables.map((table) =>
         table.id === activeTable.id
           ? {
               ...table,
@@ -192,7 +189,7 @@ export function updateActiveTablePhotoData(newPhotoData) {
  * Update group settings for the active table.
  */
 export function updateActiveTableGroupSettings(newGroupSettings) {
-  tablesStore.update(state => {
+  tablesStore.update((state) => {
     const activeTable = getActiveTable(state);
     if (!activeTable) {
       return state;
@@ -200,7 +197,7 @@ export function updateActiveTableGroupSettings(newGroupSettings) {
 
     return {
       ...state,
-      tables: state.tables.map(table =>
+      tables: state.tables.map((table) =>
         table.id === activeTable.id
           ? {
               ...table,
