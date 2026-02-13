@@ -1,12 +1,8 @@
 <script>
-  import { cuts } from '$lib/configs.svelte';
   import { simulate } from '$lib/simulate.svelte';
-  import { photosToCSV } from '$lib/csv.js';
   import { countEnabledMembers } from '$lib/group-state.js';
 
-  let { sortedPhotos, groupState } = $props();
-
-  let CSVButtonText = $state('CSVをコピー');
+  let { groupState } = $props();
 
   let n_members = $derived(countEnabledMembers(groupState));
   let n_cuts = $state(4);
@@ -15,41 +11,7 @@
   let simulate_result = $derived(
     simulate(Number(n_packs), Number(n_members), Number(n_cuts), Number(n_onedraw))
   );
-
-  // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
-  let primaryTheme = $state('sakurazaka');
-
-  $effect(() => {
-    const sakurazakaEnabled = groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled;
-    const result = sakurazakaEnabled
-      ? 'sakurazaka'
-      : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
-    primaryTheme = result;
-  });
 </script>
-
-<section class="mb-6">
-  <h2 class="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2">CSV エクスポート</h2>
-  <button
-    id="copy-csv"
-    class="{primaryTheme === 'sakurazaka'
-      ? 'btn-pink btn-pink-focus-active'
-      : 'btn-sky btn-sky-focus-active'} w-40 text-center"
-    aria-label="CSV"
-    onclick={() => {
-      let CSV = photosToCSV(sortedPhotos, groupState.groups, cuts);
-      navigator.clipboard
-        .writeText(CSV)
-        .then(() => {
-          CSVButtonText = 'コピーしました';
-        })
-        .catch(() => {
-          CSVButtonText = 'コピー失敗';
-        });
-    }}
-    >{CSVButtonText}
-  </button>
-</section>
 
 <section class="mb-6">
   <h2 class="text-lg font-bold mb-3 border-b-2 border-gray-300 pb-2">

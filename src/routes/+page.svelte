@@ -122,7 +122,7 @@
     {
       name: 'その他',
       component: Utils,
-      props: { sortedPhotos, groupState }
+      props: { groupState }
     },
     {
       name: 'ヘルプ',
