@@ -4,12 +4,23 @@
  * All functions return new objects (immutable updates).
  */
 
+import { i18n } from './i18n/store.svelte.js';
+
 const TABLES_STORAGE_KEY = 'karasu-tables';
 const LEGACY_PHOTOS_KEY = 'sortedPhotos20250716';
 const LEGACY_GROUP_STATE_KEY = 'karasu-group-state';
 
 export const MAX_TABLES = 10;
 export const MAX_TABLE_NAME_LENGTH = 30;
+
+/**
+ * Get the default table name in the current locale.
+ * @returns {string}
+ */
+function getDefaultTableName() {
+  const translations = i18n.translations;
+  return translations.alerts?.defaultTableName || 'デフォルト';
+}
 
 /**
  * Generate a unique table ID using crypto.randomUUID()
@@ -282,7 +293,7 @@ export function migrateFromLegacyStorage() {
   const now = new Date().toISOString();
   const firstTable = {
     id: generateTableId(),
-    name: 'デフォルト',
+    name: getDefaultTableName(),
     createdAt: now,
     lastModified: now,
     photoData,

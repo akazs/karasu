@@ -17,6 +17,7 @@ import {
   getActiveTable,
   MAX_TABLES
 } from './table-manager.js';
+import { i18n } from './i18n/store.svelte.js';
 
 /**
  * Load and initialize tables from localStorage.
@@ -26,7 +27,7 @@ function loadAndInitializeTables() {
     const now = new Date().toISOString();
     const emptyTable = {
       id: 'default',
-      name: 'デフォルト',
+      name: i18n.translations.alerts?.defaultTableName || 'デフォルト',
       createdAt: now,
       lastModified: now,
       photoData: {},
