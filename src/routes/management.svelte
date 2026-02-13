@@ -209,14 +209,8 @@
             ? 'border-pink-400'
             : 'border-sky-400'
           : 'border-gray-300'}
-        {@const bgColor = isActive
-          ? theme === 'sakurazaka'
-            ? 'bg-pink-50'
-            : 'bg-sky-50'
-          : ''}
-        {@const badgeColor = theme === 'sakurazaka'
-          ? 'bg-pink-500'
-          : 'bg-sky-500'}
+        {@const bgColor = isActive ? (theme === 'sakurazaka' ? 'bg-pink-50' : 'bg-sky-50') : ''}
+        {@const badgeColor = theme === 'sakurazaka' ? 'bg-pink-400' : 'bg-sky-400'}
         <div class="border rounded p-2.5 {borderColor} {bgColor}">
           <div class="flex items-start gap-2">
             <!-- Status Badge / Use Button (Top-Left) -->
