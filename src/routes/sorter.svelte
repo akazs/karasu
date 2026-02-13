@@ -16,9 +16,9 @@
 
   // If only one group, auto-select it
   $effect(() => {
-    if (oneGroupMode && currentState === 0) {
+    if (oneGroupMode && currentState % 4 === 0) {
       selectedGroupId = enabledGroups[0].id;
-      currentState = 1;
+      currentState += 1;
     }
   });
 
@@ -31,22 +31,19 @@
 
   // If only one generation, auto-select it
   $effect(() => {
-    if (oneGenerationMode && currentState === 1) {
+    if (oneGenerationMode && currentState % 4 === 1) {
       selectedGeneration = enabledGenerations[0].name;
-      currentState = 2;
+      currentState += 1;
     }
   });
 
-  // Determine primary theme: sakurazaka if enabled, otherwise first enabled group
-  let primaryTheme = $state('sakurazaka');
-
-  $effect(() => {
-    const sakurazakaEnabled = groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled;
-    const result = sakurazakaEnabled
-      ? 'sakurazaka'
-      : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka';
-    primaryTheme = result;
-  });
+  // Determine primary theme: use selected group if set, otherwise sakurazaka if enabled
+  let primaryTheme = $derived(
+    selectedGroupId ||
+      (groupState.groups.find((g) => g.id === 'sakurazaka')?.enabled
+        ? 'sakurazaka'
+        : groupState.groups.find((g) => g.enabled)?.id || 'sakurazaka')
+  );
 </script>
 
 {#if currentState % 4 === 0}
@@ -107,13 +104,18 @@
       {/if}
     {/each}
   </div>
-  {#if !oneGenerationMode}
+  {#if !(oneGroupMode && oneGenerationMode)}
     <div class="grid grid-cols-1 mt-2 md:mt-4">
       <button
         class="btn-indigo"
         aria-label="back"
         onclick={() => {
-          currentState -= 1;
+          // Go back, skipping auto-selected screens
+          if (oneGenerationMode) {
+            currentState -= 2; // Skip generation selection, go to group
+          } else {
+            currentState -= 1; // Go to generation selection
+          }
         }}>{t('sorter.back')}</button
       >
     </div>
@@ -132,11 +134,12 @@
           let data = getPhotoData(sortedPhotos, selectedGroupId, selectedMember);
           const updated = data.map((v, idx) => (idx === i ? v + 1 : v));
           setPhotoData(sortedPhotos, selectedGroupId, selectedMember, updated);
-          // No need to save - parent component auto-saves via $effect
-          let stepsBack = 1;
-          if (oneGenerationMode) stepsBack += 1;
-          if (oneGroupMode) stepsBack += 1;
-          currentState += 4 - stepsBack;
+          // Loop back to the appropriate starting screen
+          // Both auto-selected: go to member (state 2)
+          // Only group auto-selected: go to generation (state 1)
+          // Otherwise: go to group (state 0)
+          let nextScreen = oneGroupMode && oneGenerationMode ? 2 : oneGroupMode ? 1 : 0;
+          currentState += 1 + nextScreen;
         }}>{cut}</button
       >
     {/each}
