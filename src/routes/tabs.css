@@ -1,11 +1,27 @@
 @import 'tailwindcss';
 
 ul {
-  @apply flex;
+  @apply flex overflow-x-auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Hide scrollbar on webkit browsers (Chrome, Safari) but keep functionality */
+ul::-webkit-scrollbar {
+  height: 4px;
+}
+
+ul::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
+
+ul::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .tab {
-  @apply w-20 text-center block border border-solid border-gray-100 hover:border-gray-400 text-gray-500 cursor-pointer;
+  @apply w-20 min-w-20 text-center block border border-solid border-gray-100 hover:border-gray-400 text-gray-500 cursor-pointer flex-shrink-0;
 }
 
 li.active-sakurazaka > .tab {

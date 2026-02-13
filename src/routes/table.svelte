@@ -1,12 +1,8 @@
 <script>
-  import { groupState, cuts, editMode } from '$lib/configs.svelte';
-  import {
-    saveSortedPhotosToLocalStorage,
-    getPhotoData,
-    setPhotoData
-  } from '$lib/sortedphotos.svelte';
+  import { cuts, editMode } from '$lib/configs.svelte';
+  import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
 
-  let { sortedPhotos } = $props();
+  let { sortedPhotos, groupState } = $props();
 
   let activeTableGroup = $state(groupState.activeGroupId);
 
@@ -30,7 +26,7 @@
     let data = getPhotoData(sortedPhotos, groupId, memberName);
     const updated = data.map((v, idx) => (idx === cut ? v + 1 : v));
     setPhotoData(sortedPhotos, groupId, memberName, updated);
-    saveSortedPhotosToLocalStorage(sortedPhotos);
+    // No need to save - parent component auto-saves via $effect
   };
 
   const decrease = (groupId, memberName, cut) => () => {
@@ -40,7 +36,7 @@
     }
     const updated = data.map((v, idx) => (idx === cut ? v - 1 : v));
     setPhotoData(sortedPhotos, groupId, memberName, updated);
-    saveSortedPhotosToLocalStorage(sortedPhotos);
+    // No need to save - parent component auto-saves via $effect
   };
 </script>
 
