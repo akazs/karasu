@@ -94,7 +94,7 @@
     "csvCopied": "「{name}」の CSV をクリップボードにコピーしました",
     "csvFailed": "CSV のコピーに失敗しました",
     "confirmClearCurrentTable": "現在のテーブルの生写真カウントをすべてクリアします。よろしいですか？",
-    "confirmClearAllData": "すべてのテーブルと設定を削除します（言語設定は保持）。この操作は取り消せません。よろしいですか？",
+    "confirmClearAllData": "すべてのテーブルを削除します。この操作は取り消せません。よろしいですか？",
     "confirmDeleteTablePrefix": "テーブル「",
     "confirmDeleteTableSuffix": "」を削除してもよろしいですか？",
     "deleteWarning": "この操作は取り消せません。すべての生写真カウントとグループ設定が失われます。",
