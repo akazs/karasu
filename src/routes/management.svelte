@@ -247,7 +247,7 @@
 
             <!-- Action Buttons -->
             {#if renamingTableId !== table.id}
-              <div class="flex gap-1 flex-shrink-0">
+              <div class="flex flex-col md:flex-row gap-1 flex-shrink-0">
                 {#if table.id !== activeTableId}
                   <button
                     onclick={() => handleSwitchTable(table.id)}
