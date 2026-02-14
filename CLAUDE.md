@@ -8,15 +8,17 @@
 
 ## Project Overview
 
-**karasu** is a client-side web application written in Svelte targeting both PCs and mobile phones, that allows users to make table sorting their 櫻坂46/日向坂46 raw photos ("生写真") using, with the ability to export CSVs.
+**karasu** is a client-side web application written in Svelte targeting both PCs and mobile phones, that allows users to manage and sort their 櫻坂46/日向坂46 raw photos ("生写真") using a table-based system. Users can create multiple tables, each with independent photo counts and group/generation settings, with the ability to export CSVs.
 
-Users can edit the table by toggling on an "edit" option, or by using a generation -> member -> cut selection system.
+Users can insert data to tables by using a group -> generation -> member -> cut selection system, or by using the edit mode which allow users to modify the data on tables.
 
-It also provides tools such as photo draw simulator that let users estimate how many they'll get if they buy a specific amount.
+The app supports multiple languages (i18n) and provides tools such as a photo draw simulator that lets users estimate how many photos they'll get if they buy a specific amount.
 
 ## Data Structure
 
-- **Groups**: sakurazaka (櫻坂46), hinatazaka (日向坂46)
+- **Groups**:
+  - sakurazaka (櫻坂46)
+  - hinatazaka (日向坂46)
 - **Files**: Pure JS modules in `src/lib/*.js`, Svelte wrappers in `src/lib/*.svelte`
 
 ### Storage Format
@@ -45,9 +47,12 @@ It also provides tools such as photo draw simulator that let users estimate how 
 {
   "sakurazaka": {
     "enabled": true,
-    "generations": { "二期生": true, "三期生": false }
+    "generations": { "二期生": true, "三期生": true, "四期生": false }
   },
-  "hinatazaka": { "enabled": true, "generations": {...} }
+  "hinatazaka": {
+    "enabled": true,
+    "generations": { "二期生": true, "三期生": true, "四期生": true, "五期生": false }
+  }
 }
 ```
 
