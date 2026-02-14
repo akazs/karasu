@@ -38,12 +38,18 @@
   let isLoading = $state(false);
   let currentTableId = $state($activeTableStore?.id);
 
+  // Track groupSettings separately to detect changes without watching entire table
+  let currentGroupSettings = $state(
+    JSON.stringify($activeTableStore?.groupSettings || {})
+  );
+
   // Reload sortedPhotos and groupState when active table changes
   $effect(() => {
     const tableId = $activeTableStore?.id;
     if (tableId && tableId !== currentTableId) {
       isLoading = true;
       currentTableId = tableId;
+      currentGroupSettings = JSON.stringify($activeTableStore?.groupSettings || {});
 
       // Reload sortedPhotos from the new active table
       sortedPhotos = loadSortedPhotosFromActiveTable();
@@ -57,6 +63,18 @@
       setTimeout(() => {
         isLoading = false;
       }, 0);
+    }
+  });
+
+  // Reload groupState when groupSettings change (but not on other table updates)
+  $effect(() => {
+    const newSettings = JSON.stringify($activeTableStore?.groupSettings || {});
+    if (!isLoading && newSettings !== currentGroupSettings) {
+      currentGroupSettings = newSettings;
+      groupState = createGroupStateFromSettings(
+        structured_groups,
+        $activeTableStore?.groupSettings || {}
+      );
     }
   });
 
