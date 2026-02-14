@@ -25,7 +25,7 @@ ul::-webkit-scrollbar-track {
 }
 
 li.active-sakurazaka > .tab {
-  @apply border-gray-200 bg-[#f19db5] text-gray-600;
+  @apply border-gray-200 bg-pink-300 text-gray-600;
 }
 
 li.active-hinatazaka > .tab {

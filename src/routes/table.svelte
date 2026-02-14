@@ -2,6 +2,7 @@
   import { t } from '$lib/i18n/store.svelte.js';
   import { cuts, editMode } from '$lib/configs.svelte';
   import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
+  import { getBgClass } from '$lib/theme-utils.js';
 
   let { sortedPhotos, groupState } = $props();
 
@@ -60,7 +61,7 @@
 <table
   class="table-fixed w-full text-sm md:text-base break-keep border-collapse border-2 border-gray-500"
 >
-  <thead class={activeTableGroup === 'sakurazaka' ? 'bg-rose-100' : 'bg-sky-100'}>
+  <thead class={getBgClass(activeTableGroup, 'lighter')}>
     <tr>
       <th scope="col" class="th-col">{t('table.member')}</th>
       {#each cuts() as cut (cut)}

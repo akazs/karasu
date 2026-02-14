@@ -7,7 +7,9 @@ import {
   getActiveGroupId,
   setActiveGroupId,
   countEnabledMembers,
-  saveGroupStateToLocalStorage
+  saveGroupStateToLocalStorage,
+  createGroupStateFromSettings,
+  createEditableGroupState
 } from '../group-state.js';
 import { structured_groups } from '../groups.js';
 
@@ -277,6 +279,150 @@ describe('group-state', () => {
       const state = createGroupState(structured_groups);
       // Should use defaults
       expect(state.groups[0].enabled).toBe(true);
+    });
+  });
+
+  describe('createGroupStateFromSettings', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('should create group state with custom saved settings', () => {
+      const customSettings = {
+        sakurazaka: {
+          enabled: false,
+          generations: {
+            二期生: false,
+            三期生: true
+          }
+        }
+      };
+
+      const state = createGroupStateFromSettings(structured_groups, customSettings);
+
+      expect(state.groups[0].enabled).toBe(false);
+      // Find the specific generations by name
+      const niKisei = state.groups[0].generations.find(g => g.name === '二期生');
+      const sanKisei = state.groups[0].generations.find(g => g.name === '三期生');
+      expect(niKisei.enabled).toBe(false);
+      expect(sanKisei.enabled).toBe(true);
+    });
+
+    it('should merge with localStorage state first, then apply custom settings', () => {
+      // Set localStorage state
+      localStorage.setItem(
+        'karasu-group-state',
+        JSON.stringify({
+          sakurazaka: {
+            enabled: true,
+            generations: {
+              二期生: true,
+              三期生: false
+            }
+          }
+        })
+      );
+
+      // Custom settings should override localStorage
+      const customSettings = {
+        sakurazaka: {
+          enabled: false,
+          generations: {
+            二期生: false
+          }
+        }
+      };
+
+      const state = createGroupStateFromSettings(structured_groups, customSettings);
+
+      expect(state.groups[0].enabled).toBe(false);
+      const niKisei = state.groups[0].generations.find(g => g.name === '二期生');
+      const sanKisei = state.groups[0].generations.find(g => g.name === '三期生');
+      expect(niKisei.enabled).toBe(false);
+      // 三期生 not in custom settings, should use localStorage value
+      expect(sanKisei.enabled).toBe(false);
+    });
+
+    it('should handle empty saved settings', () => {
+      const state = createGroupStateFromSettings(structured_groups, {});
+
+      // Should fall back to localStorage or defaults
+      expect(state).toHaveProperty('groups');
+      expect(state).toHaveProperty('activeGroupId');
+    });
+
+    it('should handle null saved settings', () => {
+      const state = createGroupStateFromSettings(structured_groups, null);
+
+      expect(state).toHaveProperty('groups');
+      expect(state).toHaveProperty('activeGroupId');
+    });
+  });
+
+  describe('createEditableGroupState', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('should create editable group state array', () => {
+      const savedSettings = {
+        sakurazaka: {
+          enabled: false,
+          generations: {
+            二期生: false,
+            三期生: true
+          }
+        }
+      };
+
+      const result = createEditableGroupState(structured_groups, savedSettings);
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result[0].id).toBe('sakurazaka');
+      expect(result[0].enabled).toBe(false);
+      const niKisei = result[0].generations.find(g => g.name === '二期生');
+      const sanKisei = result[0].generations.find(g => g.name === '三期生');
+      expect(niKisei.enabled).toBe(false);
+      expect(sanKisei.enabled).toBe(true);
+    });
+
+    it('should default to enabled:true when no saved settings', () => {
+      const result = createEditableGroupState(structured_groups, {});
+
+      expect(result[0].enabled).toBe(true);
+      expect(result[0].generations[0].enabled).toBe(true);
+    });
+
+    it('should only include id, name, enabled fields (not members)', () => {
+      const result = createEditableGroupState(structured_groups, {});
+
+      expect(result[0]).toHaveProperty('id');
+      expect(result[0]).toHaveProperty('name');
+      expect(result[0]).toHaveProperty('enabled');
+      expect(result[0]).toHaveProperty('generations');
+      expect(result[0].generations[0]).toHaveProperty('name');
+      expect(result[0].generations[0]).toHaveProperty('enabled');
+      expect(result[0].generations[0]).not.toHaveProperty('members');
+    });
+
+    it('should merge saved settings correctly', () => {
+      const savedSettings = {
+        sakurazaka: {
+          enabled: false,
+          generations: {
+            二期生: true
+          }
+        }
+      };
+
+      const result = createEditableGroupState(structured_groups, savedSettings);
+
+      expect(result[0].enabled).toBe(false);
+      const niKisei = result[0].generations.find(g => g.name === '二期生');
+      const sanKisei = result[0].generations.find(g => g.name === '三期生');
+      expect(niKisei.enabled).toBe(true);
+      // 三期生 not in saved settings, should default to true
+      expect(sanKisei.enabled).toBe(true);
     });
   });
 });
