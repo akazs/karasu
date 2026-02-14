@@ -12,15 +12,16 @@
       {t('instruction.warningText3')}<br />
       {t('instruction.warningText4')}
     </p>
+    <p>
+      {t('instruction.warningText5')}<br />
+      {t('instruction.warningText6')}
+    </p>
   </div>
   <div class="section">
     <h1>{t('instruction.usageTitle')}</h1>
     <h2>{t('instruction.managementTabTitle')}</h2>
     <p>
       <b>{t('instruction.tableManagementTitle')}</b>: {t('instruction.tableManagementDesc')}
-    </p>
-    <p>
-      <b>{t('instruction.groupSelectionTitle')}</b>: {t('instruction.groupSelectionDesc')}
     </p>
     <p>
       <b>{t('instruction.editModeTitle')}</b>: {t('instruction.editModeDesc')}

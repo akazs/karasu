@@ -1,13 +1,10 @@
 <script>
   import { editMode } from '$lib/configs.svelte';
   import { i18n, t } from '$lib/i18n/store.svelte.js';
-  import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
-  import { setGroupEnabled, setGenerationEnabled } from '$lib/group-state.js';
   import {
     tablesStore,
     switchTable,
     createTable,
-    renameTableById,
     deleteTableById,
     duplicateTableById
   } from '$lib/table-state.js';
@@ -15,17 +12,17 @@
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import { structured_groups } from '$lib/groups.js';
+  import TableEditOverlay from '../components/TableEditOverlay.svelte';
 
-  let { sortedPhotos, groupState } = $props();
+  let { sortedPhotos } = $props();
 
   // Table management state
   let tables = $derived($tablesStore.tables);
   let activeTableId = $derived($tablesStore.activeTableId);
   let canCreateNew = $derived($tablesStore.tables.length < 10);
 
-  // State for rename dialog
-  let renamingTableId = $state(null);
-  let newTableName = $state('');
+  // State for edit overlay
+  let editingTable = $state(null);
 
   // State for delete confirmation
   let deletingTableId = $state(null);
@@ -61,26 +58,12 @@
     }
   }
 
-  function startRename(table) {
-    renamingTableId = table.id;
-    newTableName = table.name;
+  function openEditOverlay(table) {
+    editingTable = table;
   }
 
-  function confirmRename() {
-    if (newTableName.trim() && renamingTableId) {
-      try {
-        renameTableById(renamingTableId, newTableName.trim());
-        renamingTableId = null;
-        newTableName = '';
-      } catch (error) {
-        alert(error.message);
-      }
-    }
-  }
-
-  function cancelRename() {
-    renamingTableId = null;
-    newTableName = '';
+  function closeEditOverlay() {
+    editingTable = null;
   }
 
   function startDelete(tableId) {
@@ -163,16 +146,6 @@
       minute: '2-digit'
     });
   }
-
-  function toggleGroupEnabled(groupId, enabled) {
-    const newState = setGroupEnabled(groupState, groupId, enabled);
-    groupState.groups = newState.groups;
-  }
-
-  function toggleGenerationEnabled(groupId, genName, enabled) {
-    const newState = setGenerationEnabled(groupState, groupId, genName, enabled);
-    groupState.groups = newState.groups;
-  }
 </script>
 
 <div class="management-container">
@@ -214,136 +187,71 @@
         <div class="border rounded p-2.5 {borderColor} {bgColor}">
           <div class="flex items-start gap-2">
             <!-- Status Badge / Use Button (Top-Left) -->
-            {#if renamingTableId !== table.id}
-              {#if isActive}
-                <span
-                  class="text-xs {badgeColor} text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
-                >
-                  {t('management.inUse')}
-                </span>
-              {:else}
-                <button
-                  onclick={() => handleSwitchTable(table.id)}
-                  class="px-1.5 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
-                  title={t('management.switchTooltip')}
-                >
-                  {t('management.switchButton')}
-                </button>
-              {/if}
+            {#if isActive}
+              <span
+                class="text-xs {badgeColor} text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
+              >
+                {t('management.inUse')}
+              </span>
+            {:else}
+              <button
+                onclick={() => handleSwitchTable(table.id)}
+                class="px-1.5 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
+                title={t('management.switchTooltip')}
+              >
+                {t('management.switchButton')}
+              </button>
             {/if}
 
             <!-- Table Info (Middle) -->
             <div class="flex-1 min-w-0">
-              {#if renamingTableId === table.id}
-                <!-- Rename Input -->
-                <div class="flex gap-1.5">
-                  <input
-                    type="text"
-                    bind:value={newTableName}
-                    class="flex-1 px-2 py-1 text-sm border rounded"
-                    placeholder={t('management.tableName')}
-                    maxlength="30"
-                    onkeydown={(e) => {
-                      if (e.key === 'Enter') confirmRename();
-                      if (e.key === 'Escape') cancelRename();
-                    }}
-                    autofocus
-                  />
-                  <button
-                    onclick={confirmRename}
-                    class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                    disabled={!newTableName.trim()}
-                  >
-                    {t('management.save')}
-                  </button>
-                  <button
-                    onclick={cancelRename}
-                    class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    {t('management.cancel')}
-                  </button>
-                </div>
-              {:else}
-                <!-- Table Name -->
-                <div class="font-medium text-sm mb-0.5 truncate" title={table.name}>
-                  {table.name}
-                </div>
-                <!-- Table Metadata -->
-                <div class="text-xs text-gray-500">
-                  {t('management.updated')}: {formatDate(table.lastModified)}
-                </div>
-              {/if}
+              <!-- Table Name -->
+              <div class="font-medium text-sm mb-0.5 truncate" title={table.name}>
+                {table.name}
+              </div>
+              <!-- Table Metadata -->
+              <div class="text-xs text-gray-500">
+                {t('management.updated')}: {formatDate(table.lastModified)}
+              </div>
             </div>
 
             <!-- Action Buttons (Right) -->
-            {#if renamingTableId !== table.id}
-              <div class="flex flex-col md:flex-row gap-1 flex-shrink-0">
-                <button
-                  onclick={() => startRename(table)}
-                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
-                  title={t('management.renameTooltip')}
-                >
-                  {t('management.editButton')}
-                </button>
-                <button
-                  onclick={() => handleDuplicate(table.id)}
-                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
-                  title={t('management.duplicateTooltip')}
-                  disabled={!canCreateNew}
-                >
-                  {t('management.copyButton')}
-                </button>
-                <button
-                  onclick={() => handleExport(table)}
-                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
-                  title={t('management.csvTooltip')}
-                >
-                  {t('management.csvButton')}
-                </button>
-                <button
-                  onclick={() => startDelete(table.id)}
-                  class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 md:w-16"
-                  title={t('management.deleteTooltip')}
-                  disabled={tables.length === 1}
-                >
-                  {t('management.deleteButton')}
-                </button>
-              </div>
-            {/if}
+            <div class="flex flex-col md:flex-row gap-1 flex-shrink-0">
+              <button
+                onclick={() => openEditOverlay(table)}
+                class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
+                title={t('management.renameTooltip')}
+              >
+                {t('management.editButton')}
+              </button>
+              <button
+                onclick={() => handleDuplicate(table.id)}
+                class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
+                title={t('management.duplicateTooltip')}
+                disabled={!canCreateNew}
+              >
+                {t('management.copyButton')}
+              </button>
+              <button
+                onclick={() => handleExport(table)}
+                class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 md:w-16"
+                title={t('management.csvTooltip')}
+              >
+                {t('management.csvButton')}
+              </button>
+              <button
+                onclick={() => startDelete(table.id)}
+                class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 md:w-16"
+                title={t('management.deleteTooltip')}
+                disabled={tables.length === 1}
+              >
+                {t('management.deleteButton')}
+              </button>
+            </div>
           </div>
         </div>
       {/each}
     </div>
-  </section>
-
-  <!-- Group Selection Section -->
-  <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">{t('management.groupSelection')}</h2>
-    {#each groupState.groups as group (group.id)}
-      <div class="my-3 ml-2">
-        <label class="font-bold">
-          <input
-            type="checkbox"
-            checked={group.enabled}
-            onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
-          />
-          {group.name}
-        </label>
-        <div class="ml-6">
-          {#each group.generations as generation (generation.name)}
-            <label class="block">
-              <input
-                type="checkbox"
-                checked={generation.enabled}
-                onchange={(e) =>
-                  toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
-              />
-              {generation.name}
-            </label>
-          {/each}
-        </div>
-      </div>
-    {/each}
   </section>
 
   <!-- Edit Mode Section -->
@@ -387,29 +295,23 @@
   <!-- Data Management Section -->
   <section class="mb-6">
     <h2 class="text-lg font-bold mb-3">{t('management.dataManagement')}</h2>
-    <div class="flex flex-col gap-3">
-      <button
-        class="btn-red text-center"
-        aria-label="clear current table"
-        onclick={() => {
-          if (confirm(t('alerts.confirmClearCurrentTable'))) {
-            clearSortedPhotos(sortedPhotos);
-          }
-        }}>{t('management.clearCurrentTable')}</button
-      >
-      <button
-        class="btn-red text-center"
-        aria-label="clear all data"
-        onclick={() => {
-          if (confirm(t('alerts.confirmClearAllData'))) {
-            clearAllData();
-            window.location.reload();
-          }
-        }}>{t('management.clearAllData')}</button
-      >
-    </div>
+    <button
+      class="btn-red text-center w-full"
+      aria-label="clear all data"
+      onclick={() => {
+        if (confirm(t('alerts.confirmClearAllData'))) {
+          clearAllData();
+          window.location.reload();
+        }
+      }}>{t('management.clearAllData')}</button
+    >
   </section>
 </div>
+
+<!-- Edit Overlay -->
+{#if editingTable}
+  <TableEditOverlay table={editingTable} {sortedPhotos} onClose={closeEditOverlay} />
+{/if}
 
 <!-- Delete Confirmation Dialog -->
 {#if deletingTableId}
@@ -417,12 +319,16 @@
   <div
     class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[60]"
     onclick={cancelDelete}
+    onkeydown={(e) => {
+      if (e.key === 'Escape') cancelDelete();
+    }}
     role="button"
     tabindex="-1"
   >
     <div
       class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
       role="dialog"
       aria-labelledby="delete-title"
       tabindex="0"
