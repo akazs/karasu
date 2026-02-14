@@ -78,6 +78,16 @@
     }
   });
 
+  // Reload groupState when the active table's groupSettings change
+  $effect(() => {
+    // Watch for changes in activeTable.groupSettings
+    const settings = activeTable?.groupSettings;
+    if (settings && !isLoading) {
+      // Reinitialize groupState from the updated table settings
+      groupState = initializeGroupState();
+    }
+  });
+
   // Auto-save sortedPhotos when it changes (debounced, but not during loading)
   $effect(() => {
     // Touch sortedPhotos to establish reactivity
