@@ -31,7 +31,7 @@
   let sortedPhotos = $state(loadSortedPhotosFromActiveTable());
 
   let groupState = $state(
-    createGroupStateFromSettings(structured_groups, activeTable?.groupSettings || {})
+    createGroupStateFromSettings(structured_groups, $activeTableStore?.groupSettings || {})
   );
 
   // Track if we're currently loading to prevent save during load
@@ -60,26 +60,8 @@
     }
   });
 
-  // Reload groupState when the active table's groupSettings change
-  $effect(() => {
-    // Watch for changes in activeTable.groupSettings
-    const settings = activeTable?.groupSettings;
-    if (settings && !isLoading) {
-      // Reinitialize groupState from the updated table settings
-      groupState = createGroupStateFromSettings(structured_groups, settings);
-    }
-  });
-
-  // Auto-save sortedPhotos when it changes (debounced, but not during loading)
-  $effect(() => {
-    // Touch sortedPhotos to establish reactivity
-    sortedPhotos.size;
-    if (!isLoading) {
-      debouncedSavePhotos(sortedPhotos);
-    }
-  });
-
   // Auto-save groupState when it changes (debounced, but not during loading)
+  // Note: sortedPhotos are saved directly in setPhotoData(), so no auto-save effect needed
   $effect(() => {
     if (!isLoading) {
       const savedSettings = {};
