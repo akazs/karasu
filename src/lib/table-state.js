@@ -165,6 +165,7 @@ export function duplicateTableById(tableId) {
 
 /**
  * Update photo data for the active table.
+ * Only updates lastModified if the data actually changed.
  */
 export function updateActiveTablePhotoData(newPhotoData) {
   tablesStore.update((state) => {
@@ -173,6 +174,11 @@ export function updateActiveTablePhotoData(newPhotoData) {
       return state;
     }
 
+    // Check if data actually changed
+    const oldData = JSON.stringify(activeTable.photoData);
+    const newData = JSON.stringify(newPhotoData);
+    const hasChanged = oldData !== newData;
+
     return {
       ...state,
       tables: state.tables.map((table) =>
@@ -180,7 +186,7 @@ export function updateActiveTablePhotoData(newPhotoData) {
           ? {
               ...table,
               photoData: newPhotoData,
-              lastModified: new Date().toISOString()
+              ...(hasChanged && { lastModified: new Date().toISOString() })
             }
           : table
       )
@@ -190,6 +196,7 @@ export function updateActiveTablePhotoData(newPhotoData) {
 
 /**
  * Update group settings for the active table.
+ * Only updates lastModified if the settings actually changed.
  */
 export function updateActiveTableGroupSettings(newGroupSettings) {
   tablesStore.update((state) => {
@@ -198,6 +205,11 @@ export function updateActiveTableGroupSettings(newGroupSettings) {
       return state;
     }
 
+    // Check if settings actually changed
+    const oldSettings = JSON.stringify(activeTable.groupSettings);
+    const newSettings = JSON.stringify(newGroupSettings);
+    const hasChanged = oldSettings !== newSettings;
+
     return {
       ...state,
       tables: state.tables.map((table) =>
@@ -205,7 +217,7 @@ export function updateActiveTableGroupSettings(newGroupSettings) {
           ? {
               ...table,
               groupSettings: newGroupSettings,
-              lastModified: new Date().toISOString()
+              ...(hasChanged && { lastModified: new Date().toISOString() })
             }
           : table
       )
