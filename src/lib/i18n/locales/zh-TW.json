@@ -58,7 +58,7 @@
     "labelCuts": "生寫種類",
     "labelSheetsPerPack": "每包張數",
     "labelPacksToBuy": "購買包數",
-    "resultText": "平均有 95% 的機率可湊成 {compMean} ± {compStderr} 成套，{totalCuts} 種中會出現 {coverageMean} ± {coverageStderr} 種"
+    "resultText": "平均有 95% 的機率可湊成 {compMean} ± {compStderr} 套，{totalCuts} 種中會出現 {coverageMean} ± {coverageStderr} 種"
   },
   "instruction": {
     "warningTitle": "注意事項",
