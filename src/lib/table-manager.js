@@ -216,8 +216,56 @@ export function saveTablesToLocalStorage(tables) {
 }
 
 /**
+ * Create initial default table with proper group settings.
+ * All groups and generations are enabled by default.
+ * @returns {object} Initial tables state
+ */
+export function createInitialState() {
+  const now = new Date().toISOString();
+
+  // Create default group settings with all groups and generations enabled
+  const groupSettings = {
+    sakurazaka: {
+      enabled: true,
+      generations: {
+        二期生: true,
+        三期生: true,
+        四期生: true
+      }
+    },
+    hinatazaka: {
+      enabled: true,
+      generations: {
+        一期生: true,
+        二期生: true,
+        三期生: true,
+        四期生: true,
+        五期生: true
+      }
+    }
+  };
+
+  const firstTable = {
+    id: generateTableId(),
+    name: getDefaultTableName(),
+    createdAt: now,
+    lastModified: now,
+    photoData: {},
+    groupSettings
+  };
+
+  return {
+    version: 1,
+    tables: [firstTable],
+    activeTableId: firstTable.id,
+    maxTables: MAX_TABLES
+  };
+}
+
+/**
  * Clear all data from localStorage except language setting.
  * Removes tables, legacy photos, and legacy group state.
+ * Sets a flag to indicate data was cleared, so migration creates initial state.
  */
 export function clearAllData() {
   if (typeof localStorage === 'undefined') {
@@ -261,12 +309,14 @@ export function loadTablesFromLocalStorage() {
 
 /**
  * Migrate from legacy localStorage format to tables format.
- * Creates a single table named "既存データ" with the legacy data.
+ * If legacy data exists, creates a table with that data.
+ * If no legacy data exists, returns initial state with proper defaults.
  * @returns {object} Tables state object
  */
 export function migrateFromLegacyStorage() {
   let photoData = {};
   let groupSettings = {};
+  let hasLegacyData = false;
 
   if (typeof localStorage !== 'undefined') {
     // Load legacy photo data
@@ -274,6 +324,7 @@ export function migrateFromLegacyStorage() {
       const legacyPhotos = localStorage.getItem(LEGACY_PHOTOS_KEY);
       if (legacyPhotos) {
         photoData = JSON.parse(legacyPhotos);
+        hasLegacyData = true;
       }
     } catch (error) {
       console.error('Failed to load legacy photo data:', error);
@@ -284,12 +335,19 @@ export function migrateFromLegacyStorage() {
       const legacyGroupState = localStorage.getItem(LEGACY_GROUP_STATE_KEY);
       if (legacyGroupState) {
         groupSettings = JSON.parse(legacyGroupState);
+        hasLegacyData = true;
       }
     } catch (error) {
       console.error('Failed to load legacy group state:', error);
     }
   }
 
+  // If no legacy data exists, return initial state with proper defaults
+  if (!hasLegacyData) {
+    return createInitialState();
+  }
+
+  // Create table with legacy data
   const now = new Date().toISOString();
   const firstTable = {
     id: generateTableId(),

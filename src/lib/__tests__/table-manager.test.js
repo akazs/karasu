@@ -16,6 +16,8 @@ import {
   deleteTable,
   duplicateTable,
   migrateFromLegacyStorage,
+  clearAllData,
+  createInitialState,
   generateTableId,
   MAX_TABLES,
   MAX_TABLE_NAME_LENGTH
@@ -508,7 +510,7 @@ describe('table-manager', () => {
 
       expect(tables.version).toBe(1);
       expect(tables.tables).toHaveLength(1);
-      expect(tables.tables[0].name).toBe('デフォルト');
+      expect(tables.tables[0].name).toBe('新しいテーブル');
       expect(tables.tables[0].photoData).toEqual({
         sakurazaka: { '井上 梨名': [1, 2, 0, 0] }
       });
@@ -523,9 +525,28 @@ describe('table-manager', () => {
 
       expect(tables.version).toBe(1);
       expect(tables.tables).toHaveLength(1);
-      expect(tables.tables[0].name).toBe('デフォルト');
+      expect(tables.tables[0].name).toBe('新しいテーブル');
       expect(tables.tables[0].photoData).toEqual({});
-      expect(tables.tables[0].groupSettings).toEqual({});
+      expect(tables.tables[0].groupSettings).toEqual({
+        sakurazaka: {
+          enabled: true,
+          generations: {
+            二期生: true,
+            三期生: true,
+            四期生: true
+          }
+        },
+        hinatazaka: {
+          enabled: true,
+          generations: {
+            一期生: true,
+            二期生: true,
+            三期生: true,
+            四期生: true,
+            五期生: true
+          }
+        }
+      });
     });
 
     it('should handle nested format for photoData', () => {
@@ -543,6 +564,70 @@ describe('table-manager', () => {
         sakurazaka: { '井上 梨名': [1, 2, 0, 0] },
         hinatazaka: { '金村 美玖': [0, 1, 0, 0] }
       });
+    });
+  });
+
+  describe('clearAllData', () => {
+    it('should clear all data except language setting', () => {
+      // Set up some data in localStorage
+      localStorage.setItem(
+        'karasu-tables',
+        JSON.stringify({
+          version: 1,
+          tables: [
+            { id: '1', name: 'Table 1', photoData: { sakurazaka: { '井上 梨名': [1, 2, 0, 0] } } },
+            { id: '2', name: 'Table 2', photoData: {} }
+          ],
+          activeTableId: '1'
+        })
+      );
+      localStorage.setItem('sortedPhotos20250716', JSON.stringify({ '井上 梨名': [1, 2, 0, 0] }));
+      localStorage.setItem('karasu-group-state', JSON.stringify({ sakurazaka: { enabled: true } }));
+      localStorage.setItem('karasu-locale', 'ja-JP');
+
+      // Clear all data
+      clearAllData();
+
+      // Verify all data is removed
+      expect(localStorage.getItem('karasu-tables')).toBeNull();
+      expect(localStorage.getItem('sortedPhotos20250716')).toBeNull();
+      expect(localStorage.getItem('karasu-group-state')).toBeNull();
+
+      // Verify locale is preserved
+      expect(localStorage.getItem('karasu-locale')).toBe('ja-JP');
+    });
+  });
+
+  describe('createInitialState', () => {
+    it('should create initial state with one empty table and default settings', () => {
+      const state = createInitialState();
+
+      expect(state.version).toBe(1);
+      expect(state.tables).toHaveLength(1);
+      expect(state.tables[0].name).toBe('新しいテーブル');
+      expect(state.tables[0].photoData).toEqual({});
+      expect(state.tables[0].groupSettings).toEqual({
+        sakurazaka: {
+          enabled: true,
+          generations: {
+            二期生: true,
+            三期生: true,
+            四期生: true
+          }
+        },
+        hinatazaka: {
+          enabled: true,
+          generations: {
+            一期生: true,
+            二期生: true,
+            三期生: true,
+            四期生: true,
+            五期生: true
+          }
+        }
+      });
+      expect(state.activeTableId).toBe(state.tables[0].id);
+      expect(state.maxTables).toBe(MAX_TABLES);
     });
   });
 });

@@ -14,6 +14,8 @@ import {
   deleteTable as deleteTableLogic,
   duplicateTable as duplicateTableLogic,
   migrateFromLegacyStorage,
+  createInitialState,
+  clearAllData,
   getActiveTable,
   MAX_TABLES
 } from './table-manager.js';
@@ -209,4 +211,18 @@ export function updateActiveTableGroupSettings(newGroupSettings) {
       )
     };
   });
+}
+
+/**
+ * Reset all data to initial state.
+ * Clears localStorage and resets the store to a fresh initial state.
+ * This ensures the in-memory store state is cleared before page reload.
+ */
+export function resetToInitialState() {
+  // Clear localStorage first
+  clearAllData();
+
+  // Reset store to initial state
+  // This will trigger the subscription which saves to localStorage
+  tablesStore.set(createInitialState());
 }
