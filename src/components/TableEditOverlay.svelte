@@ -4,30 +4,13 @@
   import { renameTableById, updateActiveTableGroupSettings } from '$lib/table-state.js';
   import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
   import { structured_groups } from '$lib/groups.js';
+  import { createEditableGroupState } from '$lib/group-state.js';
 
   let { table, sortedPhotos, onClose } = $props();
 
-  /**
-   * Create a local copy of the group state from the table's groupSettings
-   */
-  function createLocalGroupState() {
-    return structured_groups.map((group) => {
-      const savedGroup = table.groupSettings[group.id];
-      return {
-        id: group.id,
-        name: group.name,
-        enabled: savedGroup?.enabled ?? true,
-        generations: group.generations.map((gen) => ({
-          name: gen.name,
-          enabled: savedGroup?.generations?.[gen.name] ?? true
-        }))
-      };
-    });
-  }
-
   // Local state for editing - capture initial values
   let newTableName = $state(untrack(() => table.name));
-  let localGroupState = $state(createLocalGroupState());
+  let localGroupState = $state(createEditableGroupState(structured_groups, table.groupSettings));
 
   /**
    * Toggle group enabled state
@@ -170,7 +153,8 @@
           id="table-name-input"
           type="text"
           bind:value={newTableName}
-          class="block w-full min-w-0 px-3 py-3 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          class="block min-w-0 px-3 py-3 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          style="width: 100%; text-align: left;"
           placeholder={t('management.tableName')}
           maxlength="30"
           autocomplete="off"
@@ -181,7 +165,6 @@
           data-lpignore="true"
           data-1p-ignore="true"
           data-bwignore="true"
-          style="width: 100%; text-align: left;"
           onkeydown={(e) => {
             if (e.key === 'Enter' && canSave) saveChanges();
             if (e.key === 'Escape') onClose();

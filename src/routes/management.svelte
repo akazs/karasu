@@ -12,7 +12,9 @@
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import { structured_groups } from '$lib/groups.js';
+  import { getBorderClass, getBgClass, getBadgeClass } from '$lib/theme-utils.js';
   import TableEditOverlay from '../components/TableEditOverlay.svelte';
+  import ConfirmDialog from '../components/ui/ConfirmDialog.svelte';
 
   let { sortedPhotos } = $props();
 
@@ -196,13 +198,9 @@
       {#each tables as table (table.id)}
         {@const theme = getTableTheme(table)}
         {@const isActive = table.id === activeTableId}
-        {@const borderColor = isActive
-          ? theme === 'sakurazaka'
-            ? 'border-pink-400'
-            : 'border-sky-400'
-          : 'border-gray-300'}
-        {@const bgColor = isActive ? (theme === 'sakurazaka' ? 'bg-pink-50' : 'bg-sky-50') : ''}
-        {@const badgeColor = theme === 'sakurazaka' ? 'bg-pink-400' : 'bg-sky-400'}
+        {@const borderColor = isActive ? getBorderClass(theme) : 'border-gray-300'}
+        {@const bgColor = isActive ? getBgClass(theme) : ''}
+        {@const badgeColor = getBadgeClass(theme)}
         <div class="border rounded p-2.5 {borderColor} {bgColor}">
           <div class="flex items-start gap-2">
             <!-- Status Badge / Use Button (Top-Left) -->
@@ -328,47 +326,17 @@
 <!-- Delete Confirmation Dialog -->
 {#if deletingTableId}
   {@const deletingTable = tables.find((t) => t.id === deletingTableId)}
-  <div
-    class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[60]"
-    onclick={cancelDelete}
-    onkeydown={(e) => {
-      if (e.key === 'Escape') cancelDelete();
-    }}
-    role="button"
-    tabindex="-1"
-  >
-    <div
-      class="bg-white rounded-lg p-6 max-w-md w-full mx-4"
-      onclick={(e) => e.stopPropagation()}
-      onkeydown={(e) => e.stopPropagation()}
-      role="dialog"
-      aria-labelledby="delete-title"
-      tabindex="0"
-    >
-      <h3 id="delete-title" class="text-lg font-bold mb-4 text-red-700">
-        {t('management.deleteConfirmTitle')}
-      </h3>
-      <p class="mb-4">
-        {t('alerts.confirmDeleteTablePrefix')}<strong>{deletingTable?.name}</strong>{t(
-          'alerts.confirmDeleteTableSuffix'
-        )}
-      </p>
-      <p class="text-sm text-gray-600 mb-6">
-        {t('alerts.deleteWarning')}
-      </p>
-      <div class="flex gap-3 justify-end">
-        <button onclick={cancelDelete} class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-          {t('management.cancel')}
-        </button>
-        <button
-          onclick={confirmDelete}
-          class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          {t('alerts.confirmDelete')}
-        </button>
-      </div>
-    </div>
-  </div>
+  {@const deleteMessage = `${t('alerts.confirmDeleteTablePrefix')}${deletingTable?.name}${t('alerts.confirmDeleteTableSuffix')}\n\n${t('alerts.deleteWarning')}`}
+  <ConfirmDialog
+    isOpen={true}
+    title={t('management.deleteConfirmTitle')}
+    message={deleteMessage}
+    confirmText={t('alerts.confirmDelete')}
+    cancelText={t('management.cancel')}
+    onConfirm={confirmDelete}
+    onCancel={cancelDelete}
+    variant="danger"
+  />
 {/if}
 
 <style>

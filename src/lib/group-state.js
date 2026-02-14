@@ -179,3 +179,58 @@ export function countEnabledMembers(state) {
   }
   return count;
 }
+
+/**
+ * Create group state from custom saved settings (e.g., from table-specific settings).
+ * Similar to createGroupState but uses provided savedSettings instead of localStorage.
+ * Merges with localStorage state first, then applies savedSettings overrides.
+ * @param {Array} groups - Frozen group config from groups.js
+ * @param {object} savedSettings - Custom settings object (e.g., from table.groupSettings)
+ * @returns {{groups: Array, activeGroupId: string}}
+ */
+export function createGroupStateFromSettings(groups, savedSettings) {
+  const baseState = createGroupState(groups);
+  const settings = savedSettings || {};
+
+  return {
+    ...baseState,
+    groups: baseState.groups.map((group) => {
+      const saved = settings[group.id];
+      if (!saved) {
+        return group;
+      }
+
+      return {
+        ...group,
+        enabled: saved.enabled ?? group.enabled,
+        generations: group.generations.map((gen) => ({
+          ...gen,
+          enabled: saved.generations?.[gen.name] ?? gen.enabled
+        }))
+      };
+    })
+  };
+}
+
+/**
+ * Create an editable group state array from custom saved settings.
+ * Used for table edit overlays where only group/generation structure is needed.
+ * Returns an array of groups (not the full state object with activeGroupId).
+ * @param {Array} groups - Frozen group config from groups.js
+ * @param {object} savedSettings - Custom settings object (e.g., from table.groupSettings)
+ * @returns {Array} Array of group objects
+ */
+export function createEditableGroupState(groups, savedSettings) {
+  return groups.map((group) => {
+    const savedGroup = savedSettings[group.id];
+    return {
+      id: group.id,
+      name: group.name,
+      enabled: savedGroup?.enabled ?? true,
+      generations: group.generations.map((gen) => ({
+        name: gen.name,
+        enabled: savedGroup?.generations?.[gen.name] ?? true
+      }))
+    };
+  });
+}

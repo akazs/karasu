@@ -2,6 +2,7 @@
   import { t } from '$lib/i18n/store.svelte.js';
   import { cuts } from '$lib/configs.svelte';
   import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
+  import { getButtonClass } from '$lib/theme-utils.js';
 
   let { sortedPhotos, groupState } = $props();
 
@@ -50,7 +51,7 @@
   <div class="grid gap-2 md:gap-4">
     {#each enabledGroups as group (group.id)}
       <button
-        class={group.id === 'sakurazaka' ? 'btn-pink' : 'btn-sky'}
+        class={getButtonClass(group.id)}
         aria-label={group.name}
         onclick={() => {
           selectedGroupId = group.id;
@@ -65,7 +66,7 @@
   <div class="grid gap-2 md:gap-4">
     {#each enabledGenerations as generation (generation.name)}
       <button
-        class={primaryTheme === 'sakurazaka' ? 'btn-pink' : 'btn-sky'}
+        class={getButtonClass(primaryTheme)}
         aria-label={generation.name}
         onclick={() => {
           selectedGeneration = generation.name;
@@ -93,7 +94,7 @@
       {#if generation.name === selectedGeneration}
         {#each generation.members as member (member.fullname)}
           <button
-            class={primaryTheme === 'sakurazaka' ? 'btn-pink' : 'btn-sky'}
+            class={getButtonClass(primaryTheme)}
             aria-label={member.fullname}
             onclick={() => {
               selectedMember = member.fullname;
@@ -126,9 +127,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
     {#each cuts() as cut, i (cut)}
       <button
-        class={primaryTheme === 'sakurazaka'
-          ? 'btn-pink btn-pink-focus-active'
-          : 'btn-sky btn-sky-focus-active'}
+        class={getButtonClass(primaryTheme, { focusActive: true })}
         aria-label={cut}
         onclick={() => {
           let data = getPhotoData(sortedPhotos, selectedGroupId, selectedMember);

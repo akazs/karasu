@@ -5,9 +5,10 @@
     loadSortedPhotosFromActiveTable,
     saveSortedPhotosToActiveTable
   } from '$lib/table-sortedphotos.svelte';
-  import { createGroupState } from '$lib/group-state.js';
+  import { createGroupStateFromSettings } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
   import { debounce } from '$lib/debounce.js';
+  import { getTabActiveClass } from '$lib/theme-utils.js';
   import Management from './management.svelte';
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
@@ -29,31 +30,9 @@
   // Initialize sortedPhotos and groupState from active table
   let sortedPhotos = $state(loadSortedPhotosFromActiveTable());
 
-  function initializeGroupState() {
-    const baseState = createGroupState(structured_groups);
-    const savedSettings = activeTable?.groupSettings || {};
-
-    return {
-      ...baseState,
-      groups: baseState.groups.map((group) => {
-        const saved = savedSettings[group.id];
-        if (!saved) {
-          return group;
-        }
-
-        return {
-          ...group,
-          enabled: saved.enabled ?? group.enabled,
-          generations: group.generations.map((gen) => ({
-            ...gen,
-            enabled: saved.generations?.[gen.name] ?? gen.enabled
-          }))
-        };
-      })
-    };
-  }
-
-  let groupState = $state(initializeGroupState());
+  let groupState = $state(
+    createGroupStateFromSettings(structured_groups, activeTable?.groupSettings || {})
+  );
 
   // Track if we're currently loading to prevent save during load
   let isLoading = $state(false);
@@ -69,7 +48,10 @@
       // Reload sortedPhotos from the new active table
       sortedPhotos = loadSortedPhotosFromActiveTable();
       // Reload groupState from the new active table
-      groupState = initializeGroupState();
+      groupState = createGroupStateFromSettings(
+        structured_groups,
+        $activeTableStore?.groupSettings || {}
+      );
 
       // Use setTimeout to defer setting isLoading to false
       setTimeout(() => {
@@ -84,7 +66,7 @@
     const settings = activeTable?.groupSettings;
     if (settings && !isLoading) {
       // Reinitialize groupState from the updated table settings
-      groupState = initializeGroupState();
+      groupState = createGroupStateFromSettings(structured_groups, settings);
     }
   });
 
@@ -164,11 +146,7 @@
 
 <ul>
   {#each tabs as tab (tab.id)}
-    <li
-      class:active={activeTab == tab.id}
-      class:active-sakurazaka={activeTab == tab.id && primaryTheme === 'sakurazaka'}
-      class:active-hinatazaka={activeTab == tab.id && primaryTheme === 'hinatazaka'}
-    >
+    <li class:active={activeTab == tab.id} class={activeTab == tab.id ? getTabActiveClass(primaryTheme) : ''}>
       <button class="tab" onclick={handleClick(tab.id)}>{tab.name}</button>
     </li>
   {/each}
