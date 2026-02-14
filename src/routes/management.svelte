@@ -6,9 +6,9 @@
     switchTable,
     createTable,
     deleteTableById,
-    duplicateTableById
+    duplicateTableById,
+    resetToInitialState
   } from '$lib/table-state.js';
-  import { clearAllData } from '$lib/table-manager.js';
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import { structured_groups } from '$lib/groups.js';
@@ -145,6 +145,25 @@
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  function handleClearAll() {
+    if (!confirm(t('alerts.confirmClearAllData'))) {
+      return;
+    }
+
+    try {
+      // Reset store and localStorage to initial state
+      resetToInitialState();
+
+      // Reload page to refresh all components
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    } catch (error) {
+      console.error('Failed to clear data:', error);
+      alert('Failed to clear data. Please try again.');
+    }
   }
 </script>
 
@@ -295,16 +314,9 @@
   <!-- Data Management Section -->
   <section class="mb-6">
     <h2 class="text-lg font-bold mb-3">{t('management.dataManagement')}</h2>
-    <button
-      class="btn-red text-center w-full"
-      aria-label="clear all data"
-      onclick={() => {
-        if (confirm(t('alerts.confirmClearAllData'))) {
-          clearAllData();
-          window.location.reload();
-        }
-      }}>{t('management.clearAllData')}</button
-    >
+    <button class="btn-red text-center w-full" aria-label="clear all data" onclick={handleClearAll}>
+      {t('management.clearAllData')}
+    </button>
   </section>
 </div>
 
