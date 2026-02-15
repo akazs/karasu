@@ -506,7 +506,7 @@ describe('table-manager', () => {
         })
       );
 
-      const tables = migrateFromLegacyStorage();
+      const tables = migrateFromLegacyStorage('新しいテーブル');
 
       expect(tables.version).toBe(1);
       expect(tables.tables).toHaveLength(1);
@@ -521,7 +521,7 @@ describe('table-manager', () => {
     });
 
     it('should create empty table if no legacy data exists', () => {
-      const tables = migrateFromLegacyStorage();
+      const tables = migrateFromLegacyStorage('新しいテーブル');
 
       expect(tables.version).toBe(1);
       expect(tables.tables).toHaveLength(1);
@@ -539,7 +539,6 @@ describe('table-manager', () => {
         hinatazaka: {
           enabled: true,
           generations: {
-            一期生: true,
             二期生: true,
             三期生: true,
             四期生: true,
@@ -558,7 +557,7 @@ describe('table-manager', () => {
         })
       );
 
-      const tables = migrateFromLegacyStorage();
+      const tables = migrateFromLegacyStorage('新しいテーブル');
 
       expect(tables.tables[0].photoData).toEqual({
         sakurazaka: { '井上 梨名': [1, 2, 0, 0] },
@@ -604,7 +603,7 @@ describe('table-manager', () => {
 
       expect(state.version).toBe(1);
       expect(state.tables).toHaveLength(1);
-      expect(state.tables[0].name).toBe('新しいテーブル');
+      expect(state.tables[0].name).toBe('デフォルト');
       expect(state.tables[0].photoData).toEqual({});
       expect(state.tables[0].groupSettings).toEqual({
         sakurazaka: {
@@ -618,7 +617,6 @@ describe('table-manager', () => {
         hinatazaka: {
           enabled: true,
           generations: {
-            一期生: true,
             二期生: true,
             三期生: true,
             四期生: true,

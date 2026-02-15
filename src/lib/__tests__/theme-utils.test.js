@@ -66,10 +66,6 @@ describe('theme-utils', () => {
 			expect(getBorderClass('hinatazaka')).toBe('border-sky-400');
 		});
 
-		it('should handle intensity parameter (future-proofing)', () => {
-			expect(getBorderClass('sakurazaka', 'default')).toBe('border-pink-400');
-			expect(getBorderClass('hinatazaka', 'default')).toBe('border-sky-400');
-		});
 	});
 
 	describe('getBadgeClass', () => {

@@ -93,6 +93,7 @@
     "tableNameTooLong": "テーブル名は 30 文字以内で入力してください。",
     "csvCopied": "「{name}」の CSV をクリップボードにコピーしました",
     "csvFailed": "CSV のコピーに失敗しました",
+    "clearFailed": "データのクリアに失敗しました。もう一度お試しください。",
     "confirmClearCurrentTable": "現在のテーブルの生写真カウントをすべてクリアします。よろしいですか？",
     "confirmClearAllData": "すべてのテーブルを削除します。この操作は取り消せません。よろしいですか？",
     "confirmDeleteTablePrefix": "テーブル「",
