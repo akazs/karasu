@@ -18,7 +18,7 @@ export class TablePage extends BasePage {
    * Navigate to Table tab
    */
   async goto() {
-    await this.navigateToTab('表');
+    await this.navigateToTab('結果');
   }
 
   /**
@@ -53,7 +53,8 @@ export class TablePage extends BasePage {
   async incrementCell(memberName, cutIndex) {
     const row = this.page.locator('tr', { hasText: memberName });
     const cells = row.locator('td');
-    const cell = cells.nth(cutIndex + 1); // +1 to skip the member name column
+    // Member name is in a <th>, so td cells start at index 0 for first cut
+    const cell = cells.nth(cutIndex);
     await cell.locator('button:has-text("+")').click();
     await this.waitForDebounce();
   }
@@ -66,7 +67,8 @@ export class TablePage extends BasePage {
   async decrementCell(memberName, cutIndex) {
     const row = this.page.locator('tr', { hasText: memberName });
     const cells = row.locator('td');
-    const cell = cells.nth(cutIndex + 1); // +1 to skip the member name column
+    // Member name is in a <th>, so td cells start at index 0 for first cut
+    const cell = cells.nth(cutIndex);
     await cell.locator('button:has-text("-")').click();
     await this.waitForDebounce();
   }
@@ -80,7 +82,8 @@ export class TablePage extends BasePage {
   async getCellValue(memberName, cutIndex) {
     const row = this.page.locator('tr', { hasText: memberName });
     const cells = row.locator('td');
-    const cell = cells.nth(cutIndex + 1); // +1 to skip the member name column
+    // Member name is in a <th>, so td cells start at index 0 for first cut
+    const cell = cells.nth(cutIndex);
     const text = await cell.textContent();
     // Extract number from text (may include +/- buttons in edit mode)
     const match = text.match(/\d+/);
@@ -165,7 +168,7 @@ export class TablePage extends BasePage {
     const row = this.page.locator('tr', { hasText: memberName });
     const cells = row.locator('td');
     let total = 0;
-    for (let i = 1; i <= 4; i++) { // Skip first column (member name)
+    for (let i = 0; i < 4; i++) { // td cells start at 0 (member name is in th)
       const cell = cells.nth(i);
       const text = await cell.textContent();
       const match = text.match(/\d+/);

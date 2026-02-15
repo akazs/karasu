@@ -17,7 +17,7 @@ export class UtilsPage extends BasePage {
    * Navigate to Utils tab
    */
   async goto() {
-    await this.navigateToTab('ツール');
+    await this.navigateToTab('その他');
   }
 
   /**

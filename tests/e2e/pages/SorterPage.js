@@ -18,7 +18,7 @@ export class SorterPage extends BasePage {
    * Navigate to Sorter tab
    */
   async goto() {
-    await this.navigateToTab('仕分け');
+    await this.navigateToTab('集計');
   }
 
   /**
