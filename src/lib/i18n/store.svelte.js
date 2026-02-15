@@ -44,7 +44,9 @@ class I18nState {
 
   setLocale(newLocale) {
     if (!SUPPORTED_LOCALES.includes(newLocale)) {
-      console.warn(`Unsupported locale: ${newLocale}`);
+      if (import.meta.env.DEV) {
+        console.warn(`Unsupported locale: ${newLocale}`);
+      }
       return;
     }
     this.locale = newLocale;
@@ -70,7 +72,9 @@ export const i18n = new I18nState();
 export function t(key, params = {}) {
   const value = getNestedValue(i18n.translations, key);
   if (value === undefined) {
-    console.warn(`Missing translation key: ${key}`);
+    if (import.meta.env.DEV) {
+      console.warn(`Missing translation key: ${key}`);
+    }
     return key;
   }
   return interpolate(value, params);

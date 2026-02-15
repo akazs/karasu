@@ -1,5 +1,11 @@
 <script module>
   export function simulate(n_packs, n_members, n_cuts, n_onedraw) {
+    // Clamp inputs to reasonable bounds to prevent browser freeze
+    n_packs = Math.max(0, Math.min(n_packs, 1000));
+    n_members = Math.max(1, Math.min(n_members, 500));
+    n_cuts = Math.max(1, Math.min(n_cuts, 10));
+    n_onedraw = Math.max(1, Math.min(n_onedraw, n_members)); // Prevents Fisher-Yates out-of-bounds
+
     const iterations = 10000;
     let comps = [];
     let coverages = [];

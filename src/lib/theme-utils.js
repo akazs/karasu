@@ -34,10 +34,9 @@ export function getBgClass(theme, intensity = 'light') {
 /**
  * Returns the appropriate border class based on theme
  * @param {string} theme - 'sakurazaka' or 'hinatazaka'
- * @param {'default'} [intensity='default'] - Border intensity level
  * @returns {string} Border class name
  */
-export function getBorderClass(theme, intensity = 'default') {
+export function getBorderClass(theme) {
 	return theme === 'sakurazaka' ? 'border-pink-400' : 'border-sky-400';
 }
 

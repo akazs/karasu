@@ -12,6 +12,8 @@
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
   import { structured_groups } from '$lib/groups.js';
+  import { photoDataToMap } from '$lib/table-photo-converter.js';
+  import { createGroupStateFromSettings } from '$lib/group-state.js';
   import { getBorderClass, getBgClass, getBadgeClass } from '$lib/theme-utils.js';
   import TableEditOverlay from '../components/TableEditOverlay.svelte';
   import ConfirmDialog from '../components/ui/ConfirmDialog.svelte';
@@ -101,31 +103,10 @@
   }
 
   function handleExport(table) {
-    const photoMap = new Map();
-    for (const group of structured_groups) {
-      const groupData = table.photoData[group.id] || {};
-      for (const gen of group.generations) {
-        for (const member of gen.members) {
-          const key = `${group.id}:${member.fullname}`;
-          const counts = groupData[member.fullname] || [0, 0, 0, 0];
-          photoMap.set(key, counts);
-        }
-      }
-    }
-
-    const groups = structured_groups.map((group) => {
-      const saved = table.groupSettings[group.id];
-      return {
-        id: group.id,
-        name: group.name,
-        enabled: saved?.enabled ?? true,
-        generations: group.generations.map((gen) => ({
-          name: gen.name,
-          members: gen.members,
-          enabled: saved?.generations?.[gen.name] ?? true
-        }))
-      };
-    });
+    // Reuse utilities to convert photoData and groupSettings
+    const photoMap = photoDataToMap(table.photoData, structured_groups);
+    const groupState = createGroupStateFromSettings(structured_groups, table.groupSettings);
+    const groups = groupState.groups;
 
     const csv = photosToCSV(photoMap, groups, cuts(), t('table.member'));
     navigator.clipboard
@@ -163,8 +144,10 @@
         window.location.reload();
       }, 100);
     } catch (error) {
-      console.error('Failed to clear data:', error);
-      alert('Failed to clear data. Please try again.');
+      if (import.meta.env.DEV) {
+        console.error('Failed to clear data:', error);
+      }
+      alert(t('alerts.clearFailed'));
     }
   }
 </script>

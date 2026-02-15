@@ -48,7 +48,8 @@ function loadAndInitializeTables() {
     return existing;
   }
 
-  const migrated = migrateFromLegacyStorage();
+  const defaultName = i18n.translations.alerts?.defaultTableName || 'デフォルト';
+  const migrated = migrateFromLegacyStorage(defaultName);
   saveTablesToLocalStorage(migrated);
   return migrated;
 }
@@ -236,5 +237,6 @@ export function resetToInitialState() {
 
   // Reset store to initial state
   // This will trigger the subscription which saves to localStorage
-  tablesStore.set(createInitialState());
+  const defaultName = i18n.translations.alerts?.defaultTableName || 'デフォルト';
+  tablesStore.set(createInitialState(defaultName));
 }

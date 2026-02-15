@@ -52,7 +52,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
         })
       );
 
-      let state = migrateFromLegacyStorage();
+      let state = migrateFromLegacyStorage('新しいテーブル');
       expect(state.tables).toHaveLength(1);
       expect(state.tables[0].name).toBe('新しいテーブル');
       expect(state.tables[0].photoData.sakurazaka['井上 梨名']).toEqual([1, 2, 0, 0]);
@@ -188,7 +188,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
       expect(loaded).toBeNull();
 
       // Should fall back to migration
-      const migrated = migrateFromLegacyStorage();
+      const migrated = migrateFromLegacyStorage('新しいテーブル');
       expect(migrated.tables).toHaveLength(1);
     });
 
@@ -341,7 +341,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
         })
       );
 
-      const migrated = migrateFromLegacyStorage();
+      const migrated = migrateFromLegacyStorage('新しいテーブル');
 
       expect(migrated.tables[0].photoData).toEqual({
         sakurazaka: {
@@ -371,7 +371,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
         })
       );
 
-      const migrated = migrateFromLegacyStorage();
+      const migrated = migrateFromLegacyStorage('新しいテーブル');
 
       expect(migrated.tables[0].groupSettings).toEqual({
         sakurazaka: {
@@ -382,7 +382,7 @@ describe('Multi-Table Workflow Integration Tests', () => {
     });
 
     it('should create empty table when no legacy data exists', () => {
-      const migrated = migrateFromLegacyStorage();
+      const migrated = migrateFromLegacyStorage('新しいテーブル');
 
       expect(migrated.tables).toHaveLength(1);
       expect(migrated.tables[0].name).toBe('新しいテーブル');
@@ -399,7 +399,6 @@ describe('Multi-Table Workflow Integration Tests', () => {
         hinatazaka: {
           enabled: true,
           generations: {
-            一期生: true,
             二期生: true,
             三期生: true,
             四期生: true,

@@ -6,6 +6,29 @@
 import { makeCompositeKey } from './groups.js';
 
 /**
+ * Escape a CSV field to prevent formula injection and handle special characters.
+ * Wraps field in quotes if it contains special characters or starts with dangerous characters.
+ * @param {string|number} field - The field value to escape
+ * @returns {string} Escaped CSV field
+ */
+function escapeCSVField(field) {
+  const str = String(field);
+
+  // Check if field needs escaping
+  const needsEscaping = str.includes(',') ||
+                       str.includes('"') ||
+                       str.includes('\n') ||
+                       /^[=+\-@\t\r]/.test(str);
+
+  if (needsEscaping) {
+    // Escape internal quotes by doubling them, then wrap in quotes
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+
+  return str;
+}
+
+/**
  * Convert photo data to CSV string.
  * Respects group.enabled and generation.enabled flags.
  * Format: メンバー,ヨリ,チュウ,ヒキ,座り (or translated equivalents)
@@ -16,7 +39,8 @@ import { makeCompositeKey } from './groups.js';
  * @returns {string}
  */
 export function photosToCSV(photos, groups, cuts, memberHeader = 'メンバー') {
-  const header = memberHeader + ',' + cuts.join(',');
+  const escapedCuts = cuts.map(escapeCSVField);
+  const header = escapeCSVField(memberHeader) + ',' + escapedCuts.join(',');
   const lines = [header];
 
   for (const group of groups) {
@@ -30,7 +54,7 @@ export function photosToCSV(photos, groups, cuts, memberHeader = 'メンバー')
       for (const member of gen.members) {
         const key = makeCompositeKey(group.id, member.fullname);
         const counts = photos.get(key) || [0, 0, 0, 0];
-        lines.push(member.fullname + ',' + counts.join(','));
+        lines.push(escapeCSVField(member.fullname) + ',' + counts.join(','));
       }
     }
   }

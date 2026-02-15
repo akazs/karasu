@@ -2,6 +2,7 @@
   import { SvelteMap } from 'svelte/reactivity';
   import { structured_groups } from './groups.js';
   import { makeCompositeKey } from './groups.js';
+  import { mapToPhotoData } from './table-photo-converter.js';
   import { getActiveTableData, updateActiveTablePhotoData } from './table-state.js';
 
   /**
@@ -30,34 +31,13 @@
 
   /**
    * Convert SvelteMap with composite keys to nested photoData.
+   * Reuses mapToPhotoData utility from table-photo-converter.js.
    * @param {SvelteMap} map - SvelteMap with composite keys
    * @returns {object}
    */
   function svelteMapToPhotoData(map) {
-    const photoData = {};
-
-    for (const group of structured_groups) {
-      const groupData = {};
-
-      for (const gen of group.generations) {
-        for (const member of gen.members) {
-          const key = makeCompositeKey(group.id, member.fullname);
-          if (map.has(key)) {
-            const counts = map.get(key);
-            // Only include non-zero counts
-            if (!counts.every((v) => v === 0)) {
-              groupData[member.fullname] = [...counts];
-            }
-          }
-        }
-      }
-
-      if (Object.keys(groupData).length > 0) {
-        photoData[group.id] = groupData;
-      }
-    }
-
-    return photoData;
+    // SvelteMap is compatible with Map interface
+    return mapToPhotoData(map, structured_groups);
   }
 
   /**

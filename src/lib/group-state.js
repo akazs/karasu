@@ -33,7 +33,9 @@ export function loadGroupStateFromLocalStorage() {
     const saved = localStorage.getItem(GROUP_STATE_KEY);
     return saved ? JSON.parse(saved) : null;
   } catch (error) {
-    console.error('Failed to load group state from localStorage:', error);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load group state from localStorage:', error);
+    }
     return null;
   }
 }

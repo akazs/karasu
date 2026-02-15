@@ -12,6 +12,22 @@ export const CUTS = Object.freeze(['ヨリ', 'チュウ', 'ヒキ', '座り']);
 export const STORAGE_KEY = 'sortedPhotos20250716';
 
 /**
+ * Validate and sanitize a counts array from localStorage.
+ * Returns [0,0,0,0] if invalid, otherwise returns sanitized array.
+ * @param {any} counts - The counts value to validate
+ * @returns {number[]} Valid counts array with 4 non-negative integers
+ */
+function validateCounts(counts) {
+  if (!Array.isArray(counts) || counts.length !== 4) {
+    return [0, 0, 0, 0];
+  }
+  return counts.map((v) => {
+    const n = Number(v);
+    return Number.isInteger(n) && n >= 0 ? n : 0;
+  });
+}
+
+/**
  * Build an empty photos Map with composite keys for all members
  * in the provided groups. Each entry is initialized to [0,0,0,0].
  * @param {Array} groups - Array of group objects with generations and members
@@ -99,7 +115,7 @@ export function deserializePhotos(json, groups) {
           for (const member of gen.members) {
             const key = makeCompositeKey(group.id, member.fullname);
             if (member.fullname in groupData) {
-              photos.set(key, [...groupData[member.fullname]]);
+              photos.set(key, validateCounts(groupData[member.fullname]));
             } else {
               photos.set(key, [0, 0, 0, 0]);
             }
@@ -114,7 +130,7 @@ export function deserializePhotos(json, groups) {
           for (const member of gen.members) {
             const key = makeCompositeKey(group.id, member.fullname);
             if (key in data) {
-              photos.set(key, [...data[key]]);
+              photos.set(key, validateCounts(data[key]));
             } else {
               photos.set(key, [0, 0, 0, 0]);
             }

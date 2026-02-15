@@ -4,7 +4,7 @@
  * All functions return new objects (immutable updates).
  */
 
-import { i18n } from './i18n/store.svelte.js';
+import { structured_groups } from './groups.js';
 
 const TABLES_STORAGE_KEY = 'karasu-tables';
 const LEGACY_PHOTOS_KEY = 'sortedPhotos20250716';
@@ -13,14 +13,6 @@ const LEGACY_GROUP_STATE_KEY = 'karasu-group-state';
 export const MAX_TABLES = 10;
 export const MAX_TABLE_NAME_LENGTH = 30;
 
-/**
- * Get the default table name in the current locale.
- * @returns {string}
- */
-function getDefaultTableName() {
-  const translations = i18n.translations;
-  return translations.alerts?.defaultTableName || 'デフォルト';
-}
 
 /**
  * Generate a unique table ID using crypto.randomUUID()
@@ -218,36 +210,29 @@ export function saveTablesToLocalStorage(tables) {
 /**
  * Create initial default table with proper group settings.
  * All groups and generations are enabled by default.
+ * Dynamically derives generations from structured_groups to prevent phantom data.
+ * @param {string} defaultTableName - The default table name (localized)
  * @returns {object} Initial tables state
  */
-export function createInitialState() {
+export function createInitialState(defaultTableName = 'デフォルト') {
   const now = new Date().toISOString();
 
-  // Create default group settings with all groups and generations enabled
-  const groupSettings = {
-    sakurazaka: {
-      enabled: true,
-      generations: {
-        二期生: true,
-        三期生: true,
-        四期生: true
-      }
-    },
-    hinatazaka: {
-      enabled: true,
-      generations: {
-        一期生: true,
-        二期生: true,
-        三期生: true,
-        四期生: true,
-        五期生: true
-      }
+  // Dynamically create group settings from structured_groups
+  const groupSettings = {};
+  for (const group of structured_groups) {
+    const generations = {};
+    for (const gen of group.generations) {
+      generations[gen.name] = true;
     }
-  };
+    groupSettings[group.id] = {
+      enabled: true,
+      generations
+    };
+  }
 
   const firstTable = {
     id: generateTableId(),
-    name: getDefaultTableName(),
+    name: defaultTableName,
     createdAt: now,
     lastModified: now,
     photoData: {},
@@ -302,7 +287,9 @@ export function loadTablesFromLocalStorage() {
     }
     return JSON.parse(stored);
   } catch (error) {
-    console.error('Failed to load tables from localStorage:', error);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load tables from localStorage:', error);
+    }
     return null;
   }
 }
@@ -311,9 +298,10 @@ export function loadTablesFromLocalStorage() {
  * Migrate from legacy localStorage format to tables format.
  * If legacy data exists, creates a table with that data.
  * If no legacy data exists, returns initial state with proper defaults.
+ * @param {string} defaultTableName - The default table name (localized)
  * @returns {object} Tables state object
  */
-export function migrateFromLegacyStorage() {
+export function migrateFromLegacyStorage(defaultTableName = 'デフォルト') {
   let photoData = {};
   let groupSettings = {};
   let hasLegacyData = false;
@@ -327,7 +315,9 @@ export function migrateFromLegacyStorage() {
         hasLegacyData = true;
       }
     } catch (error) {
-      console.error('Failed to load legacy photo data:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to load legacy photo data:', error);
+      }
     }
 
     // Load legacy group state
@@ -338,20 +328,22 @@ export function migrateFromLegacyStorage() {
         hasLegacyData = true;
       }
     } catch (error) {
-      console.error('Failed to load legacy group state:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to load legacy group state:', error);
+      }
     }
   }
 
   // If no legacy data exists, return initial state with proper defaults
   if (!hasLegacyData) {
-    return createInitialState();
+    return createInitialState(defaultTableName);
   }
 
   // Create table with legacy data
   const now = new Date().toISOString();
   const firstTable = {
     id: generateTableId(),
-    name: getDefaultTableName(),
+    name: defaultTableName,
     createdAt: now,
     lastModified: now,
     photoData,
