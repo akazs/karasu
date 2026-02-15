@@ -11,6 +11,7 @@
       "Bash(npx vitest:*)",
       "Bash(npx svelte-kit:*)",
       "Bash(npx vite:*)",
+      "Bash(npx playwright test:*)",
       "mcp__svelte__svelte-autofixer"
     ],
     "ask": [
