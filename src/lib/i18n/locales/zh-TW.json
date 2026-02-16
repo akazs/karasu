@@ -47,7 +47,10 @@
     "languageZh": "中文"
   },
   "table": {
-    "member": "成員"
+    "member": "成員",
+    "editButton": "編輯",
+    "endEditButton": "結束編輯",
+    "autoSaveMessage": "變更會自動儲存。"
   },
   "sorter": {
     "back": "返回"

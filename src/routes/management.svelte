@@ -254,17 +254,6 @@
     </div>
   </section>
 
-  <!-- Edit Mode Section -->
-  <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">{t('management.editMode')}</h2>
-    <div class="ml-2">
-      <label>
-        <input type="checkbox" bind:checked={editMode.enabled} />
-        {t('management.editModeLabel')}
-      </label>
-    </div>
-  </section>
-
   <!-- Language Settings Section -->
   <section class="mb-6">
     <h2 class="text-lg font-bold mb-3">{t('management.language')}</h2>

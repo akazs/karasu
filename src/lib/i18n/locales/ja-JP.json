@@ -47,7 +47,10 @@
     "languageZh": "中文"
   },
   "table": {
-    "member": "メンバー"
+    "member": "メンバー",
+    "editButton": "編集",
+    "endEditButton": "編集終了",
+    "autoSaveMessage": "変更は自動的に保存されます。"
   },
   "sorter": {
     "back": "戻る"

@@ -6,14 +6,18 @@
 
   let { sortedPhotos, groupState } = $props();
 
-  let activeTableGroup = $state(groupState.activeGroupId);
-
   let enabledGroups = $derived(groupState.groups.filter((g) => g.enabled));
 
-  // Auto-switch to first enabled group if current group becomes disabled
+  // Track active table group locally - initialized via effect
+  let activeTableGroup = $state('sakurazaka');
+
+  // Initialize and auto-switch to first enabled group if current group becomes disabled
   $effect(() => {
     const currentGroup = groupState.groups.find((g) => g.id === activeTableGroup);
     if (!currentGroup?.enabled && enabledGroups.length > 0) {
+      activeTableGroup = enabledGroups[0].id;
+    } else if (!activeTableGroup && enabledGroups.length > 0) {
+      // Initial setup
       activeTableGroup = enabledGroups[0].id;
     }
   });
@@ -28,7 +32,6 @@
     let data = getPhotoData(sortedPhotos, groupId, memberName);
     const updated = data.map((v, idx) => (idx === cut ? v + 1 : v));
     setPhotoData(sortedPhotos, groupId, memberName, updated);
-    // No need to save - parent component auto-saves via $effect
   };
 
   const decrease = (groupId, memberName, cut) => () => {
@@ -38,25 +41,54 @@
     }
     const updated = data.map((v, idx) => (idx === cut ? v - 1 : v));
     setPhotoData(sortedPhotos, groupId, memberName, updated);
-    // No need to save - parent component auto-saves via $effect
+  };
+
+  const toggleEditMode = () => {
+    editMode.enabled = !editMode.enabled;
   };
 </script>
 
-{#if enabledGroups.length > 1}
-  <div class="group-tabs mb-4">
-    {#each enabledGroups as group (group.id)}
-      <button
-        class="tab-button"
-        class:active={activeTableGroup === group.id}
-        class:tab-sakurazaka={group.id === 'sakurazaka'}
-        class:tab-hinatazaka={group.id === 'hinatazaka'}
-        onclick={() => {
-          activeTableGroup = group.id;
-        }}>{group.name}</button
+<!-- Edit Mode Toggle Container -->
+<div class="flex items-center justify-between mb-4">
+  <!-- Group tabs or spacer -->
+  {#if enabledGroups.length > 1}
+    <div class="group-tabs">
+      {#each enabledGroups as group (group.id)}
+        <button
+          class="tab-button"
+          class:active={activeTableGroup === group.id}
+          class:tab-sakurazaka={group.id === 'sakurazaka'}
+          class:tab-hinatazaka={group.id === 'hinatazaka'}
+          onclick={() => {
+            activeTableGroup = group.id;
+          }}>{group.name}</button
+        >
+      {/each}
+    </div>
+  {:else}
+    <div></div>
+  {/if}
+
+  <!-- Edit mode toggle with auto-save message -->
+  <div class="flex items-center gap-2">
+    {#if editMode.enabled}
+      <span class="text-xs text-gray-600 hidden md:inline" role="status"
+        >{t('table.autoSaveMessage')}</span
       >
-    {/each}
+    {/if}
+    <button
+      onclick={toggleEditMode}
+      class="px-3 py-1.5 text-sm rounded border transition-colors {editMode.enabled
+        ? activeTableGroup === 'sakurazaka'
+          ? 'bg-pink-300 hover:bg-pink-400 border-pink-400 text-white'
+          : 'bg-sky-300 hover:bg-sky-400 border-sky-400 text-white'
+        : 'bg-gray-100 hover:bg-gray-200 border-gray-300'}"
+      aria-label={editMode.enabled ? t('table.endEditButton') : t('table.editButton')}
+    >
+      {editMode.enabled ? t('table.endEditButton') : t('table.editButton')}
+    </button>
   </div>
-{/if}
+</div>
 
 <table
   class="table-fixed w-full text-sm md:text-base break-keep border-collapse border-2 border-gray-500"
