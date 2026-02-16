@@ -72,7 +72,7 @@
   <!-- Edit mode toggle with auto-save message -->
   <div class="flex items-center gap-2">
     {#if editMode.enabled}
-      <span class="text-xs text-gray-600 hidden md:inline" role="status"
+      <span class="text-xs text-gray-600" role="status"
         >{t('table.autoSaveMessage')}</span
       >
     {/if}
