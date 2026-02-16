@@ -24,6 +24,10 @@
 
   let activeGroupData = $derived(groupState.groups.find((g) => g.id === activeTableGroup));
 
+  let disabledMemberSet = $derived(
+    activeGroupData ? new Set(activeGroupData.disabledMembers || []) : new Set()
+  );
+
   let enabledGenerations = $derived(
     activeGroupData ? activeGroupData.generations.filter((g) => g.enabled) : []
   );
@@ -103,7 +107,7 @@
   </thead>
   <tbody>
     {#each enabledGenerations as generation (generation.name)}
-      {#each generation.members as member (member.fullname)}
+      {#each generation.members.filter((m) => !disabledMemberSet.has(m.fullname)) as member (member.fullname)}
         <tr class="odd:bg-white even:bg-gray-100">
           <th scope="row" class="th-row">
             <span class="fullname">{member.fullname}</span>

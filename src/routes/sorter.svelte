@@ -25,6 +25,10 @@
 
   // Determine enabled generations for the selected group
   let selectedGroupData = $derived(groupState.groups.find((g) => g.id === selectedGroupId));
+  let disabledMemberSet = $derived(
+    selectedGroupData ? new Set(selectedGroupData.disabledMembers || []) : new Set()
+  );
+
   let enabledGenerations = $derived(
     selectedGroupData ? selectedGroupData.generations.filter((g) => g.enabled) : []
   );
@@ -92,7 +96,7 @@
   <div class="grid grid-cols-2 md:grid-cols-7 gap-2 md:gap-4">
     {#each enabledGenerations as generation (generation.name)}
       {#if generation.name === selectedGeneration}
-        {#each generation.members as member (member.fullname)}
+        {#each generation.members.filter((m) => !disabledMemberSet.has(m.fullname)) as member (member.fullname)}
           <button
             class={getButtonClass(primaryTheme)}
             aria-label={member.fullname}
