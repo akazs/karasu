@@ -205,15 +205,29 @@ test.describe('Edge Cases', () => {
     await sorterPage.goto();
     await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
     await sorterPage.addPhoto('櫻坂46', '二期生', '遠藤 光莉', 'チュウ');
+    await page.waitForTimeout(1000);
+
+    // Open edit overlay and clear data step by step
+    await managementPage.goto();
+    await managementPage.openEditOverlay('新しいテーブル');
+
+    // Click clear button and confirm
+    await page.click('button:has-text("このテーブルをクリア")');
+    await page.waitForTimeout(300);
+    await page.click('button:has-text("削除する")');
+    await page.waitForTimeout(500);
+
+    // Save and close
+    await page.click('[role="dialog"] button:has-text("保存")');
     await page.waitForTimeout(800);
 
-    // Open edit overlay and clear data using the helper method
-    await managementPage.goto();
-    await managementPage.clearTableData('新しいテーブル');
+    // Reload to ensure fresh state from localStorage
+    await page.reload();
+    await page.waitForLoadState('networkidle');
 
-    // Verify data was cleared
+    // Verify data was cleared in table view
     await tablePage.goto();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
 
     expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(0);
     expect(await tablePage.getCellValue('遠藤 光莉', 1)).toBe(0);

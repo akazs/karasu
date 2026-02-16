@@ -117,22 +117,21 @@ test.describe('Data Persistence', () => {
   });
 
   test('should persist group settings after reload', async ({ page }) => {
-    // Modify group settings
+    // Modify group settings: disable 四期生 generation in sakurazaka
     await managementPage.goto();
     await managementPage.openEditOverlay('新しいテーブル');
 
-    // Disable hinatazaka
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
+    const dialog = page.locator('[role="dialog"]');
+    // Sakurazaka is selected by default; uncheck 四期生
+    const gen4Label = dialog.locator('label').filter({ hasText: '四期生' });
+    await gen4Label.locator('input[type="checkbox"]').uncheck();
     await page.click('[role="dialog"] button:has-text("保存")');
     await page.waitForTimeout(800);
 
     // Verify before reload
     let tables = await managementPage.getLocalStorage('karasu-tables');
     let activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
-    expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
+    expect(activeTable.groupSettings.sakurazaka.generations['四期生']).toBe(false);
 
     // Reload
     await page.reload();
@@ -141,7 +140,7 @@ test.describe('Data Persistence', () => {
     // Verify after reload
     tables = await managementPage.getLocalStorage('karasu-tables');
     activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
-    expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
+    expect(activeTable.groupSettings.sakurazaka.generations['四期生']).toBe(false);
     expect(activeTable.groupSettings.sakurazaka.enabled).toBe(true);
   });
 

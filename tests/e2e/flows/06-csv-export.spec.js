@@ -209,13 +209,29 @@ test.describe('CSV Export', () => {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
-    // Disable hinatazaka
+    // Disable hinatazaka via edit overlay:
+    // 1. Switch to hinatazaka radio (enables it, disables sakurazaka)
+    // 2. Uncheck all hinatazaka generations (disables hinatazaka)
+    // 3. Switch back to sakurazaka radio (re-enables it)
+    // 4. Save
     await managementPage.goto();
     await managementPage.openEditOverlay('新しいテーブル');
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
+    const dialog = page.locator('[role="dialog"]');
+
+    // Switch to hinatazaka and uncheck all its generations
+    await dialog.locator('input[type="radio"][value="hinatazaka"]').check();
+    await page.waitForTimeout(200);
+    const genCheckboxes = dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]');
+    const genCount = await genCheckboxes.count();
+    for (let i = 0; i < genCount; i++) {
+      await genCheckboxes.nth(i).uncheck();
+    }
+    await page.waitForTimeout(100);
+
+    // Switch back to sakurazaka (re-enables sakurazaka with all generations)
+    await dialog.locator('input[type="radio"][value="sakurazaka"]').check();
+    await page.waitForTimeout(200);
+
     await page.click('[role="dialog"] button:has-text("保存")');
     await page.waitForTimeout(600);
 
