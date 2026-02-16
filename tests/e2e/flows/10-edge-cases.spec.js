@@ -75,16 +75,16 @@ test.describe('Edge Cases', () => {
     });
   });
 
-  test('should not create table when prompt is dismissed', async ({ page }) => {
+  test('should not create table when cancelled via inline UI', async ({ page }) => {
     await managementPage.goto();
 
-    // Set up dialog handler before clicking
-    page.once('dialog', async (dialog) => {
-      await dialog.dismiss();
-    });
-
+    // Click to show inline creation UI
     await page.locator('button', { hasText: '新規テーブル' }).click();
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(200);
+
+    // Click cancel button
+    await page.click('button:has-text("キャンセル")');
+    await page.waitForTimeout(200);
 
     // Should still have only 1 table
     await assertTableCount(page, 1);
@@ -106,21 +106,22 @@ test.describe('Edge Cases', () => {
 
     const longName = 'あ'.repeat(31); // 31 chars
 
-    // Handle both dialogs (prompt + alert)
-    let dialogCount = 0;
-    page.on('dialog', async (dialog) => {
-      dialogCount++;
-      if (dialog.type() === 'prompt') {
-        await dialog.accept(longName);
-      } else {
-        await dialog.accept();
-      }
-    });
-
+    // Click to show inline creation UI
     await page.click('button:has-text("新規テーブル")');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(200);
 
-    page.removeAllListeners('dialog');
+    // Try to fill name longer than 30 chars
+    const input = page.locator('input[type="text"]').first();
+    await input.clear();
+    await input.fill(longName);
+
+    // Input should enforce maxlength="30"
+    const actualValue = await input.inputValue();
+    expect(actualValue.length).toBeLessThanOrEqual(30);
+
+    // Cancel
+    await page.click('button:has-text("キャンセル")');
+    await page.waitForTimeout(200);
 
     // Should still have only 1 table
     await assertTableCount(page, 1);
@@ -129,15 +130,21 @@ test.describe('Edge Cases', () => {
   test('should not create table with whitespace-only name', async ({ page }) => {
     await managementPage.goto();
 
-    // Set up dialog handler before clicking
-    page.once('dialog', async (dialog) => {
-      await dialog.accept('   ');  // Whitespace-only
-    });
-
+    // Click to show inline creation UI
     await page.locator('button', { hasText: '新規テーブル' }).click();
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(200);
+
+    // Fill with whitespace-only name
+    const input = page.locator('input[type="text"]').first();
+    await input.clear();
+    await input.fill('   ');
+
+    // Try to save
+    await page.click('button:has-text("保存")');
+    await page.waitForTimeout(400);
 
     // Whitespace-only name is treated as empty after trim, so no table created
+    // The inline UI should disappear and no new table created
     await assertTableCount(page, 1);
   });
 
@@ -151,7 +158,7 @@ test.describe('Edge Cases', () => {
     expect(await deleteButton.isDisabled()).toBe(true);
   });
 
-  test('should handle rapid table switching', async ({ page }) => {
+  test('should handle rapid table switching', async () => {
     await managementPage.goto();
 
     // Create 3 tables
@@ -174,12 +181,11 @@ test.describe('Edge Cases', () => {
   });
 
   test('should handle large photo count values', async ({ page }) => {
-    // Enable edit mode and increment many times
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
 
     // Increment 20 times
     for (let i = 0; i < 20; i++) {
@@ -201,23 +207,9 @@ test.describe('Edge Cases', () => {
     await sorterPage.addPhoto('櫻坂46', '二期生', '遠藤 光莉', 'チュウ');
     await page.waitForTimeout(800);
 
-    // Open edit overlay and clear data
+    // Open edit overlay and clear data using the helper method
     await managementPage.goto();
-    await managementPage.openEditOverlay('新しいテーブル');
-
-    // Click clear button and accept confirmation
-    page.on('dialog', async (dialog) => {
-      await dialog.accept();
-    });
-
-    await page.click('[role="dialog"] button:has-text("現在のテーブルをクリア")');
-    await page.waitForTimeout(600);
-
-    // Save and close
-    await page.click('[role="dialog"] button:has-text("保存")');
-    await page.waitForTimeout(600);
-
-    page.removeAllListeners('dialog');
+    await managementPage.clearTableData('新しいテーブル');
 
     // Verify data was cleared
     await tablePage.goto();
@@ -264,7 +256,7 @@ test.describe('Edge Cases', () => {
   });
 
   test('should handle quick navigation between all tabs', async ({ page }) => {
-    const tabNames = ['管理', '集計', '結果', 'その他', 'ヘルプ'];
+    const tabNames = ['管理', '集計', 'テーブル', 'その他', '設定', 'ヘルプ'];
 
     // Quickly navigate through all tabs
     for (const tab of tabNames) {

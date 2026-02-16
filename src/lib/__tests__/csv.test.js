@@ -1,9 +1,55 @@
 import { describe, it, expect } from 'vitest';
-import { photosToCSV } from '../csv.js';
+import { photosToCSV, escapeCSVField } from '../csv.js';
 import { structured_groups } from '../groups.js';
 import { CUTS, buildEmptyPhotos } from '../storage.js';
 
 describe('csv', () => {
+  describe('escapeCSVField', () => {
+    it('returns plain strings unchanged', () => {
+      expect(escapeCSVField('hello')).toBe('hello');
+    });
+
+    it('wraps fields containing commas in quotes', () => {
+      expect(escapeCSVField('a,b')).toBe('"a,b"');
+    });
+
+    it('doubles internal quotes and wraps in quotes', () => {
+      expect(escapeCSVField('say "hi"')).toBe('"say ""hi"""');
+    });
+
+    it('prefixes fields starting with = with tab to prevent formula injection', () => {
+      expect(escapeCSVField('=1+1')).toBe('"\t=1+1"');
+    });
+
+    it('prefixes fields starting with + with tab', () => {
+      expect(escapeCSVField('+cmd')).toBe('"\t+cmd"');
+    });
+
+    it('prefixes fields starting with - with tab', () => {
+      expect(escapeCSVField('-cmd')).toBe('"\t-cmd"');
+    });
+
+    it('prefixes fields starting with @ with tab', () => {
+      expect(escapeCSVField('@SUM(A1)')).toBe('"\t@SUM(A1)"');
+    });
+
+    it('prefixes fields starting with tab character', () => {
+      expect(escapeCSVField('\tfoo')).toBe('"\t\tfoo"');
+    });
+
+    it('prefixes fields starting with carriage return', () => {
+      expect(escapeCSVField('\rfoo')).toBe('"\t\rfoo"');
+    });
+
+    it('converts numbers to strings', () => {
+      expect(escapeCSVField(42)).toBe('42');
+    });
+
+    it('handles formula injection with quotes inside', () => {
+      expect(escapeCSVField('=1+1"test')).toBe('"\t=1+1""test"');
+    });
+  });
+
   describe('photosToCSV', () => {
     it('generates CSV header with member column and cut columns', () => {
       const photos = buildEmptyPhotos(structured_groups);

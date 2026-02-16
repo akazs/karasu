@@ -18,29 +18,31 @@ export class TablePage extends BasePage {
    * Navigate to Table tab
    */
   async goto() {
-    await this.navigateToTab('結果');
+    await this.navigateToTab('テーブル');
   }
 
   /**
-   * Enable edit mode (shows +/- buttons)
+   * Enable edit mode (shows +/- buttons) by clicking the edit button
    */
   async enableEditMode() {
-    const checkbox = this.page.locator('input[type="checkbox"]').first();
-    const isChecked = await checkbox.isChecked();
-    if (!isChecked) {
-      await checkbox.check();
+    // Click the "編集" button to enable edit mode
+    const editButton = this.page.locator('button', { hasText: '編集' });
+    const count = await editButton.count();
+    if (count > 0) {
+      await editButton.click();
       await this.page.waitForTimeout(100);
     }
   }
 
   /**
-   * Disable edit mode
+   * Disable edit mode by clicking the "編集終了" button
    */
   async disableEditMode() {
-    const checkbox = this.page.locator('input[type="checkbox"]').first();
-    const isChecked = await checkbox.isChecked();
-    if (isChecked) {
-      await checkbox.uncheck();
+    // Click the "編集終了" button to disable edit mode
+    const endEditButton = this.page.locator('button', { hasText: '編集終了' });
+    const count = await endEditButton.count();
+    if (count > 0) {
+      await endEditButton.click();
       await this.page.waitForTimeout(100);
     }
   }
@@ -168,7 +170,8 @@ export class TablePage extends BasePage {
     const row = this.page.locator('tr', { hasText: memberName });
     const cells = row.locator('td');
     let total = 0;
-    for (let i = 0; i < 4; i++) { // td cells start at 0 (member name is in th)
+    for (let i = 0; i < 4; i++) {
+      // td cells start at 0 (member name is in th)
       const cell = cells.nth(i);
       const text = await cell.textContent();
       const match = text.match(/\d+/);

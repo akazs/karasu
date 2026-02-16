@@ -22,28 +22,28 @@ export function createTable(name, options = {}) {
     lastModified: now,
     photoData: options.photoData || {
       sakurazaka: {},
-      hinatazaka: {},
+      hinatazaka: {}
     },
     groupSettings: options.groupSettings || {
       sakurazaka: {
         enabled: true,
         generations: {
-          '二期生': true,
-          '三期生': true,
-          '四期生': true,
-          '五期生': true,
-        },
+          二期生: true,
+          三期生: true,
+          四期生: true,
+          五期生: true
+        }
       },
       hinatazaka: {
         enabled: true,
         generations: {
-          '二期生': true,
-          '三期生': true,
-          '四期生': true,
-          '五期生': true,
-        },
-      },
-    },
+          二期生: true,
+          三期生: true,
+          四期生: true,
+          五期生: true
+        }
+      }
+    }
   };
 }
 
@@ -56,7 +56,7 @@ export function createTable(name, options = {}) {
 export function createTablesData(tables, activeTableId = null) {
   return {
     tables,
-    activeTableId: activeTableId || (tables.length > 0 ? tables[0].id : null),
+    activeTableId: activeTableId || (tables.length > 0 ? tables[0].id : null)
   };
 }
 
@@ -90,23 +90,23 @@ export function createGroupSettings(
     sakurazaka: {
       enabled: sakurazakaEnabled,
       generations: {
-        '二期生': true,
-        '三期生': true,
-        '四期生': true,
-        '五期生': true,
-        ...sakurazakaGenerations,
-      },
+        二期生: true,
+        三期生: true,
+        四期生: true,
+        五期生: true,
+        ...sakurazakaGenerations
+      }
     },
     hinatazaka: {
       enabled: hinatazakaEnabled,
       generations: {
-        '二期生': true,
-        '三期生': true,
-        '四期生': true,
-        '五期生': true,
-        ...hinatazakaGenerations,
-      },
-    },
+        二期生: true,
+        三期生: true,
+        四期生: true,
+        五期生: true,
+        ...hinatazakaGenerations
+      }
+    }
   };
 }
 
@@ -119,7 +119,7 @@ export function createGroupSettings(
 export function createTableWithPhotos(name, members) {
   const photoData = {
     sakurazaka: members.sakurazaka || {},
-    hinatazaka: members.hinatazaka || {},
+    hinatazaka: members.hinatazaka || {}
   };
 
   return createTable(name, { photoData });
@@ -134,12 +134,12 @@ export function createSamplePhotoData() {
     sakurazaka: {
       '井上 梨名': [1, 2, 0, 0],
       '遠藤 光莉': [0, 1, 1, 0],
-      '大園 玲': [2, 0, 0, 1],
+      '大園 玲': [2, 0, 0, 1]
     },
     hinatazaka: {
       '金村 美玖': [1, 0, 2, 0],
-      '河田 陽菜': [0, 0, 1, 1],
-    },
+      '河田 陽菜': [0, 0, 1, 1]
+    }
   };
 }
 
@@ -150,6 +150,6 @@ export function createSamplePhotoData() {
 export function createEmptyPhotoData() {
   return {
     sakurazaka: {},
-    hinatazaka: {},
+    hinatazaka: {}
   };
 }

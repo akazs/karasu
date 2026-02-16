@@ -159,9 +159,14 @@ export function duplicateCurrentTable() {
 
 /**
  * Duplicate a specific table by ID.
+ * @param {string} tableId - Table ID to duplicate
+ * @param {object} options - Options for duplication
+ * @param {string} options.name - Name for the duplicated table
+ * @param {boolean} options.switchToNew - Whether to switch to the duplicated table
+ * @param {boolean} options.insertAfterSource - Whether to insert after source table
  */
-export function duplicateTableById(tableId) {
-  tablesStore.update((state) => duplicateTableLogic(state, tableId));
+export function duplicateTableById(tableId, options = {}) {
+  tablesStore.update((state) => duplicateTableLogic(state, tableId, options));
 }
 
 /**
@@ -196,6 +201,48 @@ export function updateActiveTablePhotoData(newPhotoData) {
 }
 
 /**
+ * Update photo data for a specific table by ID.
+ * Only updates lastModified if the data actually changed.
+ * @param {string} tableId - ID of the table to update
+ * @param {object} newPhotoData - New photo data
+ */
+export function updateTablePhotoDataById(tableId, newPhotoData) {
+  tablesStore.update((state) => {
+    const targetTable = state.tables.find((t) => t.id === tableId);
+    if (!targetTable) {
+      return state;
+    }
+
+    // Check if data actually changed
+    const oldData = JSON.stringify(targetTable.photoData);
+    const newData = JSON.stringify(newPhotoData);
+    const hasChanged = oldData !== newData;
+
+    return {
+      ...state,
+      tables: state.tables.map((table) =>
+        table.id === tableId
+          ? {
+              ...table,
+              photoData: newPhotoData,
+              ...(hasChanged && { lastModified: new Date().toISOString() })
+            }
+          : table
+      )
+    };
+  });
+}
+
+/**
+ * Clear all photo data for a specific table by ID.
+ * Sets all photo counts to [0, 0, 0, 0] and updates lastModified.
+ * @param {string} tableId - ID of the table to clear
+ */
+export function clearTablePhotoData(tableId) {
+  updateTablePhotoDataById(tableId, {});
+}
+
+/**
  * Update group settings for the active table.
  * Only updates lastModified if the settings actually changed.
  */
@@ -215,6 +262,39 @@ export function updateActiveTableGroupSettings(newGroupSettings) {
       ...state,
       tables: state.tables.map((table) =>
         table.id === activeTable.id
+          ? {
+              ...table,
+              groupSettings: newGroupSettings,
+              ...(hasChanged && { lastModified: new Date().toISOString() })
+            }
+          : table
+      )
+    };
+  });
+}
+
+/**
+ * Update group settings for a specific table by ID.
+ * Only updates lastModified if the settings actually changed.
+ * @param {string} tableId - ID of the table to update
+ * @param {object} newGroupSettings - New group settings
+ */
+export function updateTableGroupSettingsById(tableId, newGroupSettings) {
+  tablesStore.update((state) => {
+    const targetTable = state.tables.find((t) => t.id === tableId);
+    if (!targetTable) {
+      return state;
+    }
+
+    // Check if settings actually changed
+    const oldSettings = JSON.stringify(targetTable.groupSettings);
+    const newSettings = JSON.stringify(newGroupSettings);
+    const hasChanged = oldSettings !== newSettings;
+
+    return {
+      ...state,
+      tables: state.tables.map((table) =>
+        table.id === tableId
           ? {
               ...table,
               groupSettings: newGroupSettings,

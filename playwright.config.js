@@ -27,7 +27,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     locale: 'ja-JP',
-    timezoneId: 'Asia/Tokyo',
+    timezoneId: 'Asia/Tokyo'
   },
 
   projects: [
@@ -35,34 +35,34 @@ export default defineConfig({
       name: 'chromium-desktop',
       use: {
         ...devices['Desktop Chrome'],
-        permissions: ['clipboard-write', 'clipboard-read'],
-      },
+        permissions: ['clipboard-write', 'clipboard-read']
+      }
     },
     {
       name: 'firefox-desktop',
-      use: { ...devices['Desktop Firefox'] },
+      use: { ...devices['Desktop Firefox'] }
     },
     {
       name: 'webkit-desktop',
-      use: { ...devices['Desktop Safari'] },
+      use: { ...devices['Desktop Safari'] }
     },
     {
       name: 'mobile-chrome',
       use: {
         ...devices['Pixel 5'],
-        permissions: ['clipboard-write', 'clipboard-read'],
-      },
+        permissions: ['clipboard-write', 'clipboard-read']
+      }
     },
     {
       name: 'mobile-safari',
-      use: { ...devices['iPhone 12'] },
-    },
+      use: { ...devices['iPhone 12'] }
+    }
   ],
 
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+    timeout: 120 * 1000
+  }
 });

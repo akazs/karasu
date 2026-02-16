@@ -77,7 +77,7 @@ export const test = base.extend({
       await page.reload();
     };
     await use(seeder);
-  },
+  }
 });
 
 export { expect } from '@playwright/test';

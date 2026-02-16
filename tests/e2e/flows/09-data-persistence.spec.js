@@ -2,7 +2,11 @@ import { test, expect } from '@playwright/test';
 import { ManagementPage } from '../pages/ManagementPage.js';
 import { SorterPage } from '../pages/SorterPage.js';
 import { TablePage } from '../pages/TablePage.js';
-import { assertPhotoCount, assertTableCount, assertLocalStorageExists } from '../helpers/assertions.js';
+import {
+  assertPhotoCount,
+  assertTableCount,
+  assertLocalStorageExists
+} from '../helpers/assertions.js';
 
 /**
  * Flow 9: Data Persistence
@@ -89,7 +93,7 @@ test.describe('Data Persistence', () => {
 
     // Verify table names
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const tableNames = tables.tables.map(t => t.name);
+    const tableNames = tables.tables.map((t) => t.name);
     expect(tableNames).toContain('テスト表1');
     expect(tableNames).toContain('テスト表2');
   });
@@ -108,7 +112,7 @@ test.describe('Data Persistence', () => {
 
     // Verify active table persisted
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.name).toBe('アクティブ表');
   });
 
@@ -127,7 +131,7 @@ test.describe('Data Persistence', () => {
 
     // Verify before reload
     let tables = await managementPage.getLocalStorage('karasu-tables');
-    let activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    let activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
 
     // Reload
@@ -136,12 +140,16 @@ test.describe('Data Persistence', () => {
 
     // Verify after reload
     tables = await managementPage.getLocalStorage('karasu-tables');
-    activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
     expect(activeTable.groupSettings.sakurazaka.enabled).toBe(true);
   });
 
   test('should persist language preference after reload', async ({ page }) => {
+    // Navigate to Settings tab
+    await page.click('button.tab:has-text("設定")');
+    await page.waitForTimeout(200);
+
     // Switch to Chinese
     const zhRadio = page.locator('input[type="radio"][value="zh-TW"]');
     await zhRadio.click();
@@ -171,7 +179,7 @@ test.describe('Data Persistence', () => {
 
     // Verify renamed table exists
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const renamedTable = tables.tables.find(t => t.name === 'リネーム済み');
+    const renamedTable = tables.tables.find((t) => t.name === 'リネーム済み');
     expect(renamedTable).toBeDefined();
   });
 
@@ -198,8 +206,8 @@ test.describe('Data Persistence', () => {
     // Verify each table has independent data
     const tables = await managementPage.getLocalStorage('karasu-tables');
 
-    const defaultTable = tables.tables.find(t => t.name === '新しいテーブル');
-    const secondTable = tables.tables.find(t => t.name === '別の表');
+    const defaultTable = tables.tables.find((t) => t.name === '新しいテーブル');
+    const secondTable = tables.tables.find((t) => t.name === '別の表');
 
     expect(defaultTable).toBeDefined();
     expect(secondTable).toBeDefined();
@@ -216,13 +224,12 @@ test.describe('Data Persistence', () => {
   });
 
   test('should persist data after editing via edit mode', async ({ page }) => {
-    // Enable edit mode on management tab
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
-    // Go to table and edit
+    // Go to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(300);
+    await tablePage.enableEditMode();
+
+    // Edit data
     await tablePage.incrementCell('井上 梨名', 0);
     await tablePage.incrementCell('井上 梨名', 2);
 
@@ -248,19 +255,21 @@ test.describe('Data Persistence', () => {
     await managementPage.createTable('削除される表');
     await page.waitForTimeout(800);
 
-    // Clear all data via management tab - handle the confirm dialog
-    page.on('dialog', async (dialog) => {
-      await dialog.accept();
-    });
+    // Navigate to Settings tab and clear all data
+    await page.click('button.tab:has-text("設定")');
+    await page.waitForTimeout(200);
 
+    // Click clear all button (shows ConfirmDialog)
     await page.locator('button[aria-label="clear all data"]').click();
+    await page.waitForTimeout(200);
+
+    // Confirm in the ConfirmDialog
+    await page.click('button:has-text("削除する")');
 
     // Wait for page reload (the app calls window.location.reload after clearing)
     await page.waitForLoadState('load');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
-
-    page.removeAllListeners('dialog');
 
     // After clear, should be back to initial state with 1 default table
     const tables = await managementPage.getLocalStorage('karasu-tables');
@@ -268,7 +277,7 @@ test.describe('Data Persistence', () => {
     expect(tables.tables.length).toBe(1);
 
     // Photo data should be empty (initial state may have {} or { sakurazaka: {}, hinatazaka: {} })
-    const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     const sakurazakaData = activeTable.photoData.sakurazaka || {};
     const hinatazakaData = activeTable.photoData.hinatazaka || {};
     expect(Object.keys(sakurazakaData).length).toBe(0);

@@ -61,7 +61,7 @@ export async function assertCSVFormat(csvText, expectedRows) {
  */
 export async function assertCSVContainsMember(csvText, memberName, expectedCounts) {
   const lines = csvText.trim().split('\n');
-  const memberLine = lines.find(line => line.startsWith(memberName));
+  const memberLine = lines.find((line) => line.startsWith(memberName));
   expect(memberLine).toBeDefined();
 
   const expected = `${memberName},${expectedCounts.join(',')}`;
@@ -85,7 +85,7 @@ export async function assertPhotoCount(page, group, memberName, expectedCounts) 
   expect(tables.tables).toBeDefined();
   expect(tables.tables.length).toBeGreaterThan(0);
 
-  const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+  const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
   expect(activeTable).toBeDefined();
 
   const photoData = activeTable.photoData;
@@ -121,7 +121,7 @@ export async function assertActiveTable(page, tableName) {
   });
 
   expect(tables).not.toBeNull();
-  const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+  const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
   expect(activeTable).toBeDefined();
   expect(activeTable.name).toBe(tableName);
 }

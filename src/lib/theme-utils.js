@@ -10,11 +10,13 @@
  * @returns {string} Button class name
  */
 export function getButtonClass(theme, options = {}) {
-	const baseClass = theme === 'sakurazaka' ? 'btn-pink' : 'btn-sky';
-	if (options.focusActive) {
-		return theme === 'sakurazaka' ? 'btn-pink btn-pink-focus-active' : 'btn-sky btn-sky-focus-active';
-	}
-	return baseClass;
+  const baseClass = theme === 'sakurazaka' ? 'btn-pink' : 'btn-sky';
+  if (options.focusActive) {
+    return theme === 'sakurazaka'
+      ? 'btn-pink btn-pink-focus-active'
+      : 'btn-sky btn-sky-focus-active';
+  }
+  return baseClass;
 }
 
 /**
@@ -24,11 +26,11 @@ export function getButtonClass(theme, options = {}) {
  * @returns {string} Background class name
  */
 export function getBgClass(theme, intensity = 'light') {
-	if (intensity === 'light') {
-		return theme === 'sakurazaka' ? 'bg-pink-50' : 'bg-sky-50';
-	}
-	// 'lighter' intensity
-	return theme === 'sakurazaka' ? 'bg-rose-100' : 'bg-sky-100';
+  if (intensity === 'light') {
+    return theme === 'sakurazaka' ? 'bg-pink-50' : 'bg-sky-50';
+  }
+  // 'lighter' intensity
+  return theme === 'sakurazaka' ? 'bg-rose-100' : 'bg-sky-100';
 }
 
 /**
@@ -37,7 +39,7 @@ export function getBgClass(theme, intensity = 'light') {
  * @returns {string} Border class name
  */
 export function getBorderClass(theme) {
-	return theme === 'sakurazaka' ? 'border-pink-400' : 'border-sky-400';
+  return theme === 'sakurazaka' ? 'border-pink-400' : 'border-sky-400';
 }
 
 /**
@@ -46,7 +48,7 @@ export function getBorderClass(theme) {
  * @returns {string} Badge background class name
  */
 export function getBadgeClass(theme) {
-	return theme === 'sakurazaka' ? 'bg-pink-400' : 'bg-sky-400';
+  return theme === 'sakurazaka' ? 'bg-pink-400' : 'bg-sky-400';
 }
 
 /**
@@ -55,5 +57,5 @@ export function getBadgeClass(theme) {
  * @returns {string} Active tab class name
  */
 export function getTabActiveClass(theme) {
-	return theme === 'sakurazaka' ? 'active-sakurazaka' : 'active-hinatazaka';
+  return theme === 'sakurazaka' ? 'active-sakurazaka' : 'active-hinatazaka';
 }

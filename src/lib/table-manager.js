@@ -13,7 +13,6 @@ const LEGACY_GROUP_STATE_KEY = 'karasu-group-state';
 export const MAX_TABLES = 10;
 export const MAX_TABLE_NAME_LENGTH = 30;
 
-
 /**
  * Generate a unique table ID using crypto.randomUUID()
  * @returns {string}
@@ -91,6 +90,11 @@ export function getActiveTable(tables) {
  * @returns {object} New tables state
  */
 export function setActiveTable(tables, id) {
+  const exists = tables.tables.some((t) => t.id === id);
+  if (!exists) {
+    return tables;
+  }
+
   return {
     ...tables,
     activeTableId: id
@@ -160,14 +164,18 @@ export function deleteTable(tables, id) {
 
 /**
  * Duplicate a table (immutable).
- * Keeps the same name as the original (users can rename afterward).
- * Sets the duplicated table as active.
  * @param {object} tables - Tables state object
  * @param {string} id - Table ID to duplicate
+ * @param {object} options - Options for duplication
+ * @param {string} options.name - Name for the duplicated table (defaults to original name)
+ * @param {boolean} options.switchToNew - Whether to switch to the duplicated table (default: true)
+ * @param {boolean} options.insertAfterSource - Whether to insert after source (default: false, appends to end)
  * @returns {object} New tables state
  * @throws {Error} If at MAX_TABLES limit
  */
-export function duplicateTable(tables, id) {
+export function duplicateTable(tables, id, options = {}) {
+  const { name = null, switchToNew = true, insertAfterSource = false } = options;
+
   if (!canCreateNewTable(tables)) {
     throw new Error('Maximum table limit reached');
   }
@@ -182,17 +190,31 @@ export function duplicateTable(tables, id) {
 
   const duplicate = {
     id: generateTableId(),
-    name: original.name,
+    name: name || original.name,
     createdAt: now,
     lastModified: now,
     photoData: JSON.parse(JSON.stringify(original.photoData)),
     groupSettings: JSON.parse(JSON.stringify(original.groupSettings))
   };
 
+  // Determine where to insert the duplicate
+  let newTables;
+  if (insertAfterSource) {
+    // Insert right after the source table
+    newTables = [
+      ...tables.tables.slice(0, tableIndex + 1),
+      duplicate,
+      ...tables.tables.slice(tableIndex + 1)
+    ];
+  } else {
+    // Append to the end
+    newTables = [...tables.tables, duplicate];
+  }
+
   return {
     ...tables,
-    tables: [...tables.tables, duplicate],
-    activeTableId: duplicate.id
+    tables: newTables,
+    activeTableId: switchToNew ? duplicate.id : tables.activeTableId
   };
 }
 

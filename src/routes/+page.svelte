@@ -1,10 +1,7 @@
 <script>
   import { t } from '$lib/i18n/store.svelte.js';
-  import { activeTableStore, updateActiveTableGroupSettings } from '$lib/table-state.js';
-  import {
-    loadSortedPhotosFromActiveTable,
-    saveSortedPhotosToActiveTable
-  } from '$lib/table-sortedphotos.svelte';
+  import { activeTableStore, updateTableGroupSettingsById } from '$lib/table-state.js';
+  import { loadSortedPhotosFromActiveTable } from '$lib/table-sortedphotos.svelte';
   import { createGroupStateFromSettings } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
   import { debounce } from '$lib/debounce.js';
@@ -13,19 +10,15 @@
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
+  import Settings from './settings.svelte';
   import Instruction from './instruction.svelte';
+  import ToastContainer from '../components/ui/ToastContainer.svelte';
 
   // Debounced save functions for better performance
-  const debouncedSavePhotos = debounce((photos) => {
-    saveSortedPhotosToActiveTable(photos);
+  // Captures tableId at call time to prevent cross-table race conditions
+  const debouncedSaveGroupSettings = debounce((tableId, settings) => {
+    updateTableGroupSettingsById(tableId, settings);
   }, 500);
-
-  const debouncedSaveGroupSettings = debounce((settings) => {
-    updateActiveTableGroupSettings(settings);
-  }, 500);
-
-  // Subscribe to active table store
-  let activeTable = $derived($activeTableStore);
 
   // Initialize sortedPhotos and groupState from active table
   let sortedPhotos = $state(loadSortedPhotosFromActiveTable());
@@ -39,14 +32,14 @@
   let currentTableId = $state($activeTableStore?.id);
 
   // Track groupSettings separately to detect changes without watching entire table
-  let currentGroupSettings = $state(
-    JSON.stringify($activeTableStore?.groupSettings || {})
-  );
+  let currentGroupSettings = $state(JSON.stringify($activeTableStore?.groupSettings || {}));
 
   // Reload sortedPhotos and groupState when active table changes
   $effect(() => {
     const tableId = $activeTableStore?.id;
     if (tableId && tableId !== currentTableId) {
+      // Flush any pending save for the previous table before switching
+      debouncedSaveGroupSettings.flush();
       isLoading = true;
       currentTableId = tableId;
       currentGroupSettings = JSON.stringify($activeTableStore?.groupSettings || {});
@@ -79,9 +72,11 @@
   });
 
   // Auto-save groupState when it changes (debounced, but not during loading)
+  // Captures currentTableId at call time to prevent cross-table race conditions
   // Note: sortedPhotos are saved directly in setPhotoData(), so no auto-save effect needed
   $effect(() => {
     if (!isLoading) {
+      const tableId = currentTableId;
       const savedSettings = {};
       for (const group of groupState.groups) {
         savedSettings[group.id] = {
@@ -92,7 +87,7 @@
           savedSettings[group.id].generations[gen.name] = gen.enabled;
         }
       }
-      debouncedSaveGroupSettings(savedSettings);
+      debouncedSaveGroupSettings(tableId, savedSettings);
     }
   });
 
@@ -101,7 +96,7 @@
       id: 'management',
       name: t('app.tabs.management'),
       component: Management,
-      props: { sortedPhotos, groupState }
+      props: {}
     },
     {
       id: 'sorter',
@@ -110,8 +105,8 @@
       props: { sortedPhotos, groupState }
     },
     {
-      id: 'results',
-      name: t('app.tabs.results'),
+      id: 'table',
+      name: t('app.tabs.table'),
       component: Table,
       props: { sortedPhotos, groupState }
     },
@@ -120,6 +115,12 @@
       name: t('app.tabs.utils'),
       component: Utils,
       props: { groupState }
+    },
+    {
+      id: 'settings',
+      name: t('app.tabs.settings'),
+      component: Settings,
+      props: {}
     },
     {
       id: 'help',
@@ -146,7 +147,10 @@
 
 <ul>
   {#each tabs as tab (tab.id)}
-    <li class:active={activeTab == tab.id} class={activeTab == tab.id ? getTabActiveClass(primaryTheme) : ''}>
+    <li
+      class:active={activeTab == tab.id}
+      class={activeTab == tab.id ? getTabActiveClass(primaryTheme) : ''}
+    >
       <button class="tab" onclick={handleClick(tab.id)}>{tab.name}</button>
     </li>
   {/each}
@@ -160,6 +164,8 @@
     </div>
   {/if}
 {/each}
+
+<ToastContainer />
 
 <style>
   @import './tabs.css';

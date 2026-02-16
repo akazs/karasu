@@ -1,41 +1,84 @@
 <script>
   import { untrack } from 'svelte';
   import { t } from '$lib/i18n/store.svelte.js';
-  import { renameTableById, updateActiveTableGroupSettings } from '$lib/table-state.js';
-  import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
+  import {
+    renameTableById,
+    updateTableGroupSettingsById,
+    clearTablePhotoData
+  } from '$lib/table-state.js';
   import { structured_groups } from '$lib/groups.js';
   import { createEditableGroupState } from '$lib/group-state.js';
+  import { showToast } from '$lib/toast-store.svelte.js';
+  import ConfirmDialog from './ui/ConfirmDialog.svelte';
 
-  let { table, sortedPhotos, onClose } = $props();
+  let { table, onClose } = $props();
 
   // Local state for editing - capture initial values
   let newTableName = $state(untrack(() => table.name));
   let localGroupState = $state(createEditableGroupState(structured_groups, table.groupSettings));
 
+  // State for clear table confirmation
+  let clearingTable = $state(false);
+
+  // State for selected group in radio button UI
+  let selectedGroupId = $state(
+    untrack(() =>
+      localGroupState.find((g) => g.enabled)?.id || localGroupState[0]?.id || 'sakurazaka'
+    )
+  );
+
+  // Initialize: Ensure only the selected group is enabled (radio button semantics)
+  untrack(() => {
+    localGroupState = localGroupState.map((group) => {
+      if (group.id === selectedGroupId) {
+        // Keep the selected group and its current generation settings
+        return {
+          ...group,
+          enabled: true
+        };
+      } else {
+        // Disable all other groups and their generations
+        return {
+          ...group,
+          enabled: false,
+          generations: group.generations.map((gen) => ({ ...gen, enabled: false }))
+        };
+      }
+    });
+  });
+
   /**
-   * Toggle group enabled state
+   * Switch selected group (radio button handler)
+   * Enables all generations of the newly selected group and disables all others
    */
-  function toggleGroupEnabled(groupId, enabled) {
-    localGroupState = localGroupState.map((group) =>
-      group.id === groupId
-        ? {
-            ...group,
-            enabled,
-            generations: group.generations.map((gen) => ({
-              ...gen,
-              enabled
-            }))
-          }
-        : group
-    );
+  function switchSelectedGroup(groupId) {
+    localGroupState = localGroupState.map((group) => {
+      if (group.id === groupId) {
+        // Enable this group and all its generations
+        return {
+          ...group,
+          enabled: true,
+          generations: group.generations.map((gen) => ({ ...gen, enabled: true }))
+        };
+      } else {
+        // Disable this group and all its generations
+        return {
+          ...group,
+          enabled: false,
+          generations: group.generations.map((gen) => ({ ...gen, enabled: false }))
+        };
+      }
+    });
+
+    selectedGroupId = groupId;
   }
 
   /**
    * Toggle generation enabled state
    */
-  function toggleGenerationEnabled(groupId, genName, enabled) {
+  function toggleGenerationEnabled(genName, enabled) {
     localGroupState = localGroupState.map((group) => {
-      if (group.id !== groupId) {
+      if (group.id !== selectedGroupId) {
         return group;
       }
       const updatedGenerations = group.generations.map((gen) =>
@@ -59,12 +102,12 @@
       try {
         renameTableById(table.id, newTableName.trim());
       } catch (error) {
-        alert(error.message);
+        showToast(error.message, 'error');
         return;
       }
     }
 
-    // 2. Update group settings
+    // 2. Update group settings for THIS specific table
     const newGroupSettings = {};
     for (const group of localGroupState) {
       newGroupSettings[group.id] = {
@@ -75,7 +118,7 @@
         newGroupSettings[group.id].generations[gen.name] = gen.enabled;
       }
     }
-    updateActiveTableGroupSettings(newGroupSettings);
+    updateTableGroupSettingsById(table.id, newGroupSettings);
 
     // 3. Close overlay
     onClose();
@@ -85,9 +128,16 @@
    * Clear table data
    */
   function clearTable() {
-    if (confirm(t('alerts.confirmClearCurrentTable'))) {
-      clearSortedPhotos(sortedPhotos);
-    }
+    clearingTable = true;
+  }
+
+  function confirmClear() {
+    clearTablePhotoData(table.id);
+    clearingTable = false;
+  }
+
+  function cancelClear() {
+    clearingTable = false;
   }
 
   /**
@@ -177,38 +227,43 @@
     <!-- Section 2: Group Selection -->
     <div class="mb-6">
       <h3 class="text-sm font-medium mb-3">{t('management.groupSelection')}</h3>
-      <div class="space-y-3">
-        {#each localGroupState as group (group.id)}
-          <div class="border rounded p-3">
-            <!-- Group Checkbox -->
-            <label class="font-bold flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={group.enabled}
-                onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
-                class="w-4 h-4"
-              />
-              <span>{group.name}</span>
-            </label>
 
-            <!-- Generation Checkboxes -->
-            <div class="ml-6 mt-2 space-y-1">
-              {#each group.generations as generation (generation.name)}
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={generation.enabled}
-                    onchange={(e) =>
-                      toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
-                    class="w-4 h-4"
-                  />
-                  <span class="text-sm">{generation.name}</span>
-                </label>
-              {/each}
-            </div>
-          </div>
+      <!-- Group Radio Buttons - Horizontal Layout -->
+      <div class="flex gap-4 mb-4">
+        {#each localGroupState as group (group.id)}
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="selectedGroup"
+              value={group.id}
+              checked={selectedGroupId === group.id}
+              onchange={() => switchSelectedGroup(group.id)}
+              class="w-4 h-4"
+            />
+            <span class="font-medium">{group.name}</span>
+          </label>
         {/each}
       </div>
+
+      <!-- Generation Checkboxes for Selected Group -->
+      {#if localGroupState.find((g) => g.id === selectedGroupId)}
+        {@const selectedGroup = localGroupState.find((g) => g.id === selectedGroupId)}
+        <div class="border rounded p-3 bg-gray-50">
+          <div class="space-y-2">
+            {#each selectedGroup.generations as generation (generation.name)}
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={generation.enabled}
+                  onchange={(e) => toggleGenerationEnabled(generation.name, e.target.checked)}
+                  class="w-4 h-4"
+                />
+                <span class="text-sm">{generation.name}</span>
+              </label>
+            {/each}
+          </div>
+        </div>
+      {/if}
     </div>
 
     <!-- Section 3: Danger Zone -->
@@ -242,3 +297,17 @@
     </div>
   </div>
 </div>
+
+<!-- Clear Table Confirmation Dialog -->
+{#if clearingTable}
+  <ConfirmDialog
+    isOpen={true}
+    title={t('management.clearCurrentTable')}
+    message={t('alerts.confirmClearCurrentTable')}
+    confirmText={t('alerts.confirmDelete')}
+    cancelText={t('management.cancel')}
+    onConfirm={confirmClear}
+    onCancel={cancelClear}
+    variant="danger"
+  />
+{/if}

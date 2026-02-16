@@ -225,6 +225,23 @@ describe('table-manager', () => {
       expect(original.activeTableId).toBe('uuid-1'); // Original unchanged
       expect(updated).not.toBe(original); // New object
     });
+
+    it('should return original state when ID does not exist', () => {
+      const original = {
+        version: 1,
+        tables: [
+          { id: 'uuid-1', name: 'Table 1' },
+          { id: 'uuid-2', name: 'Table 2' }
+        ],
+        activeTableId: 'uuid-1',
+        maxTables: MAX_TABLES
+      };
+
+      const updated = setActiveTable(original, 'non-existent-id');
+
+      expect(updated).toBe(original);
+      expect(updated.activeTableId).toBe('uuid-1');
+    });
   });
 
   describe('renameTable', () => {

@@ -3,8 +3,9 @@
     "tabs": {
       "management": "管理",
       "sorter": "統計",
-      "results": "結果",
+      "table": "表格",
       "utils": "其他",
+      "settings": "設定",
       "help": "說明"
     },
     "cuts": {
@@ -18,8 +19,9 @@
     "title": "表格管理",
     "newTable": "建立新表格",
     "newTableShort": "新增表格",
-    "tableCount": "表格",
+    "tableCount": "表格數",
     "maxReached": "（已達上限）",
+    "creating": "建立中",
     "inUse": "使用中",
     "switchButton": "切換",
     "switchTooltip": "切換至此表格",
@@ -36,10 +38,12 @@
     "deleteButton": "刪除",
     "deleteTooltip": "刪除",
     "groupSelection": "團體選擇",
+    "generationSelection": "期別選擇",
+    "copying": "複製中",
     "editMode": "編輯模式",
     "editModeLabel": "編輯模式",
     "dataManagement": "資料管理",
-    "clearCurrentTable": "清除目前表格",
+    "clearCurrentTable": "清除此表格",
     "clearAllData": "清除所有資料",
     "deleteConfirmTitle": "⚠️ 刪除確認",
     "language": "語言設定",
@@ -47,7 +51,10 @@
     "languageZh": "中文"
   },
   "table": {
-    "member": "成員"
+    "member": "成員",
+    "editButton": "編輯",
+    "endEditButton": "結束編輯",
+    "autoSaveMessage": "變更會自動儲存。"
   },
   "sorter": {
     "back": "返回"
@@ -58,7 +65,8 @@
     "labelCuts": "生寫種類",
     "labelSheetsPerPack": "每包張數",
     "labelPacksToBuy": "購買包數",
-    "resultText": "平均有 95% 的機率可湊成 {compMean} ± {compStderr} 套，{totalCuts} 種中會出現 {coverageMean} ± {coverageStderr} 種"
+    "resultText": "平均有 95% 的機率可湊成 {compMean} ± {compStderr} 套，{totalCuts} 種中會出現 {coverageMean} ± {coverageStderr} 種",
+    "computing": "計算中..."
   },
   "instruction": {
     "warningTitle": "注意事項",
@@ -90,11 +98,12 @@
     "maxTables": "已達到最大 10 個表格的上限。若要建立新表格，請刪除現有表格。",
     "enterTableName": "請輸入表格名稱（最多 30 個字元）：",
     "defaultTableName": "新表格",
+    "tableNameRequired": "請輸入表格名稱。",
     "tableNameTooLong": "表格名稱僅可輸入最多 30 個字元。",
     "csvCopied": "已將「{name}」的 CSV 複製到剪貼簿",
     "csvFailed": "CSV 複製失敗",
     "clearFailed": "清除資料失敗。請再試一次。",
-    "confirmClearCurrentTable": "即將清除目前表格的所有生寫計數。確定要繼續嗎？",
+    "confirmClearCurrentTable": "即將清除此表格的所有生寫計數。確定要繼續嗎？",
     "confirmClearAllData": "即將刪除所有表格。此操作無法復原。確定要繼續嗎？",
     "confirmDeleteTablePrefix": "確定要刪除表格「",
     "confirmDeleteTableSuffix": "」嗎？",

@@ -30,14 +30,20 @@ export class SorterPage extends BasePage {
    */
   async addPhoto(groupName, genName, memberName, cutName) {
     // Step 1: Select group (may be auto-skipped if only one enabled)
-    const groupButtons = await this.page.locator('button[aria-label]').filter({ hasText: groupName }).count();
+    const groupButtons = await this.page
+      .locator('button[aria-label]')
+      .filter({ hasText: groupName })
+      .count();
     if (groupButtons > 0) {
       await this.page.click(`button[aria-label="${groupName}"]`);
       await this.page.waitForTimeout(100);
     }
 
     // Step 2: Select generation (may be auto-skipped if only one enabled)
-    const genButtons = await this.page.locator('button[aria-label]').filter({ hasText: genName }).count();
+    const genButtons = await this.page
+      .locator('button[aria-label]')
+      .filter({ hasText: genName })
+      .count();
     if (genButtons > 0) {
       await this.page.click(`button[aria-label="${genName}"]`);
       await this.page.waitForTimeout(100);
