@@ -30,14 +30,13 @@ test.describe('Edit Mode', () => {
   });
 
   test('should enable edit mode via checkbox', async ({ page }) => {
-    // Enable edit mode on management tab
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-    expect(await editCheckbox.isChecked()).toBe(true);
-
-    // Navigate to table and verify +/- buttons appear
+    // Navigate to テーブル tab where edit mode toggle is located
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    // Enable edit mode by clicking the "編集" button
+    await tablePage.enableEditMode();
+    await page.waitForTimeout(100);
 
     // Should see + and - buttons
     const plusButtons = page.locator('button[aria-label="increase"]');
@@ -61,12 +60,11 @@ test.describe('Edit Mode', () => {
   });
 
   test('should increment cell value using + button', async ({ page }) => {
-    // Enable edit mode on management tab
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
-    // Navigate to table
+    // Navigate to table and enable edit mode
     await tablePage.goto();
+    await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
     await page.waitForTimeout(300);
 
     // Increment ヨリ for 井上 梨名 (first member, first cut)
@@ -84,12 +82,11 @@ test.describe('Edit Mode', () => {
   });
 
   test('should increment multiple times', async ({ page }) => {
-    // Enable edit mode
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
 
     // Increment 5 times
     for (let i = 0; i < 5; i++) {
@@ -101,12 +98,11 @@ test.describe('Edit Mode', () => {
   });
 
   test('should decrement cell value using - button', async ({ page }) => {
-    // Enable edit mode
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
 
     // First increment to 3
     for (let i = 0; i < 3; i++) {
@@ -121,12 +117,11 @@ test.describe('Edit Mode', () => {
   });
 
   test('should not decrement below 0', async ({ page }) => {
-    // Enable edit mode
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
 
     // Try to decrement from 0
     await tablePage.decrementCell('井上 梨名', 0);
@@ -137,12 +132,11 @@ test.describe('Edit Mode', () => {
   });
 
   test('should edit different cut types independently', async ({ page }) => {
-    // Enable edit mode
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(300);
+
+    await tablePage.enableEditMode();
 
     // Increment different cuts for same member
     await tablePage.incrementCell('井上 梨名', 0); // ヨリ
@@ -163,33 +157,30 @@ test.describe('Edit Mode', () => {
   });
 
   test('should toggle edit mode on and off', async ({ page }) => {
-    // Enable edit mode
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
-    // Go to table - should have edit buttons
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
     expect(await page.locator('button[aria-label="increase"]').count()).toBeGreaterThan(0);
 
-    // Go back and disable edit mode
-    await managementPage.goto();
-    await editCheckbox.uncheck();
-
-    // Go to table - should NOT have edit buttons
-    await tablePage.goto();
+    // Disable edit mode (stay on same tab)
+    await tablePage.disableEditMode();
     await page.waitForTimeout(200);
+
+    // Should NOT have edit buttons anymore
     expect(await page.locator('button[aria-label="increase"]').count()).toBe(0);
   });
 
   test('should edit hinatazaka members in edit mode', async ({ page }) => {
-    // Enable edit mode
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
-    // Go to table and switch to hinatazaka
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(300);
+
+    await tablePage.enableEditMode();
+
+    // Switch to hinatazaka tab
+    await page.waitForTimeout(200);
     await page.click('.tab-button:has-text("日向坂46")');
     await page.waitForTimeout(300);
 
@@ -207,24 +198,21 @@ test.describe('Edit Mode', () => {
   });
 
   test('should preserve data when toggling edit mode', async ({ page }) => {
-    // Enable edit mode, add some data
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
+    // Navigate to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(200);
+
+    await tablePage.enableEditMode();
 
     // Add data
     await tablePage.incrementCell('井上 梨名', 0);
     await tablePage.incrementCell('井上 梨名', 1);
+    await page.waitForTimeout(800);
 
-    // Toggle edit mode off and on
-    await managementPage.goto();
-    await editCheckbox.uncheck();
-    await editCheckbox.check();
-
-    // Go back to table
-    await tablePage.goto();
+    // Toggle edit mode off and on (stay on table tab)
+    await tablePage.disableEditMode();
+    await page.waitForTimeout(200);
+    await tablePage.enableEditMode();
     await page.waitForTimeout(200);
 
     // Data should still be there

@@ -21,7 +21,7 @@ ul::-webkit-scrollbar-track {
 }
 
 .tab {
-  @apply w-20 min-w-20 text-center block border border-solid border-gray-100 hover:border-gray-400 text-gray-500 cursor-pointer flex-shrink-0;
+  @apply w-24 min-w-24 text-center block border border-solid border-gray-100 hover:border-gray-400 text-gray-500 cursor-pointer flex-shrink-0;
 }
 
 li.active-sakurazaka > .tab {

@@ -1,10 +1,7 @@
 <script>
   import { t } from '$lib/i18n/store.svelte.js';
   import { activeTableStore, updateActiveTableGroupSettings } from '$lib/table-state.js';
-  import {
-    loadSortedPhotosFromActiveTable,
-    saveSortedPhotosToActiveTable
-  } from '$lib/table-sortedphotos.svelte';
+  import { loadSortedPhotosFromActiveTable } from '$lib/table-sortedphotos.svelte';
   import { createGroupStateFromSettings } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
   import { debounce } from '$lib/debounce.js';
@@ -13,19 +10,14 @@
   import Sorter from './sorter.svelte';
   import Table from './table.svelte';
   import Utils from './utils.svelte';
+  import Settings from './settings.svelte';
   import Instruction from './instruction.svelte';
+  import ToastContainer from '../components/ui/ToastContainer.svelte';
 
   // Debounced save functions for better performance
-  const debouncedSavePhotos = debounce((photos) => {
-    saveSortedPhotosToActiveTable(photos);
-  }, 500);
-
   const debouncedSaveGroupSettings = debounce((settings) => {
     updateActiveTableGroupSettings(settings);
   }, 500);
-
-  // Subscribe to active table store
-  let activeTable = $derived($activeTableStore);
 
   // Initialize sortedPhotos and groupState from active table
   let sortedPhotos = $state(loadSortedPhotosFromActiveTable());
@@ -110,8 +102,8 @@
       props: { sortedPhotos, groupState }
     },
     {
-      id: 'results',
-      name: t('app.tabs.results'),
+      id: 'table',
+      name: t('app.tabs.table'),
       component: Table,
       props: { sortedPhotos, groupState }
     },
@@ -120,6 +112,12 @@
       name: t('app.tabs.utils'),
       component: Utils,
       props: { groupState }
+    },
+    {
+      id: 'settings',
+      name: t('app.tabs.settings'),
+      component: Settings,
+      props: {}
     },
     {
       id: 'help',
@@ -160,6 +158,8 @@
     </div>
   {/if}
 {/each}
+
+<ToastContainer />
 
 <style>
   @import './tabs.css';

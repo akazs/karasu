@@ -67,7 +67,7 @@ test.describe('Table Management', () => {
     await assertActiveTable(page, '表2');
   });
 
-  test('should rename a table', async ({ page }) => {
+  test('should rename a table', async () => {
     const oldName = DEFAULT_TABLE_NAME;
     const newName = '新しい名前';
 
@@ -87,28 +87,22 @@ test.describe('Table Management', () => {
   test('should validate table name length (max 30 chars)', async ({ page }) => {
     const longName = 'あ'.repeat(31); // 31 characters
 
-    // Set up handlers for both dialogs
-    let promptHandled = false;
-    let alertHandled = false;
+    // Click to show inline creation UI
+    await page.click('button:has-text("新規テーブル")');
+    await page.waitForTimeout(200);
 
-    // Handle the prompt dialog (enter table name)
-    page.on('dialog', async dialog => {
-      if (dialog.type() === 'prompt' && !promptHandled) {
-        promptHandled = true;
-        await dialog.accept(longName);
-      } else if (dialog.type() === 'alert' && !alertHandled) {
-        alertHandled = true;
-        expect(dialog.message()).toContain('30');
-        await dialog.accept();
-      }
-    });
+    // Try to fill in a name longer than 30 chars
+    const input = page.locator('input[type="text"]').first();
+    await input.clear();
+    await input.fill(longName);
 
-    // Try to create table with long name
-    const createButton = page.locator('button:has-text("新規テーブル")');
-    await createButton.click();
+    // Check that input enforces maxlength (should be truncated to 30)
+    const actualValue = await input.inputValue();
+    expect(actualValue.length).toBeLessThanOrEqual(30);
 
-    // Wait for dialogs to complete
-    await page.waitForTimeout(1000);
+    // Cancel the creation
+    await page.click('button:has-text("キャンセル")');
+    await page.waitForTimeout(200);
 
     // Remove listeners
     page.removeAllListeners('dialog');
@@ -117,7 +111,7 @@ test.describe('Table Management', () => {
     await assertTableCount(page, 1);
   });
 
-  test('should duplicate a table', async ({ page }) => {
+  test('should duplicate a table', async () => {
     // Get initial table count from localStorage (more reliable than UI count)
     const initialTables = await managementPage.getLocalStorage('karasu-tables');
     const initialCount = initialTables.tables.length;
@@ -178,7 +172,7 @@ test.describe('Table Management', () => {
     expect(await managementPage.isCreateButtonDisabled()).toBe(true);
   });
 
-  test('should preserve table data when switching', async ({ page }) => {
+  test('should preserve table data when switching', async () => {
     // Create table 2
     await managementPage.createTable('表2');
 

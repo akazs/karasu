@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { ManagementPage } from '../pages/ManagementPage.js';
 import { SorterPage } from '../pages/SorterPage.js';
 import { TablePage } from '../pages/TablePage.js';
 import { assertPhotoCount } from '../helpers/assertions.js';
@@ -16,7 +15,6 @@ import { assertPhotoCount } from '../helpers/assertions.js';
  */
 
 test.describe('Sorter Photo Input', () => {
-  let managementPage;
   let sorterPage;
   let tablePage;
 
@@ -26,7 +24,6 @@ test.describe('Sorter Photo Input', () => {
     await page.reload();
     await page.waitForLoadState('networkidle');
 
-    managementPage = new ManagementPage(page);
     sorterPage = new SorterPage(page);
     tablePage = new TablePage(page);
   });

@@ -5,12 +5,17 @@
   import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
   import { structured_groups } from '$lib/groups.js';
   import { createEditableGroupState } from '$lib/group-state.js';
+  import { showToast } from '$lib/toast-store.svelte.js';
+  import ConfirmDialog from './ui/ConfirmDialog.svelte';
 
   let { table, sortedPhotos, onClose } = $props();
 
   // Local state for editing - capture initial values
   let newTableName = $state(untrack(() => table.name));
   let localGroupState = $state(createEditableGroupState(structured_groups, table.groupSettings));
+
+  // State for clear table confirmation
+  let clearingTable = $state(false);
 
   /**
    * Toggle group enabled state
@@ -59,7 +64,7 @@
       try {
         renameTableById(table.id, newTableName.trim());
       } catch (error) {
-        alert(error.message);
+        showToast(error.message, 'error');
         return;
       }
     }
@@ -85,9 +90,16 @@
    * Clear table data
    */
   function clearTable() {
-    if (confirm(t('alerts.confirmClearCurrentTable'))) {
-      clearSortedPhotos(sortedPhotos);
-    }
+    clearingTable = true;
+  }
+
+  function confirmClear() {
+    clearSortedPhotos(sortedPhotos);
+    clearingTable = false;
+  }
+
+  function cancelClear() {
+    clearingTable = false;
   }
 
   /**
@@ -242,3 +254,17 @@
     </div>
   </div>
 </div>
+
+<!-- Clear Table Confirmation Dialog -->
+{#if clearingTable}
+  <ConfirmDialog
+    isOpen={true}
+    title={t('management.clearCurrentTable')}
+    message={t('alerts.confirmClearCurrentTable')}
+    confirmText={t('alerts.confirmDelete')}
+    cancelText={t('management.cancel')}
+    onConfirm={confirmClear}
+    onCancel={cancelClear}
+    variant="danger"
+  />
+{/if}

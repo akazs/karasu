@@ -142,6 +142,10 @@ test.describe('Data Persistence', () => {
   });
 
   test('should persist language preference after reload', async ({ page }) => {
+    // Navigate to Settings tab
+    await page.click('button.tab:has-text("設定")');
+    await page.waitForTimeout(200);
+
     // Switch to Chinese
     const zhRadio = page.locator('input[type="radio"][value="zh-TW"]');
     await zhRadio.click();
@@ -216,13 +220,12 @@ test.describe('Data Persistence', () => {
   });
 
   test('should persist data after editing via edit mode', async ({ page }) => {
-    // Enable edit mode on management tab
-    const editCheckbox = page.locator('label', { hasText: '編集モード' }).locator('input[type="checkbox"]');
-    await editCheckbox.check();
-
-    // Go to table and edit
+    // Go to table and enable edit mode
     await tablePage.goto();
     await page.waitForTimeout(300);
+    await tablePage.enableEditMode();
+
+    // Edit data
     await tablePage.incrementCell('井上 梨名', 0);
     await tablePage.incrementCell('井上 梨名', 2);
 
@@ -248,19 +251,21 @@ test.describe('Data Persistence', () => {
     await managementPage.createTable('削除される表');
     await page.waitForTimeout(800);
 
-    // Clear all data via management tab - handle the confirm dialog
-    page.on('dialog', async (dialog) => {
-      await dialog.accept();
-    });
+    // Navigate to Settings tab and clear all data
+    await page.click('button.tab:has-text("設定")');
+    await page.waitForTimeout(200);
 
+    // Click clear all button (shows ConfirmDialog)
     await page.locator('button[aria-label="clear all data"]').click();
+    await page.waitForTimeout(200);
+
+    // Confirm in the ConfirmDialog
+    await page.click('button:has-text("削除する")');
 
     // Wait for page reload (the app calls window.location.reload after clearing)
     await page.waitForLoadState('load');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
-
-    page.removeAllListeners('dialog');
 
     // After clear, should be back to initial state with 1 default table
     const tables = await managementPage.getLocalStorage('karasu-tables');

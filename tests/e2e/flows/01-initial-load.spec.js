@@ -38,11 +38,11 @@ test.describe('Initial Load & UI', () => {
     const tabs = page.locator('button.tab');
     const tabCount = await tabs.count();
 
-    // Should have 5 tabs: 管理, 集計, 結果, その他, ヘルプ
-    expect(tabCount).toBe(5);
+    // Should have 6 tabs: 管理, 集計, テーブル, その他, 設定, ヘルプ
+    expect(tabCount).toBe(6);
 
     // Verify each tab text
-    const expectedTabs = ['管理', '集計', '結果', 'その他', 'ヘルプ'];
+    const expectedTabs = ['管理', '集計', 'テーブル', 'その他', '設定', 'ヘルプ'];
     for (let i = 0; i < expectedTabs.length; i++) {
       const tabText = await tabs.nth(i).textContent();
       expect(tabText.trim()).toBe(expectedTabs[i]);
@@ -72,8 +72,9 @@ test.describe('Initial Load & UI', () => {
     const tabTests = [
       { name: '管理', expected: 'テーブル管理' },
       { name: '集計', expected: '櫻坂46' },  // Sorter shows group buttons
-      { name: '結果', expected: 'メンバー' },  // Table shows member header
+      { name: 'テーブル', expected: 'メンバー' },  // Table shows member header
       { name: 'その他', expected: 'シミュレーション' },  // Utils shows simulation
+      { name: '設定', expected: '言語設定' },  // Settings shows language settings
       { name: 'ヘルプ', expected: '注意事項' },  // Instruction shows warnings
     ];
 
@@ -89,16 +90,24 @@ test.describe('Initial Load & UI', () => {
     await expect(page.locator('text=1/10')).toBeVisible();
   });
 
-  test('should display edit mode section', async ({ page }) => {
-    await expect(page.locator('h2', { hasText: '編集モード' })).toBeVisible();
-    const editLabel = page.locator('label', { hasText: '編集モード' });
-    await expect(editLabel).toBeVisible();
-    const editCheckbox = editLabel.locator('input[type="checkbox"]');
-    await expect(editCheckbox).toBeVisible();
-    expect(await editCheckbox.isChecked()).toBe(false);
+  test('should display edit mode section in results tab', async ({ page }) => {
+    // Navigate to テーブル (results) tab
+    await page.click('button.tab:has-text("テーブル")');
+    await page.waitForTimeout(200);
+
+    // Check for edit mode button (not checkbox)
+    const editButton = page.locator('button', { hasText: '編集' });
+    await expect(editButton).toBeVisible();
+
+    // Verify it's not currently in edit mode (button should say "編集" not "編集終了")
+    await expect(page.locator('button', { hasText: '編集終了' })).not.toBeVisible();
   });
 
-  test('should display language settings section', async ({ page }) => {
+  test('should display language settings section in settings tab', async ({ page }) => {
+    // Navigate to 設定 (settings) tab
+    await page.click('button.tab:has-text("設定")');
+    await page.waitForTimeout(200);
+
     await expect(page.locator('text=言語設定')).toBeVisible();
 
     // Japanese should be selected by default
@@ -107,7 +116,11 @@ test.describe('Initial Load & UI', () => {
     expect(await jaRadio.isChecked()).toBe(true);
   });
 
-  test('should display data management section', async ({ page }) => {
+  test('should display data management section in settings tab', async ({ page }) => {
+    // Navigate to 設定 (settings) tab
+    await page.click('button.tab:has-text("設定")');
+    await page.waitForTimeout(200);
+
     await expect(page.locator('text=データ管理')).toBeVisible();
     await expect(page.locator('text=すべてのデータをクリア')).toBeVisible();
   });

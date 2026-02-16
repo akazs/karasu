@@ -3,8 +3,9 @@
     "tabs": {
       "management": "管理",
       "sorter": "集計",
-      "results": "結果",
+      "table": "テーブル",
       "utils": "その他",
+      "settings": "設定",
       "help": "ヘルプ"
     },
     "cuts": {
@@ -20,6 +21,7 @@
     "newTableShort": "新規テーブル",
     "tableCount": "テーブル",
     "maxReached": "（最大数に達しました）",
+    "creating": "作成中",
     "inUse": "使用中",
     "switchButton": "切替",
     "switchTooltip": "このテーブルに切り替え",

@@ -25,14 +25,21 @@ export class ManagementPage extends BasePage {
   }
 
   /**
-   * Create a new table with the given name
+   * Create a new table with the given name (using inline UI)
    * @param {string} name - Table name (max 30 characters)
    */
   async createTable(name) {
-    await this.handleDialog(
-      async () => await this.page.click('button:has-text("新規テーブル")'),
-      name
-    );
+    // Click the "新規テーブル" button to show inline creation UI
+    await this.page.click('button:has-text("新規テーブル")');
+    await this.page.waitForTimeout(100);
+
+    // Fill in the table name in the inline input
+    const input = this.page.locator('input[type="text"]').first();
+    await input.clear();
+    await input.fill(name);
+
+    // Click the save button
+    await this.page.click('button:has-text("保存")');
     await this.waitForDebounce();
   }
 
@@ -48,13 +55,11 @@ export class ManagementPage extends BasePage {
 
   /**
    * Export a table to CSV (copies to clipboard)
+   * Note: Now shows a toast notification instead of alert
    * @param {string} tableName - Name of the table to export
    */
   async exportTableCSV(tableName) {
     const tableCard = this.page.locator('.border.rounded', { hasText: tableName });
-
-    // Handle the alert that appears after copying
-    this.page.once('dialog', dialog => dialog.accept());
 
     await tableCard.locator('button:has-text("CSV")').click();
     await this.waitForDebounce();
@@ -157,10 +162,16 @@ export class ManagementPage extends BasePage {
    */
   async clearTableData(tableName) {
     await this.openEditOverlay(tableName);
-    await this.handleDialog(
-      async () => await this.page.click('button:has-text("消去")'),
-      null
-    );
+
+    // Click the clear button (shows ConfirmDialog)
+    await this.page.click('button:has-text("現在のテーブルをクリア")');
+    await this.page.waitForTimeout(200);
+
+    // Confirm in the ConfirmDialog
+    await this.page.click('button:has-text("削除する")');
+    await this.page.waitForTimeout(200);
+
+    // Save and close the edit overlay
     await this.page.click('button:has-text("保存")');
     await this.waitForHidden('[role="dialog"]');
     await this.waitForDebounce();

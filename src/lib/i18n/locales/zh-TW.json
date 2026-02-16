@@ -3,8 +3,9 @@
     "tabs": {
       "management": "管理",
       "sorter": "統計",
-      "results": "結果",
+      "table": "表格",
       "utils": "其他",
+      "settings": "設定",
       "help": "說明"
     },
     "cuts": {
@@ -20,6 +21,7 @@
     "newTableShort": "新增表格",
     "tableCount": "表格",
     "maxReached": "（已達上限）",
+    "creating": "建立中",
     "inUse": "使用中",
     "switchButton": "切換",
     "switchTooltip": "切換至此表格",

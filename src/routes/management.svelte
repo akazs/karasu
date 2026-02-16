@@ -1,13 +1,11 @@
 <script>
-  import { editMode } from '$lib/configs.svelte';
-  import { i18n, t } from '$lib/i18n/store.svelte.js';
+  import { t } from '$lib/i18n/store.svelte.js';
   import {
     tablesStore,
     switchTable,
     createTable,
     deleteTableById,
-    duplicateTableById,
-    resetToInitialState
+    duplicateTableById
   } from '$lib/table-state.js';
   import { cuts } from '$lib/configs.svelte';
   import { photosToCSV } from '$lib/csv.js';
@@ -15,6 +13,7 @@
   import { photoDataToMap } from '$lib/table-photo-converter.js';
   import { createGroupStateFromSettings } from '$lib/group-state.js';
   import { getBorderClass, getBgClass, getBadgeClass } from '$lib/theme-utils.js';
+  import { showToast } from '$lib/toast-store.svelte.js';
   import TableEditOverlay from '../components/TableEditOverlay.svelte';
   import ConfirmDialog from '../components/ui/ConfirmDialog.svelte';
 
@@ -31,6 +30,11 @@
   // State for delete confirmation
   let deletingTableId = $state(null);
 
+  // State for inline table creation
+  let creatingNewTable = $state(false);
+  let newTableName = $state('');
+  let newTableInputRef = $state(null);
+
   // Determine theme for a table based on its group settings
   function getTableTheme(table) {
     const sakurazakaEnabled = table.groupSettings?.sakurazaka?.enabled ?? true;
@@ -43,24 +47,48 @@
 
   function handleCreateNew() {
     if (!canCreateNew) {
-      alert(t('alerts.maxTables'));
       return;
     }
 
-    const tableName = prompt(t('alerts.enterTableName'), t('alerts.defaultTableName'));
-    if (tableName && tableName.trim()) {
-      const trimmedName = tableName.trim();
-      if (trimmedName.length > 30) {
-        alert(t('alerts.tableNameTooLong'));
-        return;
-      }
-      try {
-        createTable(trimmedName, ['sakurazaka', 'hinatazaka']);
-      } catch (error) {
-        alert(error.message);
-      }
+    creatingNewTable = true;
+    newTableName = t('alerts.defaultTableName');
+  }
+
+  function handleSaveNewTable() {
+    const trimmedName = newTableName.trim();
+
+    if (!trimmedName) {
+      showToast(t('alerts.tableNameTooLong'), 'error');
+      return;
+    }
+
+    if (trimmedName.length > 30) {
+      showToast(t('alerts.tableNameTooLong'), 'error');
+      return;
+    }
+
+    try {
+      createTable(trimmedName, ['sakurazaka', 'hinatazaka']);
+      creatingNewTable = false;
+      newTableName = '';
+    } catch (error) {
+      showToast(error.message, 'error');
     }
   }
+
+  function handleCancelNewTable() {
+    creatingNewTable = false;
+    newTableName = '';
+  }
+
+  // Auto-focus input when creating new table
+  $effect(() => {
+    if (creatingNewTable && newTableInputRef) {
+      newTableInputRef.focus();
+      newTableInputRef.select();
+      newTableInputRef.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
 
   function openEditOverlay(table) {
     editingTable = table;
@@ -80,7 +108,7 @@
         deleteTableById(deletingTableId);
         deletingTableId = null;
       } catch (error) {
-        alert(error.message);
+        showToast(error.message, 'error');
         deletingTableId = null;
       }
     }
@@ -94,7 +122,7 @@
     try {
       duplicateTableById(tableId);
     } catch (error) {
-      alert(error.message);
+      showToast(error.message, 'error');
     }
   }
 
@@ -112,10 +140,10 @@
     navigator.clipboard
       .writeText(csv)
       .then(() => {
-        alert(t('alerts.csvCopied', { name: table.name }));
+        showToast(t('alerts.csvCopied', { name: table.name }), 'success');
       })
       .catch(() => {
-        alert(t('alerts.csvFailed'));
+        showToast(t('alerts.csvFailed'), 'error');
       });
   }
 
@@ -128,27 +156,6 @@
       hour: '2-digit',
       minute: '2-digit'
     });
-  }
-
-  function handleClearAll() {
-    if (!confirm(t('alerts.confirmClearAllData'))) {
-      return;
-    }
-
-    try {
-      // Reset store and localStorage to initial state
-      resetToInitialState();
-
-      // Reload page to refresh all components
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Failed to clear data:', error);
-      }
-      alert(t('alerts.clearFailed'));
-    }
   }
 </script>
 
@@ -251,42 +258,43 @@
           </div>
         </div>
       {/each}
-    </div>
-  </section>
 
-  <!-- Language Settings Section -->
-  <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">{t('management.language')}</h2>
-    <div class="ml-2 flex gap-3">
-      <label class="cursor-pointer">
-        <input
-          type="radio"
-          name="language"
-          value="ja-JP"
-          checked={i18n.locale === 'ja-JP'}
-          onchange={() => i18n.setLocale('ja-JP')}
-        />
-        <span class="ml-1">{t('management.languageJa')}</span>
-      </label>
-      <label class="cursor-pointer">
-        <input
-          type="radio"
-          name="language"
-          value="zh-TW"
-          checked={i18n.locale === 'zh-TW'}
-          onchange={() => i18n.setLocale('zh-TW')}
-        />
-        <span class="ml-1">{t('management.languageZh')}</span>
-      </label>
+      <!-- Inline Create Table UI -->
+      {#if creatingNewTable}
+        <div class="border rounded p-2.5 border-blue-400 bg-blue-50">
+          <div class="flex items-center gap-2">
+            <span class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0">
+              {t('management.creating')}
+            </span>
+            <input
+              bind:this={newTableInputRef}
+              bind:value={newTableName}
+              type="text"
+              maxlength="30"
+              class="flex-1 px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style="text-align: left;"
+              placeholder={t('alerts.enterTableName')}
+              onkeydown={(e) => {
+                if (e.key === 'Enter') handleSaveNewTable();
+                if (e.key === 'Escape') handleCancelNewTable();
+              }}
+            />
+            <button
+              onclick={handleSaveNewTable}
+              class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
+            >
+              {t('management.save')}
+            </button>
+            <button
+              onclick={handleCancelNewTable}
+              class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
+            >
+              {t('management.cancel')}
+            </button>
+          </div>
+        </div>
+      {/if}
     </div>
-  </section>
-
-  <!-- Data Management Section -->
-  <section class="mb-6">
-    <h2 class="text-lg font-bold mb-3">{t('management.dataManagement')}</h2>
-    <button class="btn-red text-center w-full" aria-label="clear all data" onclick={handleClearAll}>
-      {t('management.clearAllData')}
-    </button>
   </section>
 </div>
 
