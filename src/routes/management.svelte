@@ -35,6 +35,11 @@
   let newTableName = $state('');
   let newTableInputRef = $state(null);
 
+  // State for inline table copying
+  let copyingTableId = $state(null);
+  let copyTableName = $state('');
+  let copyTableInputRef = $state(null);
+
   // Determine theme for a table based on its group settings
   function getTableTheme(table) {
     const sakurazakaEnabled = table.groupSettings?.sakurazaka?.enabled ?? true;
@@ -90,6 +95,15 @@
     }
   });
 
+  // Auto-focus input when copying table
+  $effect(() => {
+    if (copyingTableId && copyTableInputRef) {
+      copyTableInputRef.focus();
+      copyTableInputRef.select();
+      copyTableInputRef.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+
   function openEditOverlay(table) {
     editingTable = table;
   }
@@ -119,11 +133,48 @@
   }
 
   function handleDuplicate(tableId) {
+    if (!canCreateNew) {
+      return;
+    }
+
+    const table = tables.find((t) => t.id === tableId);
+    if (!table) {
+      return;
+    }
+
+    copyingTableId = tableId;
+    copyTableName = table.name;
+  }
+
+  function handleSaveCopy() {
+    const trimmedName = copyTableName.trim();
+
+    if (!trimmedName) {
+      showToast(t('alerts.tableNameTooLong'), 'error');
+      return;
+    }
+
+    if (trimmedName.length > 30) {
+      showToast(t('alerts.tableNameTooLong'), 'error');
+      return;
+    }
+
     try {
-      duplicateTableById(tableId);
+      duplicateTableById(copyingTableId, {
+        name: trimmedName,
+        switchToNew: false,
+        insertAfterSource: true
+      });
+      copyingTableId = null;
+      copyTableName = '';
     } catch (error) {
       showToast(error.message, 'error');
     }
+  }
+
+  function handleCancelCopy() {
+    copyingTableId = null;
+    copyTableName = '';
   }
 
   function handleSwitchTable(tableId) {
@@ -177,7 +228,7 @@
     </div>
 
     <div class="mb-4 text-sm text-gray-600">
-      {tables.length}/10 <span class="hidden md:inline">{t('management.tableCount')}</span>
+      <span>{t('management.tableCount')}:</span> {tables.length}/10
       {#if !canCreateNew}
         <span class="text-red-600">{t('management.maxReached')}</span>
       {/if}
@@ -196,14 +247,14 @@
             <!-- Status Badge / Use Button (Top-Left) -->
             {#if isActive}
               <span
-                class="text-xs {badgeColor} text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0"
+                class="text-xs {badgeColor} text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0 min-w-17 text-center"
               >
                 {t('management.inUse')}
               </span>
             {:else}
               <button
                 onclick={() => handleSwitchTable(table.id)}
-                class="px-1.5 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
+                class="px-2.5 py-2 md:py-3 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0 min-w-17 text-center"
                 title={t('management.switchTooltip')}
               >
                 {t('management.switchButton')}
@@ -257,13 +308,52 @@
             </div>
           </div>
         </div>
+
+        <!-- Inline Copy Table UI (shown right after source table) -->
+        {#if copyingTableId === table.id}
+          <div class="border rounded p-2.5 border-blue-400 bg-blue-50">
+            <div class="flex flex-col md:flex-row md:items-center gap-2">
+              <span
+                class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0 min-w-17 text-center self-start"
+              >
+                {t('management.copying')}
+              </span>
+              <input
+                bind:this={copyTableInputRef}
+                bind:value={copyTableName}
+                type="text"
+                maxlength="30"
+                class="!w-full md:flex-1 !mx-0 !text-left px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={t('alerts.enterTableName')}
+                onkeydown={(e) => {
+                  if (e.key === 'Enter') handleSaveCopy();
+                  if (e.key === 'Escape') handleCancelCopy();
+                }}
+              />
+              <div class="flex gap-2 flex-shrink-0 self-end md:self-auto">
+                <button
+                  onclick={handleSaveCopy}
+                  class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  {t('management.save')}
+                </button>
+                <button
+                  onclick={handleCancelCopy}
+                  class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+                >
+                  {t('management.cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        {/if}
       {/each}
 
       <!-- Inline Create Table UI -->
       {#if creatingNewTable}
         <div class="border rounded p-2.5 border-blue-400 bg-blue-50">
-          <div class="flex items-center gap-2">
-            <span class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0">
+          <div class="flex flex-col md:flex-row md:items-center gap-2">
+            <span class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0 min-w-17 text-center self-start">
               {t('management.creating')}
             </span>
             <input
@@ -271,26 +361,27 @@
               bind:value={newTableName}
               type="text"
               maxlength="30"
-              class="flex-1 px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              style="text-align: left;"
+              class="!w-full md:flex-1 !mx-0 !text-left px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={t('alerts.enterTableName')}
               onkeydown={(e) => {
                 if (e.key === 'Enter') handleSaveNewTable();
                 if (e.key === 'Escape') handleCancelNewTable();
               }}
             />
-            <button
-              onclick={handleSaveNewTable}
-              class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex-shrink-0"
-            >
-              {t('management.save')}
-            </button>
-            <button
-              onclick={handleCancelNewTable}
-              class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 flex-shrink-0"
-            >
-              {t('management.cancel')}
-            </button>
+            <div class="flex gap-2 flex-shrink-0 self-end md:self-auto">
+              <button
+                onclick={handleSaveNewTable}
+                class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                {t('management.save')}
+              </button>
+              <button
+                onclick={handleCancelNewTable}
+                class="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+              >
+                {t('management.cancel')}
+              </button>
+            </div>
           </div>
         </div>
       {/if}
@@ -321,10 +412,6 @@
 
 <style>
   @import './buttons.css';
-
-  .management-container {
-    max-width: 900px;
-  }
 
   /* Ensure disabled buttons look disabled */
   button:disabled {

@@ -17,12 +17,61 @@
   // State for clear table confirmation
   let clearingTable = $state(false);
 
+  // State for selected group in radio button UI
+  let selectedGroupId = $state(
+    localGroupState.find((g) => g.enabled)?.id || localGroupState[0]?.id || 'sakurazaka'
+  );
+
+  // Initialize: Ensure only the selected group is enabled (radio button semantics)
+  localGroupState = localGroupState.map((group) => {
+    if (group.id === selectedGroupId) {
+      // Keep the selected group and its current generation settings
+      return {
+        ...group,
+        enabled: true
+      };
+    } else {
+      // Disable all other groups and their generations
+      return {
+        ...group,
+        enabled: false,
+        generations: group.generations.map((gen) => ({ ...gen, enabled: false }))
+      };
+    }
+  });
+
   /**
-   * Toggle group enabled state
+   * Switch selected group (radio button handler)
+   * Enables all generations of the newly selected group and disables all others
    */
-  function toggleGroupEnabled(groupId, enabled) {
+  function switchSelectedGroup(groupId) {
+    localGroupState = localGroupState.map((group) => {
+      if (group.id === groupId) {
+        // Enable this group and all its generations
+        return {
+          ...group,
+          enabled: true,
+          generations: group.generations.map((gen) => ({ ...gen, enabled: true }))
+        };
+      } else {
+        // Disable this group and all its generations
+        return {
+          ...group,
+          enabled: false,
+          generations: group.generations.map((gen) => ({ ...gen, enabled: false }))
+        };
+      }
+    });
+
+    selectedGroupId = groupId;
+  }
+
+  /**
+   * Toggle all generations in the selected group
+   */
+  function toggleAllGenerations(enabled) {
     localGroupState = localGroupState.map((group) =>
-      group.id === groupId
+      group.id === selectedGroupId
         ? {
             ...group,
             enabled,
@@ -38,9 +87,9 @@
   /**
    * Toggle generation enabled state
    */
-  function toggleGenerationEnabled(groupId, genName, enabled) {
+  function toggleGenerationEnabled(genName, enabled) {
     localGroupState = localGroupState.map((group) => {
-      if (group.id !== groupId) {
+      if (group.id !== selectedGroupId) {
         return group;
       }
       const updatedGenerations = group.generations.map((gen) =>
@@ -189,38 +238,43 @@
     <!-- Section 2: Group Selection -->
     <div class="mb-6">
       <h3 class="text-sm font-medium mb-3">{t('management.groupSelection')}</h3>
-      <div class="space-y-3">
-        {#each localGroupState as group (group.id)}
-          <div class="border rounded p-3">
-            <!-- Group Checkbox -->
-            <label class="font-bold flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={group.enabled}
-                onchange={(e) => toggleGroupEnabled(group.id, e.target.checked)}
-                class="w-4 h-4"
-              />
-              <span>{group.name}</span>
-            </label>
 
-            <!-- Generation Checkboxes -->
-            <div class="ml-6 mt-2 space-y-1">
-              {#each group.generations as generation (generation.name)}
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={generation.enabled}
-                    onchange={(e) =>
-                      toggleGenerationEnabled(group.id, generation.name, e.target.checked)}
-                    class="w-4 h-4"
-                  />
-                  <span class="text-sm">{generation.name}</span>
-                </label>
-              {/each}
-            </div>
-          </div>
+      <!-- Group Radio Buttons - Horizontal Layout -->
+      <div class="flex gap-4 mb-4">
+        {#each localGroupState as group (group.id)}
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="selectedGroup"
+              value={group.id}
+              checked={selectedGroupId === group.id}
+              onchange={() => switchSelectedGroup(group.id)}
+              class="w-4 h-4"
+            />
+            <span class="font-medium">{group.name}</span>
+          </label>
         {/each}
       </div>
+
+      <!-- Generation Checkboxes for Selected Group -->
+      {#if localGroupState.find((g) => g.id === selectedGroupId)}
+        {@const selectedGroup = localGroupState.find((g) => g.id === selectedGroupId)}
+        <div class="border rounded p-3 bg-gray-50">
+          <div class="space-y-2">
+            {#each selectedGroup.generations as generation (generation.name)}
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={generation.enabled}
+                  onchange={(e) => toggleGenerationEnabled(generation.name, e.target.checked)}
+                  class="w-4 h-4"
+                />
+                <span class="text-sm">{generation.name}</span>
+              </label>
+            {/each}
+          </div>
+        </div>
+      {/if}
     </div>
 
     <!-- Section 3: Danger Zone -->

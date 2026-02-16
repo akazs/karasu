@@ -159,9 +159,14 @@ export function duplicateCurrentTable() {
 
 /**
  * Duplicate a specific table by ID.
+ * @param {string} tableId - Table ID to duplicate
+ * @param {object} options - Options for duplication
+ * @param {string} options.name - Name for the duplicated table
+ * @param {boolean} options.switchToNew - Whether to switch to the duplicated table
+ * @param {boolean} options.insertAfterSource - Whether to insert after source table
  */
-export function duplicateTableById(tableId) {
-  tablesStore.update((state) => duplicateTableLogic(state, tableId));
+export function duplicateTableById(tableId, options = {}) {
+  tablesStore.update((state) => duplicateTableLogic(state, tableId, options));
 }
 
 /**
