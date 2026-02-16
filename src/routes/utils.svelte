@@ -27,10 +27,14 @@
     loading = true;
 
     const timeout = setTimeout(() => {
-      simulate(packs, members, cuts, onedraw).then((result) => {
-        simulate_result = result;
-        loading = false;
-      });
+      simulate(packs, members, cuts, onedraw)
+        .then((result) => {
+          simulate_result = result;
+          loading = false;
+        })
+        .catch(() => {
+          loading = false;
+        });
     }, 300);
 
     return () => clearTimeout(timeout);

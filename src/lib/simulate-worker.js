@@ -1,8 +1,12 @@
 /** @param {MessageEvent<{id: number, n_packs: number, n_members: number, n_cuts: number, n_onedraw: number}>} e */
 self.onmessage = function (e) {
   const { id, n_packs, n_members, n_cuts, n_onedraw } = e.data;
-  const result = simulate(n_packs, n_members, n_cuts, n_onedraw);
-  self.postMessage({ id, result });
+  try {
+    const result = simulate(n_packs, n_members, n_cuts, n_onedraw);
+    self.postMessage({ id, result });
+  } catch (err) {
+    self.postMessage({ id, error: err.message || 'Simulation failed' });
+  }
 };
 
 /**

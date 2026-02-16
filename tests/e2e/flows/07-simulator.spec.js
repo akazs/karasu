@@ -64,6 +64,9 @@ test.describe('Photo Draw Simulator', () => {
     const resultsSection = page.locator('.bg-gray-50.rounded');
     await expect(resultsSection).toBeVisible();
 
+    // Wait for async simulation (debounce + worker) to complete
+    await expect(resultsSection).not.toContainText('計算中', { timeout: 5000 });
+
     const resultText = await resultsSection.textContent();
 
     // Should contain statistical result text
@@ -120,10 +123,12 @@ test.describe('Photo Draw Simulator', () => {
     const packsInput = page.locator('#n_packs');
     await packsInput.clear();
     await packsInput.fill('1000');
-    await page.waitForTimeout(1000);
+
+    // Large pack count simulation takes longer - wait for async completion
+    const resultsSection = page.locator('.bg-gray-50.rounded');
+    await expect(resultsSection).not.toContainText('計算中', { timeout: 10000 });
 
     // Should compute without errors
-    const resultsSection = page.locator('.bg-gray-50.rounded');
     await expect(resultsSection).toBeVisible();
     const resultText = await resultsSection.textContent();
     expect(resultText).toContain('95%');
@@ -132,6 +137,10 @@ test.describe('Photo Draw Simulator', () => {
   test('should update member count display format', async ({ page }) => {
     // The total cuts calculation should use members * cuts
     const resultsSection = page.locator('.bg-gray-50.rounded');
+
+    // Wait for async simulation (debounce + worker) to complete
+    await expect(resultsSection).not.toContainText('計算中', { timeout: 5000 });
+
     const resultText = await resultsSection.textContent();
 
     // With 61 members and 4 cuts = 244 total cuts
