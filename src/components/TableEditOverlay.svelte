@@ -22,25 +22,29 @@
 
   // State for selected group in radio button UI
   let selectedGroupId = $state(
-    localGroupState.find((g) => g.enabled)?.id || localGroupState[0]?.id || 'sakurazaka'
+    untrack(() =>
+      localGroupState.find((g) => g.enabled)?.id || localGroupState[0]?.id || 'sakurazaka'
+    )
   );
 
   // Initialize: Ensure only the selected group is enabled (radio button semantics)
-  localGroupState = localGroupState.map((group) => {
-    if (group.id === selectedGroupId) {
-      // Keep the selected group and its current generation settings
-      return {
-        ...group,
-        enabled: true
-      };
-    } else {
-      // Disable all other groups and their generations
-      return {
-        ...group,
-        enabled: false,
-        generations: group.generations.map((gen) => ({ ...gen, enabled: false }))
-      };
-    }
+  untrack(() => {
+    localGroupState = localGroupState.map((group) => {
+      if (group.id === selectedGroupId) {
+        // Keep the selected group and its current generation settings
+        return {
+          ...group,
+          enabled: true
+        };
+      } else {
+        // Disable all other groups and their generations
+        return {
+          ...group,
+          enabled: false,
+          generations: group.generations.map((gen) => ({ ...gen, enabled: false }))
+        };
+      }
+    });
   });
 
   /**
