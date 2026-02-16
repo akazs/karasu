@@ -25,19 +25,25 @@
     const onedraw = Number(n_onedraw);
 
     loading = true;
+    let cancelled = false;
 
     const timeout = setTimeout(() => {
       simulate(packs, members, cuts, onedraw)
         .then((result) => {
+          if (cancelled) return;
           simulate_result = result;
           loading = false;
         })
         .catch(() => {
+          if (cancelled) return;
           loading = false;
         });
     }, 300);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   });
 </script>
 

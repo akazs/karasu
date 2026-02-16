@@ -85,7 +85,7 @@ test.describe('Photo Draw Simulator', () => {
     const packsInput = page.locator('#n_packs');
     await packsInput.clear();
     await packsInput.fill('100');
-    await page.waitForTimeout(500);
+    await expect(resultsSection).not.toContainText('計算中', { timeout: 5000 });
 
     // Get updated results
     const updatedResult = await resultsSection.textContent();
@@ -101,7 +101,7 @@ test.describe('Photo Draw Simulator', () => {
     const cutsInput = page.locator('#n_cuts');
     await cutsInput.clear();
     await cutsInput.fill('2');
-    await page.waitForTimeout(500);
+    await expect(resultsSection).not.toContainText('計算中', { timeout: 5000 });
 
     const resultText = await resultsSection.textContent();
     expect(resultText).toContain('95%');
@@ -111,10 +111,10 @@ test.describe('Photo Draw Simulator', () => {
     const packsInput = page.locator('#n_packs');
     await packsInput.clear();
     await packsInput.fill('0');
-    await page.waitForTimeout(500);
 
     // Should still display results (0 packs = 0 comp)
     const resultsSection = page.locator('.bg-gray-50.rounded');
+    await expect(resultsSection).not.toContainText('計算中', { timeout: 5000 });
     const resultText = await resultsSection.textContent();
     expect(resultText).toContain('0.00');
   });
