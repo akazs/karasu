@@ -23,23 +23,23 @@
     <p>
       <b>{t('instruction.tableManagementTitle')}</b>: {t('instruction.tableManagementDesc')}
     </p>
-    <p>
-      <b>{t('instruction.editModeTitle')}</b>: {t('instruction.editModeDesc')}
-    </p>
-    <p>
-      <b>{t('instruction.dataManagementTitle')}</b>: {t('instruction.dataManagementDesc')}
-    </p>
     <h2>{t('instruction.sorterTabTitle')}</h2>
     <p>{t('instruction.sorterTabDesc1')}</p>
     <p>{t('instruction.sorterTabDesc2')}</p>
-    <h2>{t('instruction.resultsTabTitle')}</h2>
-    <p>{t('instruction.resultsTabDesc1')}</p>
+    <h2>{t('instruction.tableTabTitle')}</h2>
+    <p>{t('instruction.tableTabDesc1')}</p>
     <p>
-      {t('instruction.resultsTabDesc2')}
+      {t('instruction.tableTabDesc2')}
+    </p>
+    <p>
+      <b>{t('instruction.editModeTitle')}</b>: {t('instruction.editModeDesc')}
     </p>
     <h2>{t('instruction.utilsTabTitle')}</h2>
     <p>{t('instruction.utilsTabDesc1')}</p>
     <p>{t('instruction.utilsTabDesc2')}</p>
+    <h2>{t('instruction.settingsTabTitle')}</h2>
+    <p>{t('instruction.settingsTabDesc1')}</p>
+    <p>{t('instruction.settingsTabDesc2')}</p>
   </div>
 </div>
 
