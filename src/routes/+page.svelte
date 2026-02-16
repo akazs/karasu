@@ -86,6 +86,9 @@
         for (const gen of group.generations) {
           savedSettings[group.id].generations[gen.name] = gen.enabled;
         }
+        if (group.disabledMembers && group.disabledMembers.length > 0) {
+          savedSettings[group.id].disabledMembers = [...group.disabledMembers];
+        }
       }
       debouncedSaveGroupSettings(tableId, savedSettings);
     }

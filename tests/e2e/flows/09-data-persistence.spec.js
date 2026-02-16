@@ -117,22 +117,21 @@ test.describe('Data Persistence', () => {
   });
 
   test('should persist group settings after reload', async ({ page }) => {
-    // Modify group settings
+    // Modify group settings: disable 四期生 generation in sakurazaka
     await managementPage.goto();
     await managementPage.openEditOverlay('新しいテーブル');
 
-    // Disable hinatazaka
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
+    const dialog = page.locator('[role="dialog"]');
+    // Sakurazaka is selected by default; uncheck 四期生
+    const gen4Label = dialog.locator('label').filter({ hasText: '四期生' });
+    await gen4Label.locator('input[type="checkbox"]').uncheck();
     await page.click('[role="dialog"] button:has-text("保存")');
     await page.waitForTimeout(800);
 
     // Verify before reload
     let tables = await managementPage.getLocalStorage('karasu-tables');
     let activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
-    expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
+    expect(activeTable.groupSettings.sakurazaka.generations['四期生']).toBe(false);
 
     // Reload
     await page.reload();
@@ -141,7 +140,7 @@ test.describe('Data Persistence', () => {
     // Verify after reload
     tables = await managementPage.getLocalStorage('karasu-tables');
     activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
-    expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
+    expect(activeTable.groupSettings.sakurazaka.generations['四期生']).toBe(false);
     expect(activeTable.groupSettings.sakurazaka.enabled).toBe(true);
   });
 
@@ -194,9 +193,9 @@ test.describe('Data Persistence', () => {
     await managementPage.createTable('別の表');
     await page.waitForTimeout(800);
 
-    // Add different data to second table
+    // Add different data to second table (new tables only have sakurazaka enabled)
     await sorterPage.goto();
-    await sorterPage.addPhoto('日向坂46', '二期生', '金村 美玖', 'チュウ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '遠藤 光莉', 'チュウ');
     await page.waitForTimeout(1000);
 
     // Reload
@@ -212,15 +211,14 @@ test.describe('Data Persistence', () => {
     expect(defaultTable).toBeDefined();
     expect(secondTable).toBeDefined();
 
-    // Default table should have sakurazaka data
+    // Default table should have 井上 梨名 data
     expect(defaultTable.photoData.sakurazaka['井上 梨名']).toEqual([1, 0, 0, 0]);
 
-    // Second table should have hinatazaka data
-    expect(secondTable.photoData.hinatazaka['金村 美玖']).toEqual([0, 1, 0, 0]);
+    // Second table should have 遠藤 光莉 data
+    expect(secondTable.photoData.sakurazaka['遠藤 光莉']).toEqual([0, 1, 0, 0]);
 
-    // Cross-check: default table should NOT have hinatazaka data for this member
-    const defaultHinata = defaultTable.photoData.hinatazaka || {};
-    expect(defaultHinata['金村 美玖']).toBeUndefined();
+    // Cross-check: default table should NOT have 遠藤 光莉 data
+    expect(defaultTable.photoData.sakurazaka['遠藤 光莉']).toBeUndefined();
   });
 
   test('should persist data after editing via edit mode', async ({ page }) => {

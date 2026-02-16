@@ -176,7 +176,7 @@ export class ManagementPage extends BasePage {
     await this.openEditOverlay(tableName);
 
     // Click the clear button (shows ConfirmDialog)
-    await this.page.click('button:has-text("現在のテーブルをクリア")');
+    await this.page.click('button:has-text("このテーブルをクリア")');
     await this.page.waitForTimeout(200);
 
     // Confirm in the ConfirmDialog

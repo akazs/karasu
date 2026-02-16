@@ -3,6 +3,8 @@ import {
   createGroupState,
   setGroupEnabled,
   setGenerationEnabled,
+  setMemberEnabled,
+  isMemberEnabled,
   getEnabledGenerations,
   getActiveGroupId,
   setActiveGroupId,
@@ -306,6 +308,13 @@ describe('group-state', () => {
       const sanKisei = state.groups[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(false);
       expect(sanKisei.enabled).toBe(true);
+
+      // hinatazaka has no entry in customSettings, should default to disabled
+      const hinata = state.groups.find((g) => g.id === 'hinatazaka');
+      expect(hinata.enabled).toBe(false);
+      for (const gen of hinata.generations) {
+        expect(gen.enabled).toBe(false);
+      }
     });
 
     it('should not be polluted by localStorage global state', () => {
@@ -324,7 +333,7 @@ describe('group-state', () => {
         })
       );
 
-      // Table settings only specify hinatazaka; sakurazaka should default to enabled (config default)
+      // Table settings only specify hinatazaka; sakurazaka should default to disabled
       const customSettings = {
         hinatazaka: {
           enabled: true,
@@ -336,12 +345,12 @@ describe('group-state', () => {
 
       const state = createGroupStateFromSettings(structured_groups, customSettings);
 
-      // sakurazaka has no table-specific settings, should use config defaults (enabled),
-      // NOT localStorage global state (disabled)
+      // sakurazaka has no table-specific settings, should default to disabled,
+      // NOT localStorage global state nor config defaults
       const sakura = state.groups.find((g) => g.id === 'sakurazaka');
-      expect(sakura.enabled).toBe(true);
+      expect(sakura.enabled).toBe(false);
       for (const gen of sakura.generations) {
-        expect(gen.enabled).toBe(true);
+        expect(gen.enabled).toBe(false);
       }
     });
 
@@ -365,19 +374,30 @@ describe('group-state', () => {
       expect(sanKisei.enabled).toBe(true);
     });
 
-    it('should handle empty saved settings', () => {
+    it('should handle empty saved settings by disabling all groups', () => {
       const state = createGroupStateFromSettings(structured_groups, {});
 
-      // Should fall back to localStorage or defaults
       expect(state).toHaveProperty('groups');
       expect(state).toHaveProperty('activeGroupId');
+      for (const group of state.groups) {
+        expect(group.enabled).toBe(false);
+        for (const gen of group.generations) {
+          expect(gen.enabled).toBe(false);
+        }
+      }
     });
 
-    it('should handle null saved settings', () => {
+    it('should handle null saved settings by disabling all groups', () => {
       const state = createGroupStateFromSettings(structured_groups, null);
 
       expect(state).toHaveProperty('groups');
       expect(state).toHaveProperty('activeGroupId');
+      for (const group of state.groups) {
+        expect(group.enabled).toBe(false);
+        for (const gen of group.generations) {
+          expect(gen.enabled).toBe(false);
+        }
+      }
     });
   });
 
@@ -416,16 +436,17 @@ describe('group-state', () => {
       expect(result[0].generations[0].enabled).toBe(false);
     });
 
-    it('should only include id, name, enabled fields (not members)', () => {
+    it('should include id, name, enabled, disabledMembers, and members fields', () => {
       const result = createEditableGroupState(structured_groups, {});
 
       expect(result[0]).toHaveProperty('id');
       expect(result[0]).toHaveProperty('name');
       expect(result[0]).toHaveProperty('enabled');
+      expect(result[0]).toHaveProperty('disabledMembers');
       expect(result[0]).toHaveProperty('generations');
       expect(result[0].generations[0]).toHaveProperty('name');
       expect(result[0].generations[0]).toHaveProperty('enabled');
-      expect(result[0].generations[0]).not.toHaveProperty('members');
+      expect(result[0].generations[0]).toHaveProperty('members');
     });
 
     it('should merge saved settings correctly', () => {
@@ -446,6 +467,241 @@ describe('group-state', () => {
       expect(niKisei.enabled).toBe(true);
       // 三期生 not in saved settings, should default to true
       expect(sanKisei.enabled).toBe(true);
+    });
+
+    it('should include members in generation objects', () => {
+      const savedSettings = {
+        sakurazaka: {
+          enabled: true,
+          generations: { 二期生: true }
+        }
+      };
+
+      const result = createEditableGroupState(structured_groups, savedSettings);
+
+      const niKisei = result[0].generations.find((g) => g.name === '二期生');
+      expect(niKisei.members).toBeDefined();
+      expect(niKisei.members.length).toBeGreaterThan(0);
+      expect(niKisei.members[0]).toHaveProperty('fullname');
+    });
+
+    it('should include disabledMembers from saved settings', () => {
+      const savedSettings = {
+        sakurazaka: {
+          enabled: true,
+          generations: { 二期生: true },
+          disabledMembers: ['井上 梨名']
+        }
+      };
+
+      const result = createEditableGroupState(structured_groups, savedSettings);
+
+      expect(result[0].disabledMembers).toEqual(['井上 梨名']);
+    });
+
+    it('should default disabledMembers to empty array when not in saved settings', () => {
+      const savedSettings = {
+        sakurazaka: {
+          enabled: true,
+          generations: { 二期生: true }
+        }
+      };
+
+      const result = createEditableGroupState(structured_groups, savedSettings);
+
+      expect(result[0].disabledMembers).toEqual([]);
+    });
+  });
+
+  describe('setMemberEnabled', () => {
+    it('disabling a member adds to disabledMembers', () => {
+      const state = createGroupState(structured_groups);
+      const updated = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      const sakura = updated.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).toContain('井上 梨名');
+    });
+
+    it('enabling a member removes from disabledMembers', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', true);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).not.toContain('井上 梨名');
+    });
+
+    it('does not duplicate entries when disabling already disabled member', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const count = sakura.disabledMembers.filter((n) => n === '井上 梨名').length;
+      expect(count).toBe(1);
+    });
+
+    it('does not affect other groups', () => {
+      const state = createGroupState(structured_groups);
+      const updated = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      const hinata = updated.groups.find((g) => g.id === 'hinatazaka');
+      expect(hinata.disabledMembers).toEqual([]);
+    });
+
+    it('returns a new object (no mutation)', () => {
+      const state = createGroupState(structured_groups);
+      const updated = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      expect(updated).not.toBe(state);
+      const originalSakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(originalSakura.disabledMembers).toEqual([]);
+    });
+  });
+
+  describe('isMemberEnabled', () => {
+    it('returns true for enabled member', () => {
+      const state = createGroupState(structured_groups);
+      expect(isMemberEnabled(state, 'sakurazaka', '井上 梨名')).toBe(true);
+    });
+
+    it('returns false for disabled member', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      expect(isMemberEnabled(state, 'sakurazaka', '井上 梨名')).toBe(false);
+    });
+
+    it('returns false for nonexistent group', () => {
+      const state = createGroupState(structured_groups);
+      expect(isMemberEnabled(state, 'nonexistent', '井上 梨名')).toBe(false);
+    });
+  });
+
+  describe('countEnabledMembers with disabledMembers', () => {
+    it('excludes individually disabled members', () => {
+      let state = createGroupState(structured_groups);
+      const totalBefore = countEnabledMembers(state);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      expect(countEnabledMembers(state)).toBe(totalBefore - 1);
+    });
+
+    it('excludes multiple disabled members', () => {
+      let state = createGroupState(structured_groups);
+      const totalBefore = countEnabledMembers(state);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      state = setMemberEnabled(state, 'sakurazaka', '遠藤 光莉', false);
+      expect(countEnabledMembers(state)).toBe(totalBefore - 2);
+    });
+  });
+
+  describe('setGenerationEnabled clears disabledMembers', () => {
+    it('enabling a generation clears disabledMembers for that generation', () => {
+      let state = createGroupState(structured_groups);
+      // Disable a member in 二期生
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      const sakuraBefore = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakuraBefore.disabledMembers).toContain('井上 梨名');
+
+      // Re-enable the generation
+      state = setGenerationEnabled(state, 'sakurazaka', '二期生', true);
+      const sakuraAfter = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakuraAfter.disabledMembers).not.toContain('井上 梨名');
+    });
+
+    it('enabling a generation does not clear disabledMembers for other generations', () => {
+      let state = createGroupState(structured_groups);
+      // Disable members in different generations
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false); // 二期生
+      state = setMemberEnabled(state, 'sakurazaka', '石森 璃花', false); // 三期生
+
+      // Re-enable 二期生
+      state = setGenerationEnabled(state, 'sakurazaka', '二期生', true);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).not.toContain('井上 梨名');
+      expect(sakura.disabledMembers).toContain('石森 璃花');
+    });
+
+    it('disabling a generation does not modify disabledMembers', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+
+      state = setGenerationEnabled(state, 'sakurazaka', '二期生', false);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).toContain('井上 梨名');
+    });
+  });
+
+  describe('setGroupEnabled clears disabledMembers', () => {
+    it('enabling a group clears all disabledMembers', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      state = setGroupEnabled(state, 'sakurazaka', true);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).toEqual([]);
+    });
+  });
+
+  describe('backward compatibility', () => {
+    it('state without disabledMembers treats all members as enabled', () => {
+      const state = createGroupState(structured_groups);
+      for (const group of state.groups) {
+        expect(group.disabledMembers).toEqual([]);
+      }
+      // All members should be enabled
+      expect(isMemberEnabled(state, 'sakurazaka', '井上 梨名')).toBe(true);
+    });
+
+    it('createGroupStateFromSettings without disabledMembers defaults to empty', () => {
+      const settings = {
+        sakurazaka: {
+          enabled: true,
+          generations: { 二期生: true }
+        }
+      };
+      const state = createGroupStateFromSettings(structured_groups, settings);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).toEqual([]);
+    });
+
+    it('createGroupStateFromSettings preserves disabledMembers from settings', () => {
+      const settings = {
+        sakurazaka: {
+          enabled: true,
+          generations: { 二期生: true },
+          disabledMembers: ['井上 梨名']
+        }
+      };
+      const state = createGroupStateFromSettings(structured_groups, settings);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).toEqual(['井上 梨名']);
+    });
+  });
+
+  describe('localStorage persistence with disabledMembers', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('saves disabledMembers to localStorage', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      saveGroupStateToLocalStorage(state);
+
+      const saved = JSON.parse(localStorage.getItem('karasu-group-state'));
+      expect(saved.sakurazaka.disabledMembers).toEqual(['井上 梨名']);
+    });
+
+    it('does not save disabledMembers when empty', () => {
+      const state = createGroupState(structured_groups);
+      saveGroupStateToLocalStorage(state);
+
+      const saved = JSON.parse(localStorage.getItem('karasu-group-state'));
+      expect(saved.sakurazaka.disabledMembers).toBeUndefined();
+    });
+
+    it('loads disabledMembers from localStorage on init', () => {
+      let state = createGroupState(structured_groups);
+      state = setMemberEnabled(state, 'sakurazaka', '井上 梨名', false);
+      saveGroupStateToLocalStorage(state);
+
+      const newState = createGroupState(structured_groups);
+      const sakura = newState.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.disabledMembers).toEqual(['井上 梨名']);
     });
   });
 });

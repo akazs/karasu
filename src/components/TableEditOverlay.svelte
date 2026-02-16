@@ -27,6 +27,9 @@
     )
   );
 
+  // Track which generations have their member list expanded
+  let expandedGenerations = $state({});
+
   // Initialize: Ensure only the selected group is enabled (radio button semantics)
   untrack(() => {
     localGroupState = localGroupState.map((group) => {
@@ -54,10 +57,11 @@
   function switchSelectedGroup(groupId) {
     localGroupState = localGroupState.map((group) => {
       if (group.id === groupId) {
-        // Enable this group and all its generations
+        // Enable this group and all its generations, clear disabled members
         return {
           ...group,
           enabled: true,
+          disabledMembers: [],
           generations: group.generations.map((gen) => ({ ...gen, enabled: true }))
         };
       } else {
@@ -71,6 +75,7 @@
     });
 
     selectedGroupId = groupId;
+    expandedGenerations = {};
   }
 
   /**
@@ -85,12 +90,57 @@
         gen.name === genName ? { ...gen, enabled } : gen
       );
       const anyEnabled = updatedGenerations.some((gen) => gen.enabled);
+
+      // When enabling a generation, clear disabled members for that generation
+      let updatedDisabledMembers = group.disabledMembers || [];
+      if (enabled) {
+        const gen = group.generations.find((g) => g.name === genName);
+        if (gen && gen.members) {
+          const genMemberNames = new Set(gen.members.map((m) => m.fullname));
+          updatedDisabledMembers = updatedDisabledMembers.filter(
+            (name) => !genMemberNames.has(name)
+          );
+        }
+      }
+
       return {
         ...group,
         enabled: anyEnabled,
+        disabledMembers: updatedDisabledMembers,
         generations: updatedGenerations
       };
     });
+  }
+
+  /**
+   * Toggle individual member enabled state
+   */
+  function toggleMemberEnabled(fullname, enabled) {
+    localGroupState = localGroupState.map((group) => {
+      if (group.id !== selectedGroupId) {
+        return group;
+      }
+      const currentDisabled = group.disabledMembers || [];
+      const updatedDisabledMembers = enabled
+        ? currentDisabled.filter((name) => name !== fullname)
+        : currentDisabled.includes(fullname)
+          ? currentDisabled
+          : [...currentDisabled, fullname];
+      return {
+        ...group,
+        disabledMembers: updatedDisabledMembers
+      };
+    });
+  }
+
+  /**
+   * Toggle expanded state for a generation's member list
+   */
+  function toggleGenerationExpanded(genName) {
+    expandedGenerations = {
+      ...expandedGenerations,
+      [genName]: !expandedGenerations[genName]
+    };
   }
 
   /**
@@ -116,6 +166,9 @@
       };
       for (const gen of group.generations) {
         newGroupSettings[group.id].generations[gen.name] = gen.enabled;
+      }
+      if (group.disabledMembers && group.disabledMembers.length > 0) {
+        newGroupSettings[group.id].disabledMembers = [...group.disabledMembers];
       }
     }
     updateTableGroupSettingsById(table.id, newGroupSettings);
@@ -248,18 +301,64 @@
       <!-- Generation Checkboxes for Selected Group -->
       {#if localGroupState.find((g) => g.id === selectedGroupId)}
         {@const selectedGroup = localGroupState.find((g) => g.id === selectedGroupId)}
+        {@const disabledSet = new Set(selectedGroup.disabledMembers || [])}
         <div class="border rounded p-3 bg-gray-50">
           <div class="space-y-2">
             {#each selectedGroup.generations as generation (generation.name)}
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={generation.enabled}
-                  onchange={(e) => toggleGenerationEnabled(generation.name, e.target.checked)}
-                  class="w-4 h-4"
-                />
-                <span class="text-sm">{generation.name}</span>
-              </label>
+              <div>
+                <div class="flex items-center gap-1">
+                  <label class="flex items-center gap-2 cursor-pointer flex-1">
+                    <input
+                      type="checkbox"
+                      checked={generation.enabled}
+                      onchange={(e) => toggleGenerationEnabled(generation.name, e.target.checked)}
+                      class="w-4 h-4"
+                    />
+                    <span class="text-sm">{generation.name}</span>
+                  </label>
+                  {#if generation.enabled && generation.members}
+                    <button
+                      type="button"
+                      onclick={() => toggleGenerationExpanded(generation.name)}
+                      class="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                      aria-label={t('management.memberSelection')}
+                      title={t('management.memberSelection')}
+                    >
+                      <svg
+                        class="w-4 h-4 transition-transform {expandedGenerations[generation.name]
+                          ? 'rotate-90'
+                          : ''}"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        ></path>
+                      </svg>
+                    </button>
+                  {/if}
+                </div>
+                {#if generation.enabled && generation.members && expandedGenerations[generation.name]}
+                  <div class="ml-6 mt-1 space-y-1">
+                    {#each generation.members as member (member.fullname)}
+                      <label class="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!disabledSet.has(member.fullname)}
+                          onchange={(e) =>
+                            toggleMemberEnabled(member.fullname, e.target.checked)}
+                          class="w-3.5 h-3.5"
+                        />
+                        <span class="text-xs">{member.fullname}</span>
+                      </label>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
             {/each}
           </div>
         </div>

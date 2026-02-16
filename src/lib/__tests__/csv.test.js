@@ -133,5 +133,47 @@ describe('csv', () => {
         expect(line).toMatch(/,0,0,0,0$/);
       }
     });
+
+    it('excludes disabled members from CSV output', () => {
+      const photos = buildEmptyPhotos(structured_groups);
+      photos.set('sakurazaka:井上 梨名', [1, 2, 3, 4]);
+      const groups = structured_groups.map((g) =>
+        g.id === 'sakurazaka' ? { ...g, disabledMembers: ['井上 梨名'] } : g
+      );
+      const csv = photosToCSV(photos, groups, CUTS);
+      expect(csv).not.toContain('井上 梨名');
+    });
+
+    it('includes non-disabled members when some are disabled', () => {
+      const photos = buildEmptyPhotos(structured_groups);
+      const groups = structured_groups.map((g) =>
+        g.id === 'sakurazaka' ? { ...g, disabledMembers: ['井上 梨名'] } : g
+      );
+      const csv = photosToCSV(photos, groups, CUTS);
+      expect(csv).not.toContain('井上 梨名');
+      expect(csv).toContain('遠藤 光莉');
+    });
+
+    it('handles groups without disabledMembers property (backward compat)', () => {
+      const photos = buildEmptyPhotos(structured_groups);
+      // structured_groups has no disabledMembers property
+      const csv = photosToCSV(photos, structured_groups, CUTS);
+      expect(csv).toContain('井上 梨名');
+    });
+
+    it('excludes multiple disabled members from CSV output', () => {
+      const photos = buildEmptyPhotos(structured_groups);
+      const groups = structured_groups.map((g) =>
+        g.id === 'sakurazaka'
+          ? { ...g, disabledMembers: ['井上 梨名', '遠藤 光莉', '大園 玲'] }
+          : g
+      );
+      const csv = photosToCSV(photos, groups, CUTS);
+      expect(csv).not.toContain('井上 梨名');
+      expect(csv).not.toContain('遠藤 光莉');
+      expect(csv).not.toContain('大園 玲');
+      // Other members should still be present
+      expect(csv).toContain('大沼 晶保');
+    });
   });
 });

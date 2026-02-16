@@ -49,11 +49,15 @@ export function photosToCSV(photos, groups, cuts, memberHeader = 'メンバー')
     if (!group.enabled) {
       continue;
     }
+    const disabledSet = new Set(group.disabledMembers || []);
     for (const gen of group.generations) {
       if (!gen.enabled) {
         continue;
       }
       for (const member of gen.members) {
+        if (disabledSet.has(member.fullname)) {
+          continue;
+        }
         const key = makeCompositeKey(group.id, member.fullname);
         const counts = photos.get(key) || [0, 0, 0, 0];
         lines.push(escapeCSVField(member.fullname) + ',' + counts.join(','));

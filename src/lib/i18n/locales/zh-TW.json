@@ -48,7 +48,8 @@
     "deleteConfirmTitle": "⚠️ 刪除確認",
     "language": "語言設定",
     "languageJa": "日本語",
-    "languageZh": "中文"
+    "languageZh": "中文",
+    "memberSelection": "成員選擇"
   },
   "table": {
     "member": "成員",

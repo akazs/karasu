@@ -66,9 +66,9 @@ test.describe('Group/Generation Selection', () => {
     expect(genCount).toBe(3);
 
     // Verify specific generation text is present
-    await expect(dialog.locator('.border.rounded.bg-gray-50 text=二期生')).toBeVisible();
-    await expect(dialog.locator('.border.rounded.bg-gray-50 text=三期生')).toBeVisible();
-    await expect(dialog.locator('.border.rounded.bg-gray-50 text=四期生')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 :text("二期生")')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 :text("三期生")')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 :text("四期生")')).toBeVisible();
 
     // All generation checkboxes should be checked by default
     for (let i = 0; i < genCount; i++) {
@@ -92,7 +92,7 @@ test.describe('Group/Generation Selection', () => {
     const genCount = await genCheckboxes.count();
     expect(genCount).toBe(4);
 
-    await expect(dialog.locator('.border.rounded.bg-gray-50 text=五期生')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 :text("五期生")')).toBeVisible();
 
     // All should be checked (switching enables all generations)
     for (let i = 0; i < genCount; i++) {

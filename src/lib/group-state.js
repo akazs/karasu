@@ -20,6 +20,9 @@ export function saveGroupStateToLocalStorage(state) {
     for (const gen of group.generations) {
       savedState[group.id].generations[gen.name] = gen.enabled;
     }
+    if (group.disabledMembers && group.disabledMembers.length > 0) {
+      savedState[group.id].disabledMembers = [...group.disabledMembers];
+    }
   }
   localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(savedState));
 }
@@ -57,6 +60,7 @@ export function createGroupState(groups) {
         id: group.id,
         name: group.name,
         enabled: savedGroup?.enabled ?? group.enabled,
+        disabledMembers: savedGroup?.disabledMembers ?? [],
         generations: group.generations.map((gen) => ({
           name: gen.name,
           members: gen.members,
@@ -83,6 +87,7 @@ export function setGroupEnabled(state, groupId, enabled) {
         ? {
             ...group,
             enabled,
+            disabledMembers: enabled ? [] : group.disabledMembers,
             generations: group.generations.map((gen) => ({
               ...gen,
               enabled
@@ -116,13 +121,74 @@ export function setGenerationEnabled(state, groupId, generationName, enabled) {
         gen.name === generationName ? { ...gen, enabled } : gen
       );
       const anyEnabled = updatedGenerations.some((gen) => gen.enabled);
+
+      // When enabling a generation, clear disabledMembers for that generation's members
+      let updatedDisabledMembers = group.disabledMembers || [];
+      if (enabled) {
+        const gen = group.generations.find((g) => g.name === generationName);
+        if (gen && gen.members) {
+          const genMemberNames = new Set(gen.members.map((m) => m.fullname));
+          updatedDisabledMembers = updatedDisabledMembers.filter(
+            (name) => !genMemberNames.has(name)
+          );
+        }
+      }
+
       return {
         ...group,
         enabled: anyEnabled,
+        disabledMembers: updatedDisabledMembers,
         generations: updatedGenerations
       };
     })
   };
+}
+
+/**
+ * Enable or disable a single member within a group.
+ * Uses the disabledMembers array (opt-in exclusion pattern).
+ * Returns a new state object.
+ * @param {object} state
+ * @param {string} groupId
+ * @param {string} fullname
+ * @param {boolean} enabled
+ * @returns {object}
+ */
+export function setMemberEnabled(state, groupId, fullname, enabled) {
+  return {
+    ...state,
+    groups: state.groups.map((group) => {
+      if (group.id !== groupId) {
+        return group;
+      }
+      const currentDisabled = group.disabledMembers || [];
+      const updatedDisabledMembers = enabled
+        ? currentDisabled.filter((name) => name !== fullname)
+        : currentDisabled.includes(fullname)
+          ? currentDisabled
+          : [...currentDisabled, fullname];
+      return {
+        ...group,
+        disabledMembers: updatedDisabledMembers
+      };
+    })
+  };
+}
+
+/**
+ * Check if a member is enabled (not in the disabledMembers list).
+ * @param {object} state
+ * @param {string} groupId
+ * @param {string} fullname
+ * @returns {boolean}
+ */
+export function isMemberEnabled(state, groupId, fullname) {
+  const group = state.groups.find((g) => g.id === groupId);
+  if (!group) {
+    return false;
+  }
+  const disabledMembers = group.disabledMembers || [];
+  return !disabledMembers.includes(fullname);
 }
 
 /**
@@ -172,11 +238,16 @@ export function countEnabledMembers(state) {
     if (!group.enabled) {
       continue;
     }
+    const disabledSet = new Set(group.disabledMembers || []);
     for (const gen of group.generations) {
       if (!gen.enabled) {
         continue;
       }
-      count += gen.members.length;
+      for (const member of gen.members) {
+        if (!disabledSet.has(member.fullname)) {
+          count += 1;
+        }
+      }
     }
   }
   return count;
@@ -195,6 +266,7 @@ function createDefaultGroupState(groups) {
       id: group.id,
       name: group.name,
       enabled: true,
+      disabledMembers: [],
       generations: group.generations.map((gen) => ({
         name: gen.name,
         members: gen.members,
@@ -221,12 +293,21 @@ export function createGroupStateFromSettings(groups, savedSettings) {
     groups: baseState.groups.map((group) => {
       const saved = settings[group.id];
       if (!saved) {
-        return group;
+        return {
+          ...group,
+          enabled: false,
+          disabledMembers: [],
+          generations: group.generations.map((gen) => ({
+            ...gen,
+            enabled: false
+          }))
+        };
       }
 
       return {
         ...group,
         enabled: saved.enabled ?? group.enabled,
+        disabledMembers: saved.disabledMembers ?? [],
         generations: group.generations.map((gen) => ({
           ...gen,
           enabled: saved.generations?.[gen.name] ?? gen.enabled
@@ -256,8 +337,10 @@ export function createEditableGroupState(groups, savedSettings) {
       id: group.id,
       name: group.name,
       enabled: savedGroup?.enabled ?? defaultEnabled,
+      disabledMembers: savedGroup?.disabledMembers ?? [],
       generations: group.generations.map((gen) => ({
         name: gen.name,
+        members: gen.members,
         enabled: savedGroup?.generations?.[gen.name] ?? defaultEnabled
       }))
     };
