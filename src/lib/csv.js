@@ -11,7 +11,7 @@ import { makeCompositeKey } from './groups.js';
  * @param {string|number} field - The field value to escape
  * @returns {string} Escaped CSV field
  */
-function escapeCSVField(field) {
+export function escapeCSVField(field) {
   const str = String(field);
 
   // Check if field needs escaping
@@ -19,8 +19,12 @@ function escapeCSVField(field) {
     str.includes(',') || str.includes('"') || str.includes('\n') || /^[=+\-@\t\r]/.test(str);
 
   if (needsEscaping) {
-    // Escape internal quotes by doubling them, then wrap in quotes
-    return '"' + str.replace(/"/g, '""') + '"';
+    const escaped = str.replace(/"/g, '""');
+    // Prefix with tab to prevent formula injection in spreadsheets (OWASP recommendation)
+    if (/^[=+\-@\t\r]/.test(str)) {
+      return '"\t' + escaped + '"';
+    }
+    return '"' + escaped + '"';
   }
 
   return str;

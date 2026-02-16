@@ -308,22 +308,44 @@ describe('group-state', () => {
       expect(sanKisei.enabled).toBe(true);
     });
 
-    it('should merge with localStorage state first, then apply custom settings', () => {
-      // Set localStorage state
+    it('should not be polluted by localStorage global state', () => {
+      // Set localStorage with sakurazaka disabled globally
       localStorage.setItem(
         'karasu-group-state',
         JSON.stringify({
           sakurazaka: {
-            enabled: true,
+            enabled: false,
             generations: {
-              二期生: true,
-              三期生: false
+              二期生: false,
+              三期生: false,
+              四期生: false
             }
           }
         })
       );
 
-      // Custom settings should override localStorage
+      // Table settings only specify hinatazaka; sakurazaka should default to enabled (config default)
+      const customSettings = {
+        hinatazaka: {
+          enabled: true,
+          generations: {
+            二期生: true
+          }
+        }
+      };
+
+      const state = createGroupStateFromSettings(structured_groups, customSettings);
+
+      // sakurazaka has no table-specific settings, should use config defaults (enabled),
+      // NOT localStorage global state (disabled)
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(sakura.enabled).toBe(true);
+      for (const gen of sakura.generations) {
+        expect(gen.enabled).toBe(true);
+      }
+    });
+
+    it('should apply custom settings on top of config defaults', () => {
       const customSettings = {
         sakurazaka: {
           enabled: false,
@@ -339,8 +361,8 @@ describe('group-state', () => {
       const niKisei = state.groups[0].generations.find((g) => g.name === '二期生');
       const sanKisei = state.groups[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(false);
-      // 三期生 not in custom settings, should use localStorage value
-      expect(sanKisei.enabled).toBe(false);
+      // 三期生 not in custom settings, should use config default (enabled)
+      expect(sanKisei.enabled).toBe(true);
     });
 
     it('should handle empty saved settings', () => {

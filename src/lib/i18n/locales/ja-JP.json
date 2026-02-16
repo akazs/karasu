@@ -98,6 +98,7 @@
     "maxTables": "最大10個のテーブルに達しました。新しいテーブルを作成するには、既存のテーブルを削除してください。",
     "enterTableName": "テーブル名を入力してください (最大30文字):",
     "defaultTableName": "新しいテーブル",
+    "tableNameRequired": "テーブル名を入力してください。",
     "tableNameTooLong": "テーブル名は 30 文字以内で入力してください。",
     "csvCopied": "「{name}」の CSV をクリップボードにコピーしました",
     "csvFailed": "CSV のコピーに失敗しました",

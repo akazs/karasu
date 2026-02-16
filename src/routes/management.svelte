@@ -61,7 +61,7 @@
     const trimmedName = newTableName.trim();
 
     if (!trimmedName) {
-      showToast(t('alerts.tableNameTooLong'), 'error');
+      showToast(t('alerts.tableNameRequired'), 'error');
       return;
     }
 
@@ -148,7 +148,7 @@
     const trimmedName = copyTableName.trim();
 
     if (!trimmedName) {
-      showToast(t('alerts.tableNameTooLong'), 'error');
+      showToast(t('alerts.tableNameRequired'), 'error');
       return;
     }
 

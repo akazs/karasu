@@ -98,6 +98,7 @@
     "maxTables": "已達到最大 10 個表格的上限。若要建立新表格，請刪除現有表格。",
     "enterTableName": "請輸入表格名稱（最多 30 個字元）：",
     "defaultTableName": "新表格",
+    "tableNameRequired": "請輸入表格名稱。",
     "tableNameTooLong": "表格名稱僅可輸入最多 30 個字元。",
     "csvCopied": "已將「{name}」的 CSV 複製到剪貼簿",
     "csvFailed": "CSV 複製失敗",

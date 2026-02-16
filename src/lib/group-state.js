@@ -183,15 +183,37 @@ export function countEnabledMembers(state) {
 }
 
 /**
+ * Create a default group state purely from config (no localStorage).
+ * Used as the base for table-specific settings to ensure per-table isolation.
+ * @param {Array} groups - Frozen group config from groups.js
+ * @returns {{groups: Array, activeGroupId: string}}
+ */
+function createDefaultGroupState(groups) {
+  return {
+    activeGroupId: groups.length > 0 ? groups[0].id : '',
+    groups: groups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      enabled: true,
+      generations: group.generations.map((gen) => ({
+        name: gen.name,
+        members: gen.members,
+        enabled: true
+      }))
+    }))
+  };
+}
+
+/**
  * Create group state from custom saved settings (e.g., from table-specific settings).
- * Similar to createGroupState but uses provided savedSettings instead of localStorage.
- * Merges with localStorage state first, then applies savedSettings overrides.
+ * Builds base state from config defaults only (no localStorage), then overlays
+ * table-specific settings on top to ensure per-table isolation.
  * @param {Array} groups - Frozen group config from groups.js
  * @param {object} savedSettings - Custom settings object (e.g., from table.groupSettings)
  * @returns {{groups: Array, activeGroupId: string}}
  */
 export function createGroupStateFromSettings(groups, savedSettings) {
-  const baseState = createGroupState(groups);
+  const baseState = createDefaultGroupState(groups);
   const settings = savedSettings || {};
 
   return {
