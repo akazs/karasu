@@ -7,8 +7,8 @@ import { TablePage } from '../pages/TablePage.js';
  * Flow 3: Group/Generation Selection
  *
  * Tests selecting different groups and generations:
- * - Toggle groups (sakurazaka/hinatazaka) on/off in edit overlay
- * - Toggle generations within groups
+ * - Switch group via radio buttons in edit overlay (single group at a time)
+ * - Toggle generations within the selected group
  * - Verify sorter reflects enabled/disabled groups
  * - Verify table reflects enabled/disabled groups and generations
  * - Auto-skip behavior when only one group/generation is enabled
@@ -33,102 +33,109 @@ test.describe('Group/Generation Selection', () => {
     await managementPage.goto();
   });
 
-  test('should show both groups enabled by default in edit overlay', async ({ page }) => {
-    await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
-
-    // Both group checkboxes should be checked
-    const checkboxes = page.locator('[role="dialog"] input[type="checkbox"]');
-    const count = await checkboxes.count();
-
-    // There should be group checkboxes + generation checkboxes
-    // sakurazaka (1 group + 3 gens) + hinatazaka (1 group + 4 gens) = 9
-    // But could be different if group definitions changed
-    expect(count).toBeGreaterThanOrEqual(2); // At minimum 2 group checkboxes
-
-    // Verify group names are visible
-    await expect(page.locator('[role="dialog"]').locator('text=櫻坂46')).toBeVisible();
-    await expect(page.locator('[role="dialog"]').locator('text=日向坂46')).toBeVisible();
-
-    // Verify both groups are checked
-    const sakurazakaLabel = page.locator('[role="dialog"] label.font-bold', { hasText: '櫻坂46' });
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    expect(await sakurazakaLabel.locator('input[type="checkbox"]').isChecked()).toBe(true);
-    expect(await hinatazakaLabel.locator('input[type="checkbox"]').isChecked()).toBe(true);
-
-    await managementPage.cancelEdit();
-  });
-
-  test('should show generation checkboxes for each group', async ({ page }) => {
+  test('should show radio buttons for group selection in edit overlay', async ({ page }) => {
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
 
     const dialog = page.locator('[role="dialog"]');
 
-    // All generation checkboxes should be visible in the dialog
-    // Sakurazaka has: 二期生, 三期生, 四期生
-    // Hinatazaka has: 二期生, 三期生, 四期生, 五期生
-    const genCheckboxLabels = dialog.locator('.ml-6 label');
-    const genCount = await genCheckboxLabels.count();
+    // Should have radio buttons for group selection (not checkboxes for groups)
+    const radioButtons = dialog.locator('input[type="radio"][name="selectedGroup"]');
+    const radioCount = await radioButtons.count();
+    expect(radioCount).toBe(2);
 
-    // Should have at least 7 generation checkboxes total
-    expect(genCount).toBeGreaterThanOrEqual(7);
+    // Verify group names are visible
+    await expect(dialog.locator('text=櫻坂46')).toBeVisible();
+    await expect(dialog.locator('text=日向坂46')).toBeVisible();
 
-    // Verify specific generation text is present
-    await expect(dialog.locator('text=四期生').first()).toBeVisible();
-    await expect(dialog.locator('text=五期生')).toBeVisible();
-
-    // Verify all generation checkboxes are checked by default
-    const checkboxes = dialog.locator('.ml-6 input[type="checkbox"]');
-    const checkboxCount = await checkboxes.count();
-    for (let i = 0; i < checkboxCount; i++) {
-      expect(await checkboxes.nth(i).isChecked()).toBe(true);
-    }
-
-    await page.screenshot({
-      path: 'test-results/screenshots/group-generation-overlay.png'
-    });
+    // The first enabled group should be selected by default (sakurazaka)
+    const sakurazakaRadio = dialog.locator('input[type="radio"][value="sakurazaka"]');
+    await expect(sakurazakaRadio).toBeChecked();
 
     await managementPage.cancelEdit();
   });
 
-  test('should disable a group and reflect in sorter', async ({ page }) => {
-    // Open edit overlay and disable hinatazaka
+  test('should show generation checkboxes for selected group', async ({ page }) => {
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
 
-    // Find the hinatazaka group checkbox (the bold label next to 日向坂46)
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    const checkbox = hinatazakaLabel.locator('input[type="checkbox"]');
-    await checkbox.uncheck();
+    const dialog = page.locator('[role="dialog"]');
+
+    // Sakurazaka is selected by default, should show its generation checkboxes
+    // Sakurazaka has: 二期生, 三期生, 四期生
+    const genCheckboxes = dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]');
+    const genCount = await genCheckboxes.count();
+    expect(genCount).toBe(3);
+
+    // Verify specific generation text is present
+    await expect(dialog.locator('.border.rounded.bg-gray-50 text=二期生')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 text=三期生')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 text=四期生')).toBeVisible();
+
+    // All generation checkboxes should be checked by default
+    for (let i = 0; i < genCount; i++) {
+      await expect(genCheckboxes.nth(i)).toBeChecked();
+    }
+
+    await managementPage.cancelEdit();
+  });
+
+  test('should switch group via radio button and show its generations', async ({ page }) => {
+    await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
+
+    const dialog = page.locator('[role="dialog"]');
+
+    // Switch to hinatazaka
+    const hinatazakaRadio = dialog.locator('input[type="radio"][value="hinatazaka"]');
+    await hinatazakaRadio.check();
+
+    // Should now show hinatazaka generations (二期生, 三期生, 四期生, 五期生)
+    const genCheckboxes = dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]');
+    const genCount = await genCheckboxes.count();
+    expect(genCount).toBe(4);
+
+    await expect(dialog.locator('.border.rounded.bg-gray-50 text=五期生')).toBeVisible();
+
+    // All should be checked (switching enables all generations)
+    for (let i = 0; i < genCount; i++) {
+      await expect(genCheckboxes.nth(i)).toBeChecked();
+    }
+
+    await managementPage.cancelEdit();
+  });
+
+  test('should save group selection and reflect in sorter', async ({ page }) => {
+    // Open edit overlay and switch to hinatazaka (disabling sakurazaka)
+    await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
+
+    const dialog = page.locator('[role="dialog"]');
+    const hinatazakaRadio = dialog.locator('input[type="radio"][value="hinatazaka"]');
+    await hinatazakaRadio.check();
 
     // Save
-    await page.click('[role="dialog"] button:has-text("保存")');
+    await dialog.locator('button:has-text("保存")').click();
     await page.waitForTimeout(600);
 
-    // Go to sorter tab - should auto-skip group selection since only sakurazaka
+    // Go to sorter tab - should auto-skip group selection since only hinatazaka
     await sorterPage.goto();
     await page.waitForTimeout(200);
 
     // Should NOT show group selection (auto-skipped to generation)
-    // Since sakurazaka has multiple generations, we should see generation buttons
-    const sakurazakaButton = page.locator('button[aria-label="櫻坂46"]');
-    expect(await sakurazakaButton.count()).toBe(0);
+    const hinatazakaButton = page.locator('button[aria-label="日向坂46"]');
+    expect(await hinatazakaButton.count()).toBe(0);
 
-    // Should see generation buttons for sakurazaka
+    // Should see generation buttons for hinatazaka
     await expect(page.locator('button[aria-label="二期生"]')).toBeVisible();
   });
 
   test('should disable a generation and reflect in table', async ({ page }) => {
-    // Open edit overlay and disable sakurazaka 四期生
+    // Open edit overlay - sakurazaka is selected by default
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
 
-    // The overlay has .border.rounded blocks for each group
-    // Sakurazaka is the first block, hinatazaka second
     const dialog = page.locator('[role="dialog"]');
-    const sakurazakaBlock = dialog.locator('.space-y-3 > .border.rounded').first();
-    const fourthGenLabel = sakurazakaBlock.locator('.ml-6 label', { hasText: '四期生' });
+
+    // Disable sakurazaka 四期生
+    const fourthGenLabel = dialog.locator('.border.rounded.bg-gray-50 label', {
+      hasText: '四期生'
+    });
     await fourthGenLabel.locator('input[type="checkbox"]').uncheck();
 
     // Save
@@ -144,23 +151,15 @@ test.describe('Group/Generation Selection', () => {
 
     // But 二期生 members should be visible
     expect(await tablePage.memberRowExists('井上 梨名')).toBe(true);
-
-    await page.screenshot({
-      path: 'test-results/screenshots/generation-disabled-table.png'
-    });
   });
 
   test('should auto-skip group selection when only one group enabled', async ({ page }) => {
-    // Disable hinatazaka
+    // Select sakurazaka (default) and save
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
-    await page.click('[role="dialog"] button:has-text("保存")');
+    await page.locator('[role="dialog"] button:has-text("保存")').click();
     await page.waitForTimeout(600);
 
-    // Go to sorter - should skip group, show generations
+    // Go to sorter - should skip group since only one is enabled, show generations
     await sorterPage.goto();
     await page.waitForTimeout(300);
 
@@ -170,19 +169,18 @@ test.describe('Group/Generation Selection', () => {
   });
 
   test('should auto-skip generation when only one generation enabled', async ({ page }) => {
-    // Disable hinatazaka and disable all sakurazaka generations except 二期生
+    // Keep sakurazaka selected but disable all generations except 二期生
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
 
     const dialog = page.locator('[role="dialog"]');
 
-    // Disable hinatazaka
-    const hinatazakaLabel = dialog.locator('label.font-bold', { hasText: '日向坂46' });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
-
     // Disable sakurazaka 三期生 and 四期生
-    const sakurazakaBlock = dialog.locator('.space-y-3 > .border.rounded').first();
-    const thirdGenLabel = sakurazakaBlock.locator('.ml-6 label', { hasText: '三期生' });
-    const fourthGenLabel = sakurazakaBlock.locator('.ml-6 label', { hasText: '四期生' });
+    const thirdGenLabel = dialog.locator('.border.rounded.bg-gray-50 label', {
+      hasText: '三期生'
+    });
+    const fourthGenLabel = dialog.locator('.border.rounded.bg-gray-50 label', {
+      hasText: '四期生'
+    });
     await thirdGenLabel.locator('input[type="checkbox"]').uncheck();
     await fourthGenLabel.locator('input[type="checkbox"]').uncheck();
 
@@ -199,48 +197,23 @@ test.describe('Group/Generation Selection', () => {
     await expect(memberButton).toBeVisible();
   });
 
-  test('should show group tabs in table when both groups enabled', async ({ page }) => {
-    await tablePage.goto();
-    await page.waitForTimeout(200);
-
-    // Should see group tabs: 櫻坂46 and 日向坂46
-    const groupTabs = page.locator('.tab-button');
-    const tabCount = await groupTabs.count();
-    expect(tabCount).toBe(2);
-
-    await expect(page.locator('.tab-button', { hasText: '櫻坂46' })).toBeVisible();
-    await expect(page.locator('.tab-button', { hasText: '日向坂46' })).toBeVisible();
-  });
-
-  test('should switch between group tabs in table', async ({ page }) => {
+  test('should show only selected group in table', async ({ page }) => {
+    // Default table has both groups in initial state, but after edit overlay
+    // only one group is selected at a time (radio button)
     await tablePage.goto();
     await page.waitForTimeout(200);
 
     // Default should show sakurazaka members
     expect(await tablePage.memberRowExists('井上 梨名')).toBe(true);
-
-    // Switch to hinatazaka
-    await page.click('.tab-button:has-text("日向坂46")');
-    await page.waitForTimeout(200);
-
-    // Should now show hinatazaka members
-    expect(await tablePage.memberRowExists('金村 美玖')).toBe(true);
-    // Sakurazaka members should not be visible
-    expect(await tablePage.memberRowExists('井上 梨名')).toBe(false);
-
-    await page.screenshot({
-      path: 'test-results/screenshots/hinatazaka-table.png'
-    });
   });
 
   test('should persist group settings to localStorage', async ({ page }) => {
-    // Disable hinatazaka
+    // Switch to hinatazaka
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
-      hasText: '日向坂46'
-    });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
-    await page.click('[role="dialog"] button:has-text("保存")');
+    const dialog = page.locator('[role="dialog"]');
+    const hinatazakaRadio = dialog.locator('input[type="radio"][value="hinatazaka"]');
+    await hinatazakaRadio.check();
+    await dialog.locator('button:has-text("保存")').click();
     await page.waitForTimeout(600);
 
     // Check localStorage
@@ -251,30 +224,27 @@ test.describe('Group/Generation Selection', () => {
 
     expect(tables).not.toBeNull();
     const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
-    expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
-    expect(activeTable.groupSettings.sakurazaka.enabled).toBe(true);
+    expect(activeTable.groupSettings.hinatazaka.enabled).toBe(true);
+    expect(activeTable.groupSettings.sakurazaka.enabled).toBe(false);
   });
 
-  test('should disabling group checkbox disables all its generation checkboxes', async ({
-    page
-  }) => {
+  test('should switching group via radio enables all its generations', async ({ page }) => {
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
 
     const dialog = page.locator('[role="dialog"]');
 
-    // Uncheck hinatazaka group
-    const hinatazakaLabel = dialog.locator('label.font-bold', { hasText: '日向坂46' });
-    await hinatazakaLabel.locator('input[type="checkbox"]').uncheck();
+    // Switch to hinatazaka
+    const hinatazakaRadio = dialog.locator('input[type="radio"][value="hinatazaka"]');
+    await hinatazakaRadio.check();
     await page.waitForTimeout(200);
 
-    // All hinatazaka generation checkboxes should be unchecked
-    const hinatazakaBlock = dialog.locator('.space-y-3 > .border.rounded').nth(1);
-    const genCheckboxes = hinatazakaBlock.locator('.ml-6 input[type="checkbox"]');
+    // All hinatazaka generation checkboxes should be checked
+    const genCheckboxes = dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]');
     const genCount = await genCheckboxes.count();
 
     expect(genCount).toBeGreaterThan(0);
     for (let i = 0; i < genCount; i++) {
-      expect(await genCheckboxes.nth(i).isChecked()).toBe(false);
+      await expect(genCheckboxes.nth(i)).toBeChecked();
     }
 
     await managementPage.cancelEdit();

@@ -47,16 +47,15 @@
 
     const comp_mean = comps.reduce((acc, val) => acc + val, 0) / iterations;
     const coverage_mean = coverages.reduce((acc, val) => acc + val, 0) / iterations;
-    const comp_stdev = Math.sqrt(
-      comps
-        .reduce((acc, val) => acc.concat(Math.pow(val - comp_mean, 2)), [])
-        .reduce((acc, val) => acc + val, 0) / iterations
-    );
-    const coverage_stdev = Math.sqrt(
-      coverages
-        .reduce((acc, val) => acc.concat(Math.pow(val - coverage_mean, 2)), [])
-        .reduce((acc, val) => acc + val, 0) / iterations
-    );
+
+    let compSumSq = 0;
+    let coverageSumSq = 0;
+    for (let i = 0; i < iterations; i++) {
+      compSumSq += (comps[i] - comp_mean) ** 2;
+      coverageSumSq += (coverages[i] - coverage_mean) ** 2;
+    }
+    const comp_stdev = Math.sqrt(compSumSq / iterations);
+    const coverage_stdev = Math.sqrt(coverageSumSq / iterations);
 
     return {
       comp_mean,

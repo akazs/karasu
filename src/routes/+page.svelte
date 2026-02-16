@@ -1,6 +1,6 @@
 <script>
   import { t } from '$lib/i18n/store.svelte.js';
-  import { activeTableStore, updateActiveTableGroupSettings } from '$lib/table-state.js';
+  import { activeTableStore, updateTableGroupSettingsById } from '$lib/table-state.js';
   import { loadSortedPhotosFromActiveTable } from '$lib/table-sortedphotos.svelte';
   import { createGroupStateFromSettings } from '$lib/group-state.js';
   import { structured_groups } from '$lib/groups.js';
@@ -15,8 +15,9 @@
   import ToastContainer from '../components/ui/ToastContainer.svelte';
 
   // Debounced save functions for better performance
-  const debouncedSaveGroupSettings = debounce((settings) => {
-    updateActiveTableGroupSettings(settings);
+  // Captures tableId at call time to prevent cross-table race conditions
+  const debouncedSaveGroupSettings = debounce((tableId, settings) => {
+    updateTableGroupSettingsById(tableId, settings);
   }, 500);
 
   // Initialize sortedPhotos and groupState from active table
@@ -37,6 +38,8 @@
   $effect(() => {
     const tableId = $activeTableStore?.id;
     if (tableId && tableId !== currentTableId) {
+      // Flush any pending save for the previous table before switching
+      debouncedSaveGroupSettings.flush();
       isLoading = true;
       currentTableId = tableId;
       currentGroupSettings = JSON.stringify($activeTableStore?.groupSettings || {});
@@ -69,9 +72,11 @@
   });
 
   // Auto-save groupState when it changes (debounced, but not during loading)
+  // Captures currentTableId at call time to prevent cross-table race conditions
   // Note: sortedPhotos are saved directly in setPhotoData(), so no auto-save effect needed
   $effect(() => {
     if (!isLoading) {
+      const tableId = currentTableId;
       const savedSettings = {};
       for (const group of groupState.groups) {
         savedSettings[group.id] = {
@@ -82,7 +87,7 @@
           savedSettings[group.id].generations[gen.name] = gen.enabled;
         }
       }
-      debouncedSaveGroupSettings(savedSettings);
+      debouncedSaveGroupSettings(tableId, savedSettings);
     }
   });
 

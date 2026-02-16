@@ -386,11 +386,12 @@ describe('group-state', () => {
       expect(sanKisei.enabled).toBe(true);
     });
 
-    it('should default to enabled:true when no saved settings', () => {
+    it('should default to enabled:false when group has no saved settings', () => {
       const result = createEditableGroupState(structured_groups, {});
 
-      expect(result[0].enabled).toBe(true);
-      expect(result[0].generations[0].enabled).toBe(true);
+      // Groups not present in savedSettings default to disabled
+      expect(result[0].enabled).toBe(false);
+      expect(result[0].generations[0].enabled).toBe(false);
     });
 
     it('should only include id, name, enabled fields (not members)', () => {

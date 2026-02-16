@@ -90,6 +90,11 @@ export function getActiveTable(tables) {
  * @returns {object} New tables state
  */
 export function setActiveTable(tables, id) {
+  const exists = tables.tables.some((t) => t.id === id);
+  if (!exists) {
+    return tables;
+  }
+
   return {
     ...tables,
     activeTableId: id

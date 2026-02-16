@@ -225,13 +225,18 @@ export function createGroupStateFromSettings(groups, savedSettings) {
 export function createEditableGroupState(groups, savedSettings) {
   return groups.map((group) => {
     const savedGroup = savedSettings[group.id];
+    // If the group has no saved settings at all, default to disabled.
+    // This ensures that when a table is created with only specific groups
+    // (e.g., ['sakurazaka']), omitted groups start as disabled.
+    const groupHasSettings = savedGroup !== undefined;
+    const defaultEnabled = groupHasSettings;
     return {
       id: group.id,
       name: group.name,
-      enabled: savedGroup?.enabled ?? true,
+      enabled: savedGroup?.enabled ?? defaultEnabled,
       generations: group.generations.map((gen) => ({
         name: gen.name,
-        enabled: savedGroup?.generations?.[gen.name] ?? true
+        enabled: savedGroup?.generations?.[gen.name] ?? defaultEnabled
       }))
     };
   });
