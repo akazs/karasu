@@ -306,6 +306,13 @@ describe('group-state', () => {
       const sanKisei = state.groups[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(false);
       expect(sanKisei.enabled).toBe(true);
+
+      // hinatazaka has no entry in customSettings, should default to disabled
+      const hinata = state.groups.find((g) => g.id === 'hinatazaka');
+      expect(hinata.enabled).toBe(false);
+      for (const gen of hinata.generations) {
+        expect(gen.enabled).toBe(false);
+      }
     });
 
     it('should not be polluted by localStorage global state', () => {
@@ -324,7 +331,7 @@ describe('group-state', () => {
         })
       );
 
-      // Table settings only specify hinatazaka; sakurazaka should default to enabled (config default)
+      // Table settings only specify hinatazaka; sakurazaka should default to disabled
       const customSettings = {
         hinatazaka: {
           enabled: true,
@@ -336,12 +343,12 @@ describe('group-state', () => {
 
       const state = createGroupStateFromSettings(structured_groups, customSettings);
 
-      // sakurazaka has no table-specific settings, should use config defaults (enabled),
-      // NOT localStorage global state (disabled)
+      // sakurazaka has no table-specific settings, should default to disabled,
+      // NOT localStorage global state nor config defaults
       const sakura = state.groups.find((g) => g.id === 'sakurazaka');
-      expect(sakura.enabled).toBe(true);
+      expect(sakura.enabled).toBe(false);
       for (const gen of sakura.generations) {
-        expect(gen.enabled).toBe(true);
+        expect(gen.enabled).toBe(false);
       }
     });
 
@@ -365,19 +372,30 @@ describe('group-state', () => {
       expect(sanKisei.enabled).toBe(true);
     });
 
-    it('should handle empty saved settings', () => {
+    it('should handle empty saved settings by disabling all groups', () => {
       const state = createGroupStateFromSettings(structured_groups, {});
 
-      // Should fall back to localStorage or defaults
       expect(state).toHaveProperty('groups');
       expect(state).toHaveProperty('activeGroupId');
+      for (const group of state.groups) {
+        expect(group.enabled).toBe(false);
+        for (const gen of group.generations) {
+          expect(gen.enabled).toBe(false);
+        }
+      }
     });
 
-    it('should handle null saved settings', () => {
+    it('should handle null saved settings by disabling all groups', () => {
       const state = createGroupStateFromSettings(structured_groups, null);
 
       expect(state).toHaveProperty('groups');
       expect(state).toHaveProperty('activeGroupId');
+      for (const group of state.groups) {
+        expect(group.enabled).toBe(false);
+        for (const gen of group.generations) {
+          expect(gen.enabled).toBe(false);
+        }
+      }
     });
   });
 

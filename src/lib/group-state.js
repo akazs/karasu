@@ -221,7 +221,14 @@ export function createGroupStateFromSettings(groups, savedSettings) {
     groups: baseState.groups.map((group) => {
       const saved = settings[group.id];
       if (!saved) {
-        return group;
+        return {
+          ...group,
+          enabled: false,
+          generations: group.generations.map((gen) => ({
+            ...gen,
+            enabled: false
+          }))
+        };
       }
 
       return {

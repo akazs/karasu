@@ -194,9 +194,9 @@ test.describe('Data Persistence', () => {
     await managementPage.createTable('別の表');
     await page.waitForTimeout(800);
 
-    // Add different data to second table
+    // Add different data to second table (new tables only have sakurazaka enabled)
     await sorterPage.goto();
-    await sorterPage.addPhoto('日向坂46', '二期生', '金村 美玖', 'チュウ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '遠藤 光莉', 'チュウ');
     await page.waitForTimeout(1000);
 
     // Reload
@@ -212,15 +212,14 @@ test.describe('Data Persistence', () => {
     expect(defaultTable).toBeDefined();
     expect(secondTable).toBeDefined();
 
-    // Default table should have sakurazaka data
+    // Default table should have 井上 梨名 data
     expect(defaultTable.photoData.sakurazaka['井上 梨名']).toEqual([1, 0, 0, 0]);
 
-    // Second table should have hinatazaka data
-    expect(secondTable.photoData.hinatazaka['金村 美玖']).toEqual([0, 1, 0, 0]);
+    // Second table should have 遠藤 光莉 data
+    expect(secondTable.photoData.sakurazaka['遠藤 光莉']).toEqual([0, 1, 0, 0]);
 
-    // Cross-check: default table should NOT have hinatazaka data for this member
-    const defaultHinata = defaultTable.photoData.hinatazaka || {};
-    expect(defaultHinata['金村 美玖']).toBeUndefined();
+    // Cross-check: default table should NOT have 遠藤 光莉 data
+    expect(defaultTable.photoData.sakurazaka['遠藤 光莉']).toBeUndefined();
   });
 
   test('should persist data after editing via edit mode', async ({ page }) => {
