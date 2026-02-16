@@ -17,8 +17,6 @@
   import TableEditOverlay from '../components/TableEditOverlay.svelte';
   import ConfirmDialog from '../components/ui/ConfirmDialog.svelte';
 
-  let { sortedPhotos } = $props();
-
   // Table management state
   let tables = $derived($tablesStore.tables);
   let activeTableId = $derived($tablesStore.activeTableId);
@@ -73,7 +71,7 @@
     }
 
     try {
-      createTable(trimmedName, ['sakurazaka', 'hinatazaka']);
+      createTable(trimmedName, ['sakurazaka']);
       creatingNewTable = false;
       newTableName = '';
     } catch (error) {
@@ -228,7 +226,8 @@
     </div>
 
     <div class="mb-4 text-sm text-gray-600">
-      <span>{t('management.tableCount')}:</span> {tables.length}/10
+      <span>{t('management.tableCount')}:</span>
+      {tables.length}/10
       {#if !canCreateNew}
         <span class="text-red-600">{t('management.maxReached')}</span>
       {/if}
@@ -353,7 +352,9 @@
       {#if creatingNewTable}
         <div class="border rounded p-2.5 border-blue-400 bg-blue-50">
           <div class="flex flex-col md:flex-row md:items-center gap-2">
-            <span class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0 min-w-17 text-center self-start">
+            <span
+              class="text-xs bg-blue-500 text-white px-2.5 py-2 md:py-3 rounded flex-shrink-0 min-w-17 text-center self-start"
+            >
               {t('management.creating')}
             </span>
             <input
@@ -391,7 +392,7 @@
 
 <!-- Edit Overlay -->
 {#if editingTable}
-  <TableEditOverlay table={editingTable} {sortedPhotos} onClose={closeEditOverlay} />
+  <TableEditOverlay table={editingTable} onClose={closeEditOverlay} />
 {/if}
 
 <!-- Delete Confirmation Dialog -->

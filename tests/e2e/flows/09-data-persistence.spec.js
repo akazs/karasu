@@ -2,7 +2,11 @@ import { test, expect } from '@playwright/test';
 import { ManagementPage } from '../pages/ManagementPage.js';
 import { SorterPage } from '../pages/SorterPage.js';
 import { TablePage } from '../pages/TablePage.js';
-import { assertPhotoCount, assertTableCount, assertLocalStorageExists } from '../helpers/assertions.js';
+import {
+  assertPhotoCount,
+  assertTableCount,
+  assertLocalStorageExists
+} from '../helpers/assertions.js';
 
 /**
  * Flow 9: Data Persistence
@@ -89,7 +93,7 @@ test.describe('Data Persistence', () => {
 
     // Verify table names
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const tableNames = tables.tables.map(t => t.name);
+    const tableNames = tables.tables.map((t) => t.name);
     expect(tableNames).toContain('テスト表1');
     expect(tableNames).toContain('テスト表2');
   });
@@ -108,7 +112,7 @@ test.describe('Data Persistence', () => {
 
     // Verify active table persisted
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.name).toBe('アクティブ表');
   });
 
@@ -127,7 +131,7 @@ test.describe('Data Persistence', () => {
 
     // Verify before reload
     let tables = await managementPage.getLocalStorage('karasu-tables');
-    let activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    let activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
 
     // Reload
@@ -136,7 +140,7 @@ test.describe('Data Persistence', () => {
 
     // Verify after reload
     tables = await managementPage.getLocalStorage('karasu-tables');
-    activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
     expect(activeTable.groupSettings.sakurazaka.enabled).toBe(true);
   });
@@ -175,7 +179,7 @@ test.describe('Data Persistence', () => {
 
     // Verify renamed table exists
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const renamedTable = tables.tables.find(t => t.name === 'リネーム済み');
+    const renamedTable = tables.tables.find((t) => t.name === 'リネーム済み');
     expect(renamedTable).toBeDefined();
   });
 
@@ -202,8 +206,8 @@ test.describe('Data Persistence', () => {
     // Verify each table has independent data
     const tables = await managementPage.getLocalStorage('karasu-tables');
 
-    const defaultTable = tables.tables.find(t => t.name === '新しいテーブル');
-    const secondTable = tables.tables.find(t => t.name === '別の表');
+    const defaultTable = tables.tables.find((t) => t.name === '新しいテーブル');
+    const secondTable = tables.tables.find((t) => t.name === '別の表');
 
     expect(defaultTable).toBeDefined();
     expect(secondTable).toBeDefined();
@@ -273,7 +277,7 @@ test.describe('Data Persistence', () => {
     expect(tables.tables.length).toBe(1);
 
     // Photo data should be empty (initial state may have {} or { sakurazaka: {}, hinatazaka: {} })
-    const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     const sakurazakaData = activeTable.photoData.sakurazaka || {};
     const hinatazakaData = activeTable.photoData.hinatazaka || {};
     expect(Object.keys(sakurazakaData).length).toBe(0);

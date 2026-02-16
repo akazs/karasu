@@ -71,11 +71,11 @@ test.describe('Initial Load & UI', () => {
     // Navigate to each tab and verify content loads
     const tabTests = [
       { name: '管理', expected: 'テーブル管理' },
-      { name: '集計', expected: '櫻坂46' },  // Sorter shows group buttons
-      { name: 'テーブル', expected: 'メンバー' },  // Table shows member header
-      { name: 'その他', expected: 'シミュレーション' },  // Utils shows simulation
-      { name: '設定', expected: '言語設定' },  // Settings shows language settings
-      { name: 'ヘルプ', expected: '注意事項' },  // Instruction shows warnings
+      { name: '集計', expected: '櫻坂46' }, // Sorter shows group buttons
+      { name: 'テーブル', expected: 'メンバー' }, // Table shows member header
+      { name: 'その他', expected: 'シミュレーション' }, // Utils shows simulation
+      { name: '設定', expected: '言語設定' }, // Settings shows language settings
+      { name: 'ヘルプ', expected: '注意事項' } // Instruction shows warnings
     ];
 
     for (const tabTest of tabTests) {

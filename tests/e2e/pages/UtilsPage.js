@@ -43,10 +43,7 @@ export class UtilsPage extends BasePage {
    * Clear all data (with confirmation)
    */
   async clearAllData() {
-    await this.handleDialog(
-      async () => await this.page.click('button:has-text("全て消去")'),
-      null
-    );
+    await this.handleDialog(async () => await this.page.click('button:has-text("全て消去")'), null);
     await this.waitForDebounce();
   }
 

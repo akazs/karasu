@@ -302,8 +302,8 @@ describe('group-state', () => {
 
       expect(state.groups[0].enabled).toBe(false);
       // Find the specific generations by name
-      const niKisei = state.groups[0].generations.find(g => g.name === '二期生');
-      const sanKisei = state.groups[0].generations.find(g => g.name === '三期生');
+      const niKisei = state.groups[0].generations.find((g) => g.name === '二期生');
+      const sanKisei = state.groups[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(false);
       expect(sanKisei.enabled).toBe(true);
     });
@@ -336,8 +336,8 @@ describe('group-state', () => {
       const state = createGroupStateFromSettings(structured_groups, customSettings);
 
       expect(state.groups[0].enabled).toBe(false);
-      const niKisei = state.groups[0].generations.find(g => g.name === '二期生');
-      const sanKisei = state.groups[0].generations.find(g => g.name === '三期生');
+      const niKisei = state.groups[0].generations.find((g) => g.name === '二期生');
+      const sanKisei = state.groups[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(false);
       // 三期生 not in custom settings, should use localStorage value
       expect(sanKisei.enabled).toBe(false);
@@ -380,8 +380,8 @@ describe('group-state', () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result[0].id).toBe('sakurazaka');
       expect(result[0].enabled).toBe(false);
-      const niKisei = result[0].generations.find(g => g.name === '二期生');
-      const sanKisei = result[0].generations.find(g => g.name === '三期生');
+      const niKisei = result[0].generations.find((g) => g.name === '二期生');
+      const sanKisei = result[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(false);
       expect(sanKisei.enabled).toBe(true);
     });
@@ -418,8 +418,8 @@ describe('group-state', () => {
       const result = createEditableGroupState(structured_groups, savedSettings);
 
       expect(result[0].enabled).toBe(false);
-      const niKisei = result[0].generations.find(g => g.name === '二期生');
-      const sanKisei = result[0].generations.find(g => g.name === '三期生');
+      const niKisei = result[0].generations.find((g) => g.name === '二期生');
+      const sanKisei = result[0].generations.find((g) => g.name === '三期生');
       expect(niKisei.enabled).toBe(true);
       // 三期生 not in saved settings, should default to true
       expect(sanKisei.enabled).toBe(true);

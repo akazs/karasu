@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { ManagementPage } from '../pages/ManagementPage.js';
 import { TablePage } from '../pages/TablePage.js';
 import { assertPhotoCount } from '../helpers/assertions.js';
 
@@ -16,7 +15,6 @@ import { assertPhotoCount } from '../helpers/assertions.js';
  */
 
 test.describe('Edit Mode', () => {
-  let managementPage;
   let tablePage;
 
   test.beforeEach(async ({ page }) => {
@@ -25,7 +23,6 @@ test.describe('Edit Mode', () => {
     await page.reload();
     await page.waitForLoadState('networkidle');
 
-    managementPage = new ManagementPage(page);
     tablePage = new TablePage(page);
   });
 
@@ -148,10 +145,10 @@ test.describe('Edit Mode', () => {
     await page.waitForTimeout(800);
 
     // Verify each cut
-    expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(2);  // ヨリ
-    expect(await tablePage.getCellValue('井上 梨名', 1)).toBe(1);  // チュウ
-    expect(await tablePage.getCellValue('井上 梨名', 2)).toBe(0);  // ヒキ
-    expect(await tablePage.getCellValue('井上 梨名', 3)).toBe(1);  // 座り
+    expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(2); // ヨリ
+    expect(await tablePage.getCellValue('井上 梨名', 1)).toBe(1); // チュウ
+    expect(await tablePage.getCellValue('井上 梨名', 2)).toBe(0); // ヒキ
+    expect(await tablePage.getCellValue('井上 梨名', 3)).toBe(1); // 座り
 
     await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [2, 1, 0, 1]);
   });

@@ -13,7 +13,6 @@ const LEGACY_GROUP_STATE_KEY = 'karasu-group-state';
 export const MAX_TABLES = 10;
 export const MAX_TABLE_NAME_LENGTH = 30;
 
-
 /**
  * Generate a unique table ID using crypto.randomUUID()
  * @returns {string}

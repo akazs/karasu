@@ -1,14 +1,17 @@
 <script>
   import { untrack } from 'svelte';
   import { t } from '$lib/i18n/store.svelte.js';
-  import { renameTableById, updateActiveTableGroupSettings } from '$lib/table-state.js';
-  import { clearSortedPhotos } from '$lib/table-sortedphotos.svelte';
+  import {
+    renameTableById,
+    updateTableGroupSettingsById,
+    clearTablePhotoData
+  } from '$lib/table-state.js';
   import { structured_groups } from '$lib/groups.js';
   import { createEditableGroupState } from '$lib/group-state.js';
   import { showToast } from '$lib/toast-store.svelte.js';
   import ConfirmDialog from './ui/ConfirmDialog.svelte';
 
-  let { table, sortedPhotos, onClose } = $props();
+  let { table, onClose } = $props();
 
   // Local state for editing - capture initial values
   let newTableName = $state(untrack(() => table.name));
@@ -67,24 +70,6 @@
   }
 
   /**
-   * Toggle all generations in the selected group
-   */
-  function toggleAllGenerations(enabled) {
-    localGroupState = localGroupState.map((group) =>
-      group.id === selectedGroupId
-        ? {
-            ...group,
-            enabled,
-            generations: group.generations.map((gen) => ({
-              ...gen,
-              enabled
-            }))
-          }
-        : group
-    );
-  }
-
-  /**
    * Toggle generation enabled state
    */
   function toggleGenerationEnabled(genName, enabled) {
@@ -118,7 +103,7 @@
       }
     }
 
-    // 2. Update group settings
+    // 2. Update group settings for THIS specific table
     const newGroupSettings = {};
     for (const group of localGroupState) {
       newGroupSettings[group.id] = {
@@ -129,7 +114,7 @@
         newGroupSettings[group.id].generations[gen.name] = gen.enabled;
       }
     }
-    updateActiveTableGroupSettings(newGroupSettings);
+    updateTableGroupSettingsById(table.id, newGroupSettings);
 
     // 3. Close overlay
     onClose();
@@ -143,7 +128,7 @@
   }
 
   function confirmClear() {
-    clearSortedPhotos(sortedPhotos);
+    clearTablePhotoData(table.id);
     clearingTable = false;
   }
 

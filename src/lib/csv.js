@@ -15,10 +15,8 @@ function escapeCSVField(field) {
   const str = String(field);
 
   // Check if field needs escaping
-  const needsEscaping = str.includes(',') ||
-                       str.includes('"') ||
-                       str.includes('\n') ||
-                       /^[=+\-@\t\r]/.test(str);
+  const needsEscaping =
+    str.includes(',') || str.includes('"') || str.includes('\n') || /^[=+\-@\t\r]/.test(str);
 
   if (needsEscaping) {
     // Escape internal quotes by doubling them, then wrap in quotes

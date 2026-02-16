@@ -48,12 +48,12 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(300);
 
     // Tab names should update to Chinese
-    await expect(page.locator('button.tab:has-text("管理")')).toBeVisible();  // Same in zh-TW
-    await expect(page.locator('button.tab:has-text("統計")')).toBeVisible();  // 集計 -> 統計
-    await expect(page.locator('button.tab:has-text("表格")')).toBeVisible();  // テーブル -> 表格
-    await expect(page.locator('button.tab:has-text("其他")')).toBeVisible();  // その他 -> 其他
-    await expect(page.locator('button.tab:has-text("設定")')).toBeVisible();  // Same in zh-TW
-    await expect(page.locator('button.tab:has-text("說明")')).toBeVisible();  // ヘルプ -> 說明
+    await expect(page.locator('button.tab:has-text("管理")')).toBeVisible(); // Same in zh-TW
+    await expect(page.locator('button.tab:has-text("統計")')).toBeVisible(); // 集計 -> 統計
+    await expect(page.locator('button.tab:has-text("表格")')).toBeVisible(); // テーブル -> 表格
+    await expect(page.locator('button.tab:has-text("其他")')).toBeVisible(); // その他 -> 其他
+    await expect(page.locator('button.tab:has-text("設定")')).toBeVisible(); // Same in zh-TW
+    await expect(page.locator('button.tab:has-text("說明")')).toBeVisible(); // ヘルプ -> 說明
 
     // Navigate back to management tab
     await page.click('button.tab:has-text("管理")');
@@ -78,20 +78,20 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(500);
 
     // Verify settings tab text changed
-    await expect(page.locator('h2', { hasText: '語言設定' })).toBeVisible();   // 言語設定 -> 語言設定
-    await expect(page.locator('h2', { hasText: '資料管理' })).toBeVisible();   // データ管理 -> 資料管理
+    await expect(page.locator('h2', { hasText: '語言設定' })).toBeVisible(); // 言語設定 -> 語言設定
+    await expect(page.locator('h2', { hasText: '資料管理' })).toBeVisible(); // データ管理 -> 資料管理
 
     // Navigate to management tab
     await page.click('button.tab:has-text("管理")');
     await page.waitForTimeout(200);
-    await expect(page.locator('h2', { hasText: '表格管理' })).toBeVisible();   // テーブル管理 -> 表格管理
+    await expect(page.locator('h2', { hasText: '表格管理' })).toBeVisible(); // テーブル管理 -> 表格管理
 
     // Navigate to table tab
     await page.click('button.tab:has-text("表格")');
     await page.waitForTimeout(200);
 
     // Verify edit mode button text changed
-    await expect(page.locator('button', { hasText: '編輯' })).toBeVisible();   // 編集 -> 編輯
+    await expect(page.locator('button', { hasText: '編輯' })).toBeVisible(); // 編集 -> 編輯
   });
 
   test('should update simulator text when language changes', async ({ page }) => {
@@ -109,10 +109,10 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(200);
 
     // Verify Chinese text
-    await expect(page.locator('text=模擬')).toBeVisible();           // シミュレーション -> 模擬
-    await expect(page.locator('text=成員人數')).toBeVisible();       // メンバー数 -> 成員人數
-    await expect(page.locator('text=生寫種類')).toBeVisible();       // カット数 -> 生寫種類
-    await expect(page.locator('text=購買包數')).toBeVisible();       // 購入パック数 -> 購買包數
+    await expect(page.locator('text=模擬')).toBeVisible(); // シミュレーション -> 模擬
+    await expect(page.locator('text=成員人數')).toBeVisible(); // メンバー数 -> 成員人數
+    await expect(page.locator('text=生寫種類')).toBeVisible(); // カット数 -> 生寫種類
+    await expect(page.locator('text=購買包數')).toBeVisible(); // 購入パック数 -> 購買包數
   });
 
   test('should update table header when language changes', async ({ page }) => {
@@ -130,12 +130,12 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(200);
 
     // Table header should be in Chinese
-    await expect(page.locator('th', { hasText: '成員' })).toBeVisible();  // メンバー -> 成員
+    await expect(page.locator('th', { hasText: '成員' })).toBeVisible(); // メンバー -> 成員
     // Cut names change too
-    await expect(page.locator('th', { hasText: '大頭' })).toBeVisible();  // ヨリ -> 大頭
-    await expect(page.locator('th', { hasText: '半身' })).toBeVisible();  // チュウ -> 半身
-    await expect(page.locator('th', { hasText: '全身' })).toBeVisible();  // ヒキ -> 全身
-    await expect(page.locator('th', { hasText: '坐姿' })).toBeVisible();  // 座り -> 坐姿
+    await expect(page.locator('th', { hasText: '大頭' })).toBeVisible(); // ヨリ -> 大頭
+    await expect(page.locator('th', { hasText: '半身' })).toBeVisible(); // チュウ -> 半身
+    await expect(page.locator('th', { hasText: '全身' })).toBeVisible(); // ヒキ -> 全身
+    await expect(page.locator('th', { hasText: '坐姿' })).toBeVisible(); // 座り -> 坐姿
 
     await page.screenshot({
       path: 'test-results/screenshots/language-chinese-table.png'
@@ -216,7 +216,7 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(200);
 
     // Should see Chinese help content
-    await expect(page.locator('text=注意事項')).toBeVisible();  // Same in Chinese
-    await expect(page.locator('text=使用方法')).toBeVisible();   // 使い方 -> 使用方法
+    await expect(page.locator('text=注意事項')).toBeVisible(); // Same in Chinese
+    await expect(page.locator('text=使用方法')).toBeVisible(); // 使い方 -> 使用方法
   });
 });

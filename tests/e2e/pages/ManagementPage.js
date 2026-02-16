@@ -91,12 +91,24 @@ export class ManagementPage extends BasePage {
   }
 
   /**
-   * Duplicate a table
+   * Duplicate a table (using inline UI)
    * @param {string} tableName - Name of the table to duplicate
+   * @param {string} newName - Optional new name for the duplicate (defaults to original name)
    */
-  async duplicateTable(tableName) {
+  async duplicateTable(tableName, newName = null) {
     const tableCard = this.page.locator('.border.rounded', { hasText: tableName });
     await tableCard.locator('button:has-text("コピー")').click();
+    await this.page.waitForTimeout(100);
+
+    // If a new name is provided, change it
+    if (newName) {
+      const input = this.page.locator('input[type="text"]').first();
+      await input.clear();
+      await input.fill(newName);
+    }
+
+    // Click the save button to confirm duplication
+    await this.page.click('button:has-text("保存")');
     await this.waitForDebounce();
   }
 
@@ -184,7 +196,9 @@ export class ManagementPage extends BasePage {
    */
   async toggleGroup(tableName, groupName) {
     await this.openEditOverlay(tableName);
-    const checkbox = this.page.locator(`input[type="checkbox"]`, { has: this.page.locator(`text=${groupName}`) }).first();
+    const checkbox = this.page
+      .locator(`input[type="checkbox"]`, { has: this.page.locator(`text=${groupName}`) })
+      .first();
     await checkbox.click();
     await this.page.click('button:has-text("保存")');
     await this.waitForHidden('[role="dialog"]');

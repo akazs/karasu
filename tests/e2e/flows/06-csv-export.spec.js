@@ -35,7 +35,7 @@ test.describe('CSV Export', () => {
           if (originalClipboard && originalClipboard.writeText) {
             try {
               await originalClipboard.writeText(text);
-            } catch (e) {
+            } catch {
               // Ignore clipboard write errors in automation
             }
           }
@@ -45,7 +45,7 @@ test.describe('CSV Export', () => {
           if (originalClipboard && originalClipboard.readText) {
             try {
               return await originalClipboard.readText();
-            } catch (e) {
+            } catch {
               // Fall back to mock data if real clipboard is unavailable
               return window.__clipboardData;
             }
@@ -68,7 +68,7 @@ test.describe('CSV Export', () => {
     // Grant clipboard permissions (silently ignore if unsupported - clipboard API still works)
     try {
       await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    } catch (e) {
+    } catch {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
@@ -92,7 +92,7 @@ test.describe('CSV Export', () => {
       // Fall back to real clipboard (for Chromium/Firefox)
       try {
         return await navigator.clipboard.readText();
-      } catch (e) {
+      } catch {
         // If clipboard API fails, return mock data
         return window.__clipboardData || '';
       }
@@ -109,7 +109,7 @@ test.describe('CSV Export', () => {
   test('should include correct member data in CSV', async ({ page, context }) => {
     try {
       await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    } catch (e) {
+    } catch {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
@@ -127,7 +127,7 @@ test.describe('CSV Export', () => {
       if (window.__clipboardData) return window.__clipboardData;
       try {
         return await navigator.clipboard.readText();
-      } catch (e) {
+      } catch {
         return window.__clipboardData || '';
       }
     });
@@ -140,7 +140,7 @@ test.describe('CSV Export', () => {
   test('should include all enabled group members in CSV', async ({ page, context }) => {
     try {
       await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    } catch (e) {
+    } catch {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
@@ -157,7 +157,7 @@ test.describe('CSV Export', () => {
       if (window.__clipboardData) return window.__clipboardData;
       try {
         return await navigator.clipboard.readText();
-      } catch (e) {
+      } catch {
         return window.__clipboardData || '';
       }
     });
@@ -174,7 +174,7 @@ test.describe('CSV Export', () => {
   test('should export empty table CSV with headers and zero counts', async ({ page, context }) => {
     try {
       await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    } catch (e) {
+    } catch {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
@@ -186,7 +186,7 @@ test.describe('CSV Export', () => {
       if (window.__clipboardData) return window.__clipboardData;
       try {
         return await navigator.clipboard.readText();
-      } catch (e) {
+      } catch {
         return window.__clipboardData || '';
       }
     });
@@ -205,7 +205,7 @@ test.describe('CSV Export', () => {
   test('should exclude disabled group members from CSV', async ({ page, context }) => {
     try {
       await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    } catch (e) {
+    } catch {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
@@ -226,7 +226,7 @@ test.describe('CSV Export', () => {
       if (window.__clipboardData) return window.__clipboardData;
       try {
         return await navigator.clipboard.readText();
-      } catch (e) {
+      } catch {
         return window.__clipboardData || '';
       }
     });
@@ -241,7 +241,7 @@ test.describe('CSV Export', () => {
   test('should have correct CSV header format', async ({ page, context }) => {
     try {
       await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    } catch (e) {
+    } catch {
       // Firefox/WebKit/Safari don't support grantPermissions, but clipboard API works anyway
     }
 
@@ -252,7 +252,7 @@ test.describe('CSV Export', () => {
       if (window.__clipboardData) return window.__clipboardData;
       try {
         return await navigator.clipboard.readText();
-      } catch (e) {
+      } catch {
         return window.__clipboardData || '';
       }
     });

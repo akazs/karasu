@@ -46,10 +46,10 @@ export class BasePage {
    * @param {any} value - Value to store (will be JSON stringified)
    */
   async setLocalStorage(key, value) {
-    await this.page.evaluate(
-      ({ k, v }) => localStorage.setItem(k, JSON.stringify(v)),
-      { k: key, v: value }
-    );
+    await this.page.evaluate(({ k, v }) => localStorage.setItem(k, JSON.stringify(v)), {
+      k: key,
+      v: value
+    });
   }
 
   /**

@@ -170,7 +170,8 @@ export class TablePage extends BasePage {
     const row = this.page.locator('tr', { hasText: memberName });
     const cells = row.locator('td');
     let total = 0;
-    for (let i = 0; i < 4; i++) { // td cells start at 0 (member name is in th)
+    for (let i = 0; i < 4; i++) {
+      // td cells start at 0 (member name is in th)
       const cell = cells.nth(i);
       const text = await cell.textContent();
       const match = text.match(/\d+/);

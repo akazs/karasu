@@ -51,7 +51,9 @@ test.describe('Group/Generation Selection', () => {
 
     // Verify both groups are checked
     const sakurazakaLabel = page.locator('[role="dialog"] label.font-bold', { hasText: '櫻坂46' });
-    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', { hasText: '日向坂46' });
+    const hinatazakaLabel = page.locator('[role="dialog"] label.font-bold', {
+      hasText: '日向坂46'
+    });
     expect(await sakurazakaLabel.locator('input[type="checkbox"]').isChecked()).toBe(true);
     expect(await hinatazakaLabel.locator('input[type="checkbox"]').isChecked()).toBe(true);
 
@@ -248,12 +250,14 @@ test.describe('Group/Generation Selection', () => {
     });
 
     expect(tables).not.toBeNull();
-    const activeTable = tables.tables.find(t => t.id === tables.activeTableId);
+    const activeTable = tables.tables.find((t) => t.id === tables.activeTableId);
     expect(activeTable.groupSettings.hinatazaka.enabled).toBe(false);
     expect(activeTable.groupSettings.sakurazaka.enabled).toBe(true);
   });
 
-  test('should disabling group checkbox disables all its generation checkboxes', async ({ page }) => {
+  test('should disabling group checkbox disables all its generation checkboxes', async ({
+    page
+  }) => {
     await managementPage.openEditOverlay(DEFAULT_TABLE_NAME);
 
     const dialog = page.locator('[role="dialog"]');

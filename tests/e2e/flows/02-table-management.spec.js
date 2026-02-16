@@ -80,7 +80,7 @@ test.describe('Table Management', () => {
 
     // Verify data persisted
     const tables = await managementPage.getLocalStorage('karasu-tables');
-    const table = tables.tables.find(t => t.name === newName);
+    const table = tables.tables.find((t) => t.name === newName);
     expect(table).toBeDefined();
   });
 
@@ -127,8 +127,8 @@ test.describe('Table Management', () => {
     expect(finalCount).toBe(initialCount + 1);
 
     // Verify both tables exist (duplicate has same name)
-    const tableNames = finalTables.tables.map(t => t.name);
-    expect(tableNames.filter(n => n === DEFAULT_TABLE_NAME).length).toBe(2);
+    const tableNames = finalTables.tables.map((t) => t.name);
+    expect(tableNames.filter((n) => n === DEFAULT_TABLE_NAME).length).toBe(2);
   });
 
   test('should delete a table', async ({ page }) => {
@@ -151,7 +151,8 @@ test.describe('Table Management', () => {
     await assertTableCount(page, 1);
 
     // Try to delete it - button should be disabled
-    const deleteButton = page.locator('.border.rounded', { hasText: DEFAULT_TABLE_NAME })
+    const deleteButton = page
+      .locator('.border.rounded', { hasText: DEFAULT_TABLE_NAME })
       .locator('button:has-text("削除")');
 
     // Check if button is disabled
@@ -181,7 +182,9 @@ test.describe('Table Management', () => {
 
     // Get initial localStorage state
     const initialTables = await managementPage.getLocalStorage('karasu-tables');
-    const defaultTableData = initialTables.tables.find(t => t.name === DEFAULT_TABLE_NAME).photoData;
+    const defaultTableData = initialTables.tables.find(
+      (t) => t.name === DEFAULT_TABLE_NAME
+    ).photoData;
 
     // Switch to table 2 and back
     await managementPage.switchToTable('表2');
@@ -189,7 +192,9 @@ test.describe('Table Management', () => {
 
     // Verify data is unchanged
     const finalTables = await managementPage.getLocalStorage('karasu-tables');
-    const finalDefaultData = finalTables.tables.find(t => t.name === DEFAULT_TABLE_NAME).photoData;
+    const finalDefaultData = finalTables.tables.find(
+      (t) => t.name === DEFAULT_TABLE_NAME
+    ).photoData;
 
     expect(finalDefaultData).toEqual(defaultTableData);
   });
@@ -221,7 +226,7 @@ test.describe('Table Management', () => {
 
     // Get initial timestamp
     const initialTables = await managementPage.getLocalStorage('karasu-tables');
-    const initialTimestamp = initialTables.tables.find(t => t.name === tableName).lastModified;
+    const initialTimestamp = initialTables.tables.find((t) => t.name === tableName).lastModified;
 
     // Wait a bit to ensure timestamp difference
     await page.waitForTimeout(100);
@@ -231,9 +236,69 @@ test.describe('Table Management', () => {
 
     // Get updated timestamp
     const updatedTables = await managementPage.getLocalStorage('karasu-tables');
-    const updatedTimestamp = updatedTables.tables.find(t => t.name === '新しい名前').lastModified;
+    const updatedTimestamp = updatedTables.tables.find((t) => t.name === '新しい名前').lastModified;
 
     // Verify timestamp was updated
-    expect(new Date(updatedTimestamp).getTime()).toBeGreaterThan(new Date(initialTimestamp).getTime());
+    expect(new Date(updatedTimestamp).getTime()).toBeGreaterThan(
+      new Date(initialTimestamp).getTime()
+    );
+  });
+
+  test('should edit non-active table without affecting active table', async ({ page }) => {
+    // Create two tables
+    await managementPage.createTable('表1');
+    await managementPage.createTable('表2');
+
+    // Switch to table 1 (make it active)
+    await managementPage.switchToTable('表1');
+
+    // Verify table 1 is active
+    expect(await managementPage.isTableActive('表1')).toBe(true);
+    expect(await managementPage.isTableActive('表2')).toBe(false);
+
+    // Get initial state of table 1
+    const initialTables = await managementPage.getLocalStorage('karasu-tables');
+    const table1Initial = initialTables.tables.find((t) => t.name === '表1');
+
+    // Edit table 2 (non-active table) - open edit overlay
+    await managementPage.openEditOverlay('表2');
+
+    // Change group selection to hinatazaka only
+    const hinatazakaRadio = page.locator('input[type="radio"][value="hinatazaka"]');
+    await hinatazakaRadio.click();
+    await page.waitForTimeout(200);
+
+    // Save changes
+    await page.click('button:has-text("保存")');
+    await managementPage.waitForHidden('[role="dialog"]');
+    await managementPage.waitForDebounce();
+
+    // Verify table 2's group settings were changed
+    const finalTables = await managementPage.getLocalStorage('karasu-tables');
+    const table1Final = finalTables.tables.find((t) => t.name === '表1');
+    const table2Final = finalTables.tables.find((t) => t.name === '表2');
+
+    // Table 2 should have hinatazaka enabled and sakurazaka disabled
+    expect(table2Final.groupSettings.hinatazaka.enabled).toBe(true);
+    expect(table2Final.groupSettings.sakurazaka.enabled).toBe(false);
+
+    // Table 1 should remain unchanged (still has sakurazaka enabled)
+    expect(table1Final.groupSettings.sakurazaka.enabled).toBe(
+      table1Initial.groupSettings.sakurazaka.enabled
+    );
+    expect(table1Final.groupSettings.hinatazaka.enabled).toBe(
+      table1Initial.groupSettings.hinatazaka.enabled
+    );
+
+    // Verify table 1 is still active
+    expect(await managementPage.isTableActive('表1')).toBe(true);
+
+    // Now test delete: delete table 2 while table 1 is active
+    await managementPage.deleteTable('表2');
+
+    // Verify table 2 was deleted and table 1 still exists
+    expect(await managementPage.tableExists('表2')).toBe(false);
+    expect(await managementPage.tableExists('表1')).toBe(true);
+    expect(await managementPage.isTableActive('表1')).toBe(true);
   });
 });

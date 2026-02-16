@@ -31,9 +31,7 @@
   let currentTableId = $state($activeTableStore?.id);
 
   // Track groupSettings separately to detect changes without watching entire table
-  let currentGroupSettings = $state(
-    JSON.stringify($activeTableStore?.groupSettings || {})
-  );
+  let currentGroupSettings = $state(JSON.stringify($activeTableStore?.groupSettings || {}));
 
   // Reload sortedPhotos and groupState when active table changes
   $effect(() => {
@@ -93,7 +91,7 @@
       id: 'management',
       name: t('app.tabs.management'),
       component: Management,
-      props: { sortedPhotos, groupState }
+      props: {}
     },
     {
       id: 'sorter',
@@ -144,7 +142,10 @@
 
 <ul>
   {#each tabs as tab (tab.id)}
-    <li class:active={activeTab == tab.id} class={activeTab == tab.id ? getTabActiveClass(primaryTheme) : ''}>
+    <li
+      class:active={activeTab == tab.id}
+      class={activeTab == tab.id ? getTabActiveClass(primaryTheme) : ''}
+    >
       <button class="tab" onclick={handleClick(tab.id)}>{tab.name}</button>
     </li>
   {/each}
