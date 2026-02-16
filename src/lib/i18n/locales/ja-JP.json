@@ -65,7 +65,8 @@
     "labelCuts": "カット数",
     "labelSheetsPerPack": "パックあたりの枚数",
     "labelPacksToBuy": "購入パック数",
-    "resultText": "平均して 95% の確率で {compMean} ± {compStderr} コンプ、{totalCuts} カット中 {coverageMean} ± {coverageStderr} カットが出ます"
+    "resultText": "平均して 95% の確率で {compMean} ± {compStderr} コンプ、{totalCuts} カット中 {coverageMean} ± {coverageStderr} カットが出ます",
+    "computing": "計算中..."
   },
   "instruction": {
     "warningTitle": "注意事項",

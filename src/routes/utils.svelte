@@ -9,9 +9,32 @@
   let n_cuts = $state(4);
   let n_onedraw = $state(5);
   let n_packs = $state(10);
-  let simulate_result = $derived(
-    simulate(Number(n_packs), Number(n_members), Number(n_cuts), Number(n_onedraw))
-  );
+
+  let loading = $state(true);
+  let simulate_result = $state({
+    comp_mean: 0,
+    coverage_mean: 0,
+    comp_stderr: 0,
+    coverage_stderr: 0
+  });
+
+  $effect(() => {
+    const packs = Number(n_packs);
+    const members = Number(n_members);
+    const cuts = Number(n_cuts);
+    const onedraw = Number(n_onedraw);
+
+    loading = true;
+
+    const timeout = setTimeout(() => {
+      simulate(packs, members, cuts, onedraw).then((result) => {
+        simulate_result = result;
+        loading = false;
+      });
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  });
 </script>
 
 <section class="mb-6">
@@ -38,13 +61,17 @@
     </div>
 
     <div class="mt-4 p-3 bg-gray-50 rounded">
-      {t('utils.resultText', {
-        compMean: simulate_result.comp_mean.toFixed(2),
-        compStderr: (simulate_result.comp_stderr * 2).toFixed(2),
-        totalCuts: n_members * n_cuts,
-        coverageMean: simulate_result.coverage_mean.toFixed(2),
-        coverageStderr: (simulate_result.coverage_stderr * 2).toFixed(2)
-      })}
+      {#if loading}
+        <span class="text-gray-400">{t('utils.computing')}</span>
+      {:else}
+        {t('utils.resultText', {
+          compMean: simulate_result.comp_mean.toFixed(2),
+          compStderr: (simulate_result.comp_stderr * 2).toFixed(2),
+          totalCuts: n_members * n_cuts,
+          coverageMean: simulate_result.coverage_mean.toFixed(2),
+          coverageStderr: (simulate_result.coverage_stderr * 2).toFixed(2)
+        })}
+      {/if}
     </div>
   </div>
 </section>
