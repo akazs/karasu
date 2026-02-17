@@ -153,11 +153,37 @@
       }
 
       const currentDisabled = group.disabledMembers || [];
-      const updatedDisabledMembers = enabled
+      let updatedDisabledMembers = enabled
         ? currentDisabled.filter((name) => name !== fullname)
         : currentDisabled.includes(fullname)
           ? currentDisabled
           : [...currentDisabled, fullname];
+
+      // Check if all members of the generation are now disabled
+      if (memberGeneration && memberGeneration.enabled) {
+        const disabledSet = new Set(updatedDisabledMembers);
+        const allDisabled = memberGeneration.members.every((m) =>
+          disabledSet.has(m.fullname)
+        );
+        if (allDisabled) {
+          // Auto-disable the generation and clean up its members from disabledMembers
+          const genMemberNames = new Set(memberGeneration.members.map((m) => m.fullname));
+          updatedDisabledMembers = updatedDisabledMembers.filter(
+            (name) => !genMemberNames.has(name)
+          );
+          const updatedGenerations = group.generations.map((gen) =>
+            gen.name === memberGeneration.name ? { ...gen, enabled: false } : gen
+          );
+          const anyEnabled = updatedGenerations.some((gen) => gen.enabled);
+          return {
+            ...group,
+            enabled: anyEnabled,
+            disabledMembers: updatedDisabledMembers,
+            generations: updatedGenerations
+          };
+        }
+      }
+
       return {
         ...group,
         disabledMembers: updatedDisabledMembers

@@ -632,6 +632,91 @@ describe('group-state', () => {
     });
   });
 
+  describe('setMemberEnabled auto-disables generation when all members disabled', () => {
+    it('auto-disables generation when all its members are disabled', () => {
+      let state = createGroupState(structured_groups);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const gen = sakura.generations.find((g) => g.name === '二期生');
+
+      for (const member of gen.members) {
+        state = setMemberEnabled(state, 'sakurazaka', member.fullname, false);
+      }
+
+      const updated = state.groups.find((g) => g.id === 'sakurazaka');
+      const updatedGen = updated.generations.find((g) => g.name === '二期生');
+      expect(updatedGen.enabled).toBe(false);
+    });
+
+    it('cleans up disabledMembers for the auto-disabled generation', () => {
+      let state = createGroupState(structured_groups);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const gen = sakura.generations.find((g) => g.name === '二期生');
+
+      for (const member of gen.members) {
+        state = setMemberEnabled(state, 'sakurazaka', member.fullname, false);
+      }
+
+      const updated = state.groups.find((g) => g.id === 'sakurazaka');
+      for (const member of gen.members) {
+        expect(updated.disabledMembers).not.toContain(member.fullname);
+      }
+    });
+
+    it('auto-disables group when last enabled generation is auto-disabled', () => {
+      let state = createGroupState(structured_groups);
+
+      // Disable all generations except 二期生
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      for (const gen of sakura.generations) {
+        if (gen.name !== '二期生' && gen.enabled) {
+          state = setGenerationEnabled(state, 'sakurazaka', gen.name, false);
+        }
+      }
+
+      // Now disable all members of 二期生
+      const lastGen = state.groups.find((g) => g.id === 'sakurazaka').generations.find((g) => g.name === '二期生');
+      for (const member of lastGen.members) {
+        state = setMemberEnabled(state, 'sakurazaka', member.fullname, false);
+      }
+
+      const updated = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(updated.enabled).toBe(false);
+    });
+
+    it('does not auto-disable generation when some members remain enabled', () => {
+      let state = createGroupState(structured_groups);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const gen = sakura.generations.find((g) => g.name === '二期生');
+
+      // Disable all but the last member
+      for (let i = 0; i < gen.members.length - 1; i++) {
+        state = setMemberEnabled(state, 'sakurazaka', gen.members[i].fullname, false);
+      }
+
+      const updated = state.groups.find((g) => g.id === 'sakurazaka');
+      const updatedGen = updated.generations.find((g) => g.name === '二期生');
+      expect(updatedGen.enabled).toBe(true);
+    });
+
+    it('preserves disabledMembers from other generations during auto-disable', () => {
+      let state = createGroupState(structured_groups);
+
+      // Disable a member from 三期生
+      state = setMemberEnabled(state, 'sakurazaka', '石森 璃花', false);
+
+      // Disable all members of 二期生
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const gen = sakura.generations.find((g) => g.name === '二期生');
+      for (const member of gen.members) {
+        state = setMemberEnabled(state, 'sakurazaka', member.fullname, false);
+      }
+
+      const updated = state.groups.find((g) => g.id === 'sakurazaka');
+      expect(updated.disabledMembers).toContain('石森 璃花');
+      expect(updated.disabledMembers).toHaveLength(1);
+    });
+  });
+
   describe('setGroupEnabled clears disabledMembers', () => {
     it('enabling a group clears all disabledMembers', () => {
       let state = createGroupState(structured_groups);
