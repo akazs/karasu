@@ -244,7 +244,7 @@ export function createInitialState(defaultTableName = 'デフォルト') {
   for (const group of structured_groups) {
     const generations = {};
     for (const gen of group.generations) {
-      generations[gen.name] = true;
+      generations[gen.name] = gen.enabled;
     }
     groupSettings[group.id] = {
       enabled: true,

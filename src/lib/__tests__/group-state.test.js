@@ -17,13 +17,17 @@ import { structured_groups } from '../groups.js';
 
 describe('group-state', () => {
   describe('createGroupState', () => {
-    it('creates state from structured_groups with all groups enabled', () => {
+    it('creates state from structured_groups with config-defined enabled values', () => {
       const state = createGroupState(structured_groups);
       expect(state.groups.length).toBe(structured_groups.length);
       for (const group of state.groups) {
         expect(group.enabled).toBe(true);
         for (const gen of group.generations) {
-          expect(gen.enabled).toBe(true);
+          if (gen.name === '卒業生') {
+            expect(gen.enabled).toBe(false);
+          } else {
+            expect(gen.enabled).toBe(true);
+          }
         }
       }
     });
@@ -104,11 +108,12 @@ describe('group-state', () => {
       expect(gen3.enabled).toBe(true);
     });
 
-    it('disabling all generations auto-disables the group', () => {
+    it('disabling all enabled generations auto-disables the group', () => {
       let state = createGroupState(structured_groups);
       state = setGenerationEnabled(state, 'sakurazaka', '二期生', false);
       state = setGenerationEnabled(state, 'sakurazaka', '三期生', false);
       state = setGenerationEnabled(state, 'sakurazaka', '四期生', false);
+      // 卒業生 is already disabled by default
       const sakura = state.groups.find((g) => g.id === 'sakurazaka');
       expect(sakura.enabled).toBe(false);
     });
@@ -134,10 +139,11 @@ describe('group-state', () => {
   });
 
   describe('getEnabledGenerations', () => {
-    it('returns all generations when all enabled', () => {
+    it('returns all enabled generations (excludes graduated by default)', () => {
       const state = createGroupState(structured_groups);
       const gens = getEnabledGenerations(state, 'sakurazaka');
       expect(gens.length).toBe(3);
+      expect(gens.map((g) => g.name)).not.toContain('卒業生');
     });
 
     it('returns only enabled generations', () => {
@@ -669,6 +675,73 @@ describe('group-state', () => {
       const state = createGroupStateFromSettings(structured_groups, settings);
       const sakura = state.groups.find((g) => g.id === 'sakurazaka');
       expect(sakura.disabledMembers).toEqual(['井上 梨名']);
+    });
+  });
+
+  describe('graduated generation defaults', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('graduated generation defaults to disabled in createGroupState', () => {
+      const state = createGroupState(structured_groups);
+      for (const group of state.groups) {
+        const graduated = group.generations.find((g) => g.name === '卒業生');
+        expect(graduated).toBeDefined();
+        expect(graduated.enabled).toBe(false);
+      }
+    });
+
+    it('graduated generation defaults to disabled in createGroupStateFromSettings when not in saved settings', () => {
+      const settings = {
+        sakurazaka: {
+          enabled: true,
+          generations: {
+            二期生: true,
+            三期生: true,
+            四期生: true
+          }
+        }
+      };
+      const state = createGroupStateFromSettings(structured_groups, settings);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const graduated = sakura.generations.find((g) => g.name === '卒業生');
+      expect(graduated.enabled).toBe(false);
+    });
+
+    it('graduated generation defaults to disabled in createEditableGroupState when not in saved settings', () => {
+      const savedSettings = {
+        sakurazaka: {
+          enabled: true,
+          generations: {
+            二期生: true,
+            三期生: true,
+            四期生: true
+          }
+        }
+      };
+      const result = createEditableGroupState(structured_groups, savedSettings);
+      const sakura = result.find((g) => g.id === 'sakurazaka');
+      const graduated = sakura.generations.find((g) => g.name === '卒業生');
+      expect(graduated.enabled).toBe(false);
+    });
+
+    it('graduated generation can be explicitly enabled via saved settings', () => {
+      const settings = {
+        sakurazaka: {
+          enabled: true,
+          generations: {
+            二期生: true,
+            三期生: true,
+            四期生: true,
+            卒業生: true
+          }
+        }
+      };
+      const state = createGroupStateFromSettings(structured_groups, settings);
+      const sakura = state.groups.find((g) => g.id === 'sakurazaka');
+      const graduated = sakura.generations.find((g) => g.name === '卒業生');
+      expect(graduated.enabled).toBe(true);
     });
   });
 

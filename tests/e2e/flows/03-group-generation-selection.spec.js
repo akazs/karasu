@@ -60,20 +60,20 @@ test.describe('Group/Generation Selection', () => {
     const dialog = page.locator('[role="dialog"]');
 
     // Sakurazaka is selected by default, should show its generation checkboxes
-    // Sakurazaka has: 二期生, 三期生, 四期生
+    // Sakurazaka has: 二期生, 三期生, 四期生, 卒業生
     const genCheckboxes = dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]');
     const genCount = await genCheckboxes.count();
-    expect(genCount).toBe(3);
+    expect(genCount).toBe(4);
 
     // Verify specific generation text is present
     await expect(dialog.locator('.border.rounded.bg-gray-50 :text("二期生")')).toBeVisible();
     await expect(dialog.locator('.border.rounded.bg-gray-50 :text("三期生")')).toBeVisible();
     await expect(dialog.locator('.border.rounded.bg-gray-50 :text("四期生")')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 :text("卒業生")')).toBeVisible();
 
-    // All generation checkboxes should be checked by default
-    for (let i = 0; i < genCount; i++) {
-      await expect(genCheckboxes.nth(i)).toBeChecked();
-    }
+    // Active generations should be checked, graduated should be unchecked
+    const checkedCount = await dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]:checked').count();
+    expect(checkedCount).toBe(3);
 
     await managementPage.cancelEdit();
   });
@@ -87,17 +87,17 @@ test.describe('Group/Generation Selection', () => {
     const hinatazakaRadio = dialog.locator('input[type="radio"][value="hinatazaka"]');
     await hinatazakaRadio.check();
 
-    // Should now show hinatazaka generations (二期生, 三期生, 四期生, 五期生)
+    // Should now show hinatazaka generations (二期生, 三期生, 四期生, 五期生, 卒業生)
     const genCheckboxes = dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]');
     const genCount = await genCheckboxes.count();
-    expect(genCount).toBe(4);
+    expect(genCount).toBe(5);
 
     await expect(dialog.locator('.border.rounded.bg-gray-50 :text("五期生")')).toBeVisible();
+    await expect(dialog.locator('.border.rounded.bg-gray-50 :text("卒業生")')).toBeVisible();
 
-    // All should be checked (switching enables all generations)
-    for (let i = 0; i < genCount; i++) {
-      await expect(genCheckboxes.nth(i)).toBeChecked();
-    }
+    // All should be checked (switching enables all generations including graduated)
+    const checkedCount = await dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]:checked').count();
+    expect(checkedCount).toBe(5);
 
     await managementPage.cancelEdit();
   });

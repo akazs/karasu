@@ -270,7 +270,7 @@ function createDefaultGroupState(groups) {
       generations: group.generations.map((gen) => ({
         name: gen.name,
         members: gen.members,
-        enabled: true
+        enabled: gen.enabled
       }))
     }))
   };
@@ -341,7 +341,7 @@ export function createEditableGroupState(groups, savedSettings) {
       generations: group.generations.map((gen) => ({
         name: gen.name,
         members: gen.members,
-        enabled: savedGroup?.generations?.[gen.name] ?? defaultEnabled
+        enabled: savedGroup?.generations?.[gen.name] ?? (defaultEnabled && gen.enabled)
       }))
     };
   });

@@ -56,6 +56,11 @@ const sakurazakaGenerations = [
       { fullname: '山田 桃実', shortname: '山田' }
     ],
     enabled: true
+  },
+  {
+    name: '卒業生',
+    members: [],
+    enabled: false
   }
 ];
 
@@ -111,6 +116,11 @@ const hinataGenerations = [
       { fullname: '松尾 桜', shortname: '松尾' }
     ],
     enabled: true
+  },
+  {
+    name: '卒業生',
+    members: [],
+    enabled: false
   }
 ];
 

@@ -25,13 +25,15 @@ describe('groups', () => {
       expect(hinatazaka.enabled).toBe(true);
     });
 
-    it('each group has generations with members', () => {
+    it('each group has generations with members (except graduated)', () => {
       for (const group of structured_groups) {
         expect(group.generations.length).toBeGreaterThan(0);
         for (const gen of group.generations) {
           expect(gen.name).toBeTruthy();
-          expect(gen.members.length).toBeGreaterThan(0);
-          expect(gen.enabled).toBe(true);
+          if (gen.name !== '卒業生') {
+            expect(gen.members.length).toBeGreaterThan(0);
+            expect(gen.enabled).toBe(true);
+          }
           for (const member of gen.members) {
             expect(member.fullname).toBeTruthy();
             expect(member.shortname).toBeTruthy();
@@ -40,10 +42,19 @@ describe('groups', () => {
       }
     });
 
-    it('sakurazaka has 3 generations', () => {
+    it('sakurazaka has 4 generations (including graduated)', () => {
       const sakura = structured_groups.find((g) => g.id === 'sakurazaka');
-      expect(sakura.generations).toHaveLength(3);
-      expect(sakura.generations.map((g) => g.name)).toEqual(['二期生', '三期生', '四期生']);
+      expect(sakura.generations).toHaveLength(4);
+      expect(sakura.generations.map((g) => g.name)).toEqual(['二期生', '三期生', '四期生', '卒業生']);
+    });
+
+    it('each group has a graduated generation with enabled: false', () => {
+      for (const group of structured_groups) {
+        const graduated = group.generations.find((g) => g.name === '卒業生');
+        expect(graduated).toBeDefined();
+        expect(graduated.enabled).toBe(false);
+        expect(graduated.members).toEqual([]);
+      }
     });
 
     it('hinatazaka has at least one generation', () => {
