@@ -1,6 +1,6 @@
 <script>
   import { untrack } from 'svelte';
-  import { t } from '$lib/i18n/store.svelte.js';
+  import { t, tGenerationName } from '$lib/i18n/store.svelte.js';
   import {
     renameTableById,
     updateTableGroupSettingsById,
@@ -113,13 +113,45 @@
   }
 
   /**
-   * Toggle individual member enabled state
+   * Toggle individual member enabled state.
+   * When enabling a member while the generation is disabled, auto-enable the generation
+   * and disable all other members of that generation.
    */
   function toggleMemberEnabled(fullname, enabled) {
     localGroupState = localGroupState.map((group) => {
       if (group.id !== selectedGroupId) {
         return group;
       }
+
+      // Find which generation this member belongs to
+      const memberGeneration = group.generations.find(
+        (gen) => gen.members && gen.members.some((m) => m.fullname === fullname)
+      );
+
+      // If enabling a member while the generation is disabled, auto-enable the generation
+      // and disable all other members of that generation
+      if (enabled && memberGeneration && !memberGeneration.enabled) {
+        const otherMembers = memberGeneration.members
+          .filter((m) => m.fullname !== fullname)
+          .map((m) => m.fullname);
+        const currentDisabled = group.disabledMembers || [];
+        // Add all other members of this generation to disabled list (avoid duplicates)
+        const otherMembersSet = new Set(otherMembers);
+        const updatedDisabledMembers = [
+          ...currentDisabled.filter((name) => !otherMembersSet.has(name)),
+          ...otherMembers
+        ];
+        const updatedGenerations = group.generations.map((gen) =>
+          gen.name === memberGeneration.name ? { ...gen, enabled: true } : gen
+        );
+        return {
+          ...group,
+          enabled: true,
+          disabledMembers: updatedDisabledMembers,
+          generations: updatedGenerations
+        };
+      }
+
       const currentDisabled = group.disabledMembers || [];
       const updatedDisabledMembers = enabled
         ? currentDisabled.filter((name) => name !== fullname)
@@ -192,6 +224,27 @@
   function cancelClear() {
     clearingTable = false;
   }
+
+  /**
+   * Compute indeterminate state per generation.
+   * A generation is indeterminate when it's enabled but some members are disabled.
+   */
+  let generationIndeterminate = $derived.by(() => {
+    const selectedGroup = localGroupState.find((g) => g.id === selectedGroupId);
+    if (!selectedGroup) return {};
+    const disabledSet = new Set(selectedGroup.disabledMembers || []);
+    const result = {};
+    for (const gen of selectedGroup.generations) {
+      if (!gen.enabled || !gen.members) {
+        result[gen.name] = false;
+        continue;
+      }
+      const hasDisabled = gen.members.some((m) => disabledSet.has(m.fullname));
+      const hasEnabled = gen.members.some((m) => !disabledSet.has(m.fullname));
+      result[gen.name] = hasDisabled && hasEnabled;
+    }
+    return result;
+  });
 
   /**
    * Check if save should be disabled
@@ -311,12 +364,13 @@
                     <input
                       type="checkbox"
                       checked={generation.enabled}
+                      indeterminate={generationIndeterminate[generation.name] || false}
                       onchange={(e) => toggleGenerationEnabled(generation.name, e.target.checked)}
                       class="w-4 h-4"
                     />
-                    <span class="text-sm">{generation.name}</span>
+                    <span class="text-sm">{tGenerationName(generation.name)}</span>
                   </label>
-                  {#if generation.enabled && generation.members}
+                  {#if generation.members}
                     <button
                       type="button"
                       onclick={() => toggleGenerationExpanded(generation.name)}
@@ -342,13 +396,13 @@
                     </button>
                   {/if}
                 </div>
-                {#if generation.enabled && generation.members && expandedGenerations[generation.name]}
+                {#if generation.members && expandedGenerations[generation.name]}
                   <div class="ml-6 mt-1 space-y-1">
                     {#each generation.members as member (member.fullname)}
                       <label class="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={!disabledSet.has(member.fullname)}
+                          checked={generation.enabled && !disabledSet.has(member.fullname)}
                           onchange={(e) =>
                             toggleMemberEnabled(member.fullname, e.target.checked)}
                           class="w-3.5 h-3.5"

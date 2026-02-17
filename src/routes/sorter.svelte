@@ -1,5 +1,5 @@
 <script>
-  import { t } from '$lib/i18n/store.svelte.js';
+  import { t, tGenerationName } from '$lib/i18n/store.svelte.js';
   import { cuts } from '$lib/configs.svelte';
   import { getPhotoData, setPhotoData } from '$lib/table-sortedphotos.svelte';
   import { getButtonClass } from '$lib/theme-utils.js';
@@ -71,11 +71,11 @@
     {#each enabledGenerations as generation (generation.name)}
       <button
         class={getButtonClass(primaryTheme)}
-        aria-label={generation.name}
+        aria-label={tGenerationName(generation.name)}
         onclick={() => {
           selectedGeneration = generation.name;
           currentState += 1;
-        }}>{generation.name}</button
+        }}>{tGenerationName(generation.name)}</button
       >
     {/each}
   </div>
