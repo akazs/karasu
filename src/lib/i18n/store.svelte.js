@@ -79,3 +79,13 @@ export function t(key, params = {}) {
   }
   return interpolate(value, params);
 }
+
+/**
+ * Translates a generation name if a translation exists, otherwise returns the original name.
+ * @param {string} name - The generation name (e.g., '卒業生')
+ * @returns {string} The translated name or the original if no translation exists
+ */
+export function tGenerationName(name) {
+  const value = getNestedValue(i18n.translations, `management.generationNames.${name}`);
+  return value !== undefined ? value : name;
+}

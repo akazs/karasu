@@ -550,7 +550,8 @@ describe('table-manager', () => {
           generations: {
             二期生: true,
             三期生: true,
-            四期生: true
+            四期生: true,
+            卒業生: false
           }
         },
         hinatazaka: {
@@ -559,7 +560,8 @@ describe('table-manager', () => {
             二期生: true,
             三期生: true,
             四期生: true,
-            五期生: true
+            五期生: true,
+            卒業生: false
           }
         }
       });
@@ -628,7 +630,8 @@ describe('table-manager', () => {
           generations: {
             二期生: true,
             三期生: true,
-            四期生: true
+            四期生: true,
+            卒業生: false
           }
         },
         hinatazaka: {
@@ -637,12 +640,20 @@ describe('table-manager', () => {
             二期生: true,
             三期生: true,
             四期生: true,
-            五期生: true
+            五期生: true,
+            卒業生: false
           }
         }
       });
       expect(state.activeTableId).toBe(state.tables[0].id);
       expect(state.maxTables).toBe(MAX_TABLES);
+    });
+
+    it('should have graduated generation disabled by default', () => {
+      const state = createInitialState();
+      for (const groupId of Object.keys(state.tables[0].groupSettings)) {
+        expect(state.tables[0].groupSettings[groupId].generations['卒業生']).toBe(false);
+      }
     });
   });
 });

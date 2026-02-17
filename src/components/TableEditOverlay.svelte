@@ -1,13 +1,13 @@
 <script>
   import { untrack } from 'svelte';
-  import { t } from '$lib/i18n/store.svelte.js';
+  import { t, tGenerationName } from '$lib/i18n/store.svelte.js';
   import {
     renameTableById,
     updateTableGroupSettingsById,
     clearTablePhotoData
   } from '$lib/table-state.js';
   import { structured_groups } from '$lib/groups.js';
-  import { createEditableGroupState } from '$lib/group-state.js';
+  import { createEditableGroupState, toggleMemberInEditGroups } from '$lib/group-state.js';
   import { showToast } from '$lib/toast-store.svelte.js';
   import ConfirmDialog from './ui/ConfirmDialog.svelte';
 
@@ -113,24 +113,11 @@
   }
 
   /**
-   * Toggle individual member enabled state
+   * Toggle individual member enabled state.
+   * Delegates to the extracted pure function in group-state.js.
    */
   function toggleMemberEnabled(fullname, enabled) {
-    localGroupState = localGroupState.map((group) => {
-      if (group.id !== selectedGroupId) {
-        return group;
-      }
-      const currentDisabled = group.disabledMembers || [];
-      const updatedDisabledMembers = enabled
-        ? currentDisabled.filter((name) => name !== fullname)
-        : currentDisabled.includes(fullname)
-          ? currentDisabled
-          : [...currentDisabled, fullname];
-      return {
-        ...group,
-        disabledMembers: updatedDisabledMembers
-      };
-    });
+    localGroupState = toggleMemberInEditGroups(localGroupState, selectedGroupId, fullname, enabled);
   }
 
   /**
@@ -192,6 +179,27 @@
   function cancelClear() {
     clearingTable = false;
   }
+
+  /**
+   * Compute indeterminate state per generation.
+   * A generation is indeterminate when it's enabled but some members are disabled.
+   */
+  let generationIndeterminate = $derived.by(() => {
+    const selectedGroup = localGroupState.find((g) => g.id === selectedGroupId);
+    if (!selectedGroup) return {};
+    const disabledSet = new Set(selectedGroup.disabledMembers || []);
+    const result = {};
+    for (const gen of selectedGroup.generations) {
+      if (!gen.enabled || !gen.members) {
+        result[gen.name] = false;
+        continue;
+      }
+      const hasDisabled = gen.members.some((m) => disabledSet.has(m.fullname));
+      const hasEnabled = gen.members.some((m) => !disabledSet.has(m.fullname));
+      result[gen.name] = hasDisabled && hasEnabled;
+    }
+    return result;
+  });
 
   /**
    * Check if save should be disabled
@@ -311,12 +319,13 @@
                     <input
                       type="checkbox"
                       checked={generation.enabled}
+                      indeterminate={generationIndeterminate[generation.name] || false}
                       onchange={(e) => toggleGenerationEnabled(generation.name, e.target.checked)}
                       class="w-4 h-4"
                     />
-                    <span class="text-sm">{generation.name}</span>
+                    <span class="text-sm">{tGenerationName(generation.name)}</span>
                   </label>
-                  {#if generation.enabled && generation.members}
+                  {#if generation.members}
                     <button
                       type="button"
                       onclick={() => toggleGenerationExpanded(generation.name)}
@@ -342,13 +351,13 @@
                     </button>
                   {/if}
                 </div>
-                {#if generation.enabled && generation.members && expandedGenerations[generation.name]}
+                {#if generation.members && expandedGenerations[generation.name]}
                   <div class="ml-6 mt-1 space-y-1">
                     {#each generation.members as member (member.fullname)}
                       <label class="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={!disabledSet.has(member.fullname)}
+                          checked={generation.enabled && !disabledSet.has(member.fullname)}
                           onchange={(e) =>
                             toggleMemberEnabled(member.fullname, e.target.checked)}
                           class="w-3.5 h-3.5"

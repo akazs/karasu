@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { TablePage } from '../pages/TablePage.js';
+import { ManagementPage } from '../pages/ManagementPage.js';
 import { assertPhotoCount } from '../helpers/assertions.js';
 
 /**
@@ -215,5 +216,68 @@ test.describe('Edit Mode', () => {
     // Data should still be there
     expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(1);
     expect(await tablePage.getCellValue('井上 梨名', 1)).toBe(1);
+  });
+
+  test('should re-enable a member after its generation was auto-disabled', async ({ page }) => {
+    const managementPage = new ManagementPage(page);
+
+    // Go to management tab and open edit overlay for the default table
+    await managementPage.goto();
+    await page.waitForTimeout(200);
+
+    // Open edit overlay for the default table
+    await managementPage.openEditOverlay('新しいテーブル');
+    await page.waitForTimeout(200);
+
+    const dialog = page.locator('[role="dialog"]');
+
+    // Find 二期生 generation and expand its member list
+    const gen2Label = dialog.locator('label', { hasText: '二期生' });
+    const gen2Container = gen2Label.locator('..');
+
+    // Click the expand arrow button next to 二期生
+    const expandButton = gen2Container.locator('button[aria-label="メンバー選択"]');
+    await expandButton.click();
+    await page.waitForTimeout(200);
+
+    // Get all member checkboxes in the expanded list
+    const memberCheckboxes = gen2Container.locator('..').locator('.ml-6 input[type="checkbox"]');
+    const memberCount = await memberCheckboxes.count();
+    expect(memberCount).toBeGreaterThan(0);
+
+    // Uncheck all members one by one (this should auto-disable the generation)
+    for (let i = 0; i < memberCount; i++) {
+      const checkbox = memberCheckboxes.nth(i);
+      if (await checkbox.isChecked()) {
+        await checkbox.click();
+        await page.waitForTimeout(50);
+      }
+    }
+    await page.waitForTimeout(200);
+
+    // The 二期生 generation checkbox should now be unchecked (auto-disabled)
+    const gen2Checkbox = gen2Label.locator('input[type="checkbox"]');
+    expect(await gen2Checkbox.isChecked()).toBe(false);
+
+    // Re-expand the member list (it may have collapsed)
+    const memberListVisible = await gen2Container.locator('..').locator('.ml-6').count();
+    if (memberListVisible === 0) {
+      await expandButton.click();
+      await page.waitForTimeout(200);
+    }
+
+    // Re-enable the first member (井上 梨名)
+    const firstMemberCheckbox = gen2Container
+      .locator('..')
+      .locator('.ml-6 input[type="checkbox"]')
+      .first();
+    await firstMemberCheckbox.click();
+    await page.waitForTimeout(200);
+
+    // The first member should now be checked (this was the bug - it stayed unchecked)
+    expect(await firstMemberCheckbox.isChecked()).toBe(true);
+
+    // The generation checkbox should be re-enabled (checked, possibly indeterminate)
+    expect(await gen2Checkbox.isChecked()).toBe(true);
   });
 });

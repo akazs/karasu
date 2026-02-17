@@ -49,7 +49,10 @@
     "language": "言語設定",
     "languageJa": "日本語",
     "languageZh": "中文",
-    "memberSelection": "メンバー選択"
+    "memberSelection": "メンバー選択",
+    "generationNames": {
+      "卒業生": "卒業生"
+    }
   },
   "table": {
     "member": "メンバー",

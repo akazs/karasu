@@ -393,7 +393,8 @@ describe('Multi-Table Workflow Integration Tests', () => {
           generations: {
             二期生: true,
             三期生: true,
-            四期生: true
+            四期生: true,
+            卒業生: false
           }
         },
         hinatazaka: {
@@ -402,7 +403,8 @@ describe('Multi-Table Workflow Integration Tests', () => {
             二期生: true,
             三期生: true,
             四期生: true,
-            五期生: true
+            五期生: true,
+            卒業生: false
           }
         }
       });
