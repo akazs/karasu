@@ -7,7 +7,7 @@
     clearTablePhotoData
   } from '$lib/table-state.js';
   import { structured_groups } from '$lib/groups.js';
-  import { createEditableGroupState } from '$lib/group-state.js';
+  import { createEditableGroupState, toggleMemberInEditGroups } from '$lib/group-state.js';
   import { showToast } from '$lib/toast-store.svelte.js';
   import ConfirmDialog from './ui/ConfirmDialog.svelte';
 
@@ -114,81 +114,10 @@
 
   /**
    * Toggle individual member enabled state.
-   * When enabling a member while the generation is disabled, auto-enable the generation
-   * and disable all other members of that generation.
+   * Delegates to the extracted pure function in group-state.js.
    */
   function toggleMemberEnabled(fullname, enabled) {
-    localGroupState = localGroupState.map((group) => {
-      if (group.id !== selectedGroupId) {
-        return group;
-      }
-
-      // Find which generation this member belongs to
-      const memberGeneration = group.generations.find(
-        (gen) => gen.members && gen.members.some((m) => m.fullname === fullname)
-      );
-
-      // If enabling a member while the generation is disabled, auto-enable the generation
-      // and disable all other members of that generation
-      if (enabled && memberGeneration && !memberGeneration.enabled) {
-        const otherMembers = memberGeneration.members
-          .filter((m) => m.fullname !== fullname)
-          .map((m) => m.fullname);
-        const currentDisabled = group.disabledMembers || [];
-        // Add all other members of this generation to disabled list (avoid duplicates)
-        const otherMembersSet = new Set(otherMembers);
-        const updatedDisabledMembers = [
-          ...currentDisabled.filter((name) => !otherMembersSet.has(name)),
-          ...otherMembers
-        ];
-        const updatedGenerations = group.generations.map((gen) =>
-          gen.name === memberGeneration.name ? { ...gen, enabled: true } : gen
-        );
-        return {
-          ...group,
-          enabled: true,
-          disabledMembers: updatedDisabledMembers,
-          generations: updatedGenerations
-        };
-      }
-
-      const currentDisabled = group.disabledMembers || [];
-      let updatedDisabledMembers = enabled
-        ? currentDisabled.filter((name) => name !== fullname)
-        : currentDisabled.includes(fullname)
-          ? currentDisabled
-          : [...currentDisabled, fullname];
-
-      // Check if all members of the generation are now disabled
-      if (memberGeneration && memberGeneration.enabled) {
-        const disabledSet = new Set(updatedDisabledMembers);
-        const allDisabled = memberGeneration.members.every((m) =>
-          disabledSet.has(m.fullname)
-        );
-        if (allDisabled) {
-          // Auto-disable the generation and clean up its members from disabledMembers
-          const genMemberNames = new Set(memberGeneration.members.map((m) => m.fullname));
-          updatedDisabledMembers = updatedDisabledMembers.filter(
-            (name) => !genMemberNames.has(name)
-          );
-          const updatedGenerations = group.generations.map((gen) =>
-            gen.name === memberGeneration.name ? { ...gen, enabled: false } : gen
-          );
-          const anyEnabled = updatedGenerations.some((gen) => gen.enabled);
-          return {
-            ...group,
-            enabled: anyEnabled,
-            disabledMembers: updatedDisabledMembers,
-            generations: updatedGenerations
-          };
-        }
-      }
-
-      return {
-        ...group,
-        disabledMembers: updatedDisabledMembers
-      };
-    });
+    localGroupState = toggleMemberInEditGroups(localGroupState, selectedGroupId, fullname, enabled);
   }
 
   /**

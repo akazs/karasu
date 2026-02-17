@@ -354,6 +354,93 @@ export function createGroupStateFromSettings(groups, savedSettings) {
  * @param {object} savedSettings - Custom settings object (e.g., from table.groupSettings)
  * @returns {Array} Array of group objects
  */
+/**
+ * Toggle a member's enabled state within an editable group state array.
+ * Handles three cases:
+ * 1. Enabling a member while its generation is disabled: auto-enables the generation,
+ *    disables all other members of that generation.
+ * 2. Disabling a member causes all members of the generation to be disabled:
+ *    auto-disables the generation, cleans up disabledMembers.
+ * 3. Normal enable/disable within an enabled generation.
+ * @param {Array} groups - Editable group state array (from createEditableGroupState)
+ * @param {string} groupId - The group to modify
+ * @param {string} fullname - The member fullname to toggle
+ * @param {boolean} enabled - Whether to enable or disable
+ * @returns {Array} New groups array (no mutation)
+ */
+export function toggleMemberInEditGroups(groups, groupId, fullname, enabled) {
+  return groups.map((group) => {
+    if (group.id !== groupId) {
+      return group;
+    }
+
+    const memberGeneration = group.generations.find(
+      (gen) => gen.members && gen.members.some((m) => m.fullname === fullname)
+    );
+
+    // Case 1: Enabling a member while its generation is disabled
+    if (enabled && memberGeneration && !memberGeneration.enabled) {
+      const otherMembers = memberGeneration.members
+        .filter((m) => m.fullname !== fullname)
+        .map((m) => m.fullname);
+      const currentDisabled = group.disabledMembers || [];
+      const otherMembersSet = new Set(otherMembers);
+      const updatedDisabledMembers = [
+        ...currentDisabled.filter(
+          (name) => !otherMembersSet.has(name) && name !== fullname
+        ),
+        ...otherMembers
+      ];
+      const updatedGenerations = group.generations.map((gen) =>
+        gen.name === memberGeneration.name ? { ...gen, enabled: true } : gen
+      );
+      return {
+        ...group,
+        enabled: true,
+        disabledMembers: updatedDisabledMembers,
+        generations: updatedGenerations
+      };
+    }
+
+    // Normal enable/disable
+    const currentDisabled = group.disabledMembers || [];
+    let updatedDisabledMembers = enabled
+      ? currentDisabled.filter((name) => name !== fullname)
+      : currentDisabled.includes(fullname)
+        ? currentDisabled
+        : [...currentDisabled, fullname];
+
+    // Case 2: Check if all members of the generation are now disabled
+    if (memberGeneration && memberGeneration.enabled) {
+      const disabledSet = new Set(updatedDisabledMembers);
+      const allDisabled = memberGeneration.members.every((m) =>
+        disabledSet.has(m.fullname)
+      );
+      if (allDisabled) {
+        const genMemberNames = new Set(memberGeneration.members.map((m) => m.fullname));
+        updatedDisabledMembers = updatedDisabledMembers.filter(
+          (name) => !genMemberNames.has(name)
+        );
+        const updatedGenerations = group.generations.map((gen) =>
+          gen.name === memberGeneration.name ? { ...gen, enabled: false } : gen
+        );
+        const anyEnabled = updatedGenerations.some((gen) => gen.enabled);
+        return {
+          ...group,
+          enabled: anyEnabled,
+          disabledMembers: updatedDisabledMembers,
+          generations: updatedGenerations
+        };
+      }
+    }
+
+    return {
+      ...group,
+      disabledMembers: updatedDisabledMembers
+    };
+  });
+}
+
 export function createEditableGroupState(groups, savedSettings) {
   return groups.map((group) => {
     const savedGroup = savedSettings[group.id];
