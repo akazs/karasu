@@ -174,9 +174,7 @@ export function setMemberEnabled(state, groupId, fullname, enabled) {
       );
       if (memberGeneration && memberGeneration.enabled) {
         const disabledSet = new Set(updatedDisabledMembers);
-        const allDisabled = memberGeneration.members.every((m) =>
-          disabledSet.has(m.fullname)
-        );
+        const allDisabled = memberGeneration.members.every((m) => disabledSet.has(m.fullname));
         if (allDisabled) {
           // Auto-disable the generation and clean up its members from disabledMembers
           const genMemberNames = new Set(memberGeneration.members.map((m) => m.fullname));
@@ -386,9 +384,7 @@ export function toggleMemberInEditGroups(groups, groupId, fullname, enabled) {
       const currentDisabled = group.disabledMembers || [];
       const otherMembersSet = new Set(otherMembers);
       const updatedDisabledMembers = [
-        ...currentDisabled.filter(
-          (name) => !otherMembersSet.has(name) && name !== fullname
-        ),
+        ...currentDisabled.filter((name) => !otherMembersSet.has(name) && name !== fullname),
         ...otherMembers
       ];
       const updatedGenerations = group.generations.map((gen) =>
@@ -413,14 +409,10 @@ export function toggleMemberInEditGroups(groups, groupId, fullname, enabled) {
     // Case 2: Check if all members of the generation are now disabled
     if (memberGeneration && memberGeneration.enabled) {
       const disabledSet = new Set(updatedDisabledMembers);
-      const allDisabled = memberGeneration.members.every((m) =>
-        disabledSet.has(m.fullname)
-      );
+      const allDisabled = memberGeneration.members.every((m) => disabledSet.has(m.fullname));
       if (allDisabled) {
         const genMemberNames = new Set(memberGeneration.members.map((m) => m.fullname));
-        updatedDisabledMembers = updatedDisabledMembers.filter(
-          (name) => !genMemberNames.has(name)
-        );
+        updatedDisabledMembers = updatedDisabledMembers.filter((name) => !genMemberNames.has(name));
         const updatedGenerations = group.generations.map((gen) =>
           gen.name === memberGeneration.name ? { ...gen, enabled: false } : gen
         );

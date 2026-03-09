@@ -164,9 +164,7 @@ describe('csv', () => {
     it('excludes multiple disabled members from CSV output', () => {
       const photos = buildEmptyPhotos(structured_groups);
       const groups = structured_groups.map((g) =>
-        g.id === 'sakurazaka'
-          ? { ...g, disabledMembers: ['井上 梨名', '遠藤 光莉', '大園 玲'] }
-          : g
+        g.id === 'sakurazaka' ? { ...g, disabledMembers: ['井上 梨名', '遠藤 光莉', '大園 玲'] } : g
       );
       const csv = photosToCSV(photos, groups, CUTS);
       expect(csv).not.toContain('井上 梨名');

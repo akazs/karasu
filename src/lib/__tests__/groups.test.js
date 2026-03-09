@@ -45,7 +45,12 @@ describe('groups', () => {
     it('sakurazaka has 4 generations (including graduated)', () => {
       const sakura = structured_groups.find((g) => g.id === 'sakurazaka');
       expect(sakura.generations).toHaveLength(4);
-      expect(sakura.generations.map((g) => g.name)).toEqual(['二期生', '三期生', '四期生', '卒業生']);
+      expect(sakura.generations.map((g) => g.name)).toEqual([
+        '二期生',
+        '三期生',
+        '四期生',
+        '卒業生'
+      ]);
     });
 
     it('each group has a graduated generation with enabled: false', () => {

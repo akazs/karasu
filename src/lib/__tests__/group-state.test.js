@@ -675,7 +675,9 @@ describe('group-state', () => {
       }
 
       // Now disable all members of 二期生
-      const lastGen = state.groups.find((g) => g.id === 'sakurazaka').generations.find((g) => g.name === '二期生');
+      const lastGen = state.groups
+        .find((g) => g.id === 'sakurazaka')
+        .generations.find((g) => g.name === '二期生');
       for (const member of lastGen.members) {
         state = setMemberEnabled(state, 'sakurazaka', member.fullname, false);
       }

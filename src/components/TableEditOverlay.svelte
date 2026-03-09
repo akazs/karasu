@@ -22,8 +22,8 @@
 
   // State for selected group in radio button UI
   let selectedGroupId = $state(
-    untrack(() =>
-      localGroupState.find((g) => g.enabled)?.id || localGroupState[0]?.id || 'sakurazaka'
+    untrack(
+      () => localGroupState.find((g) => g.enabled)?.id || localGroupState[0]?.id || 'sakurazaka'
     )
   );
 
@@ -358,8 +358,7 @@
                         <input
                           type="checkbox"
                           checked={generation.enabled && !disabledSet.has(member.fullname)}
-                          onchange={(e) =>
-                            toggleMemberEnabled(member.fullname, e.target.checked)}
+                          onchange={(e) => toggleMemberEnabled(member.fullname, e.target.checked)}
                           class="w-3.5 h-3.5"
                         />
                         <span class="text-xs">{member.fullname}</span>

@@ -76,9 +76,7 @@
   <!-- Edit mode toggle with auto-save message -->
   <div class="flex items-center gap-2">
     {#if editMode.enabled}
-      <span class="text-xs text-gray-600" role="status"
-        >{t('table.autoSaveMessage')}</span
-      >
+      <span class="text-xs text-gray-600" role="status">{t('table.autoSaveMessage')}</span>
     {/if}
     <button
       onclick={toggleEditMode}

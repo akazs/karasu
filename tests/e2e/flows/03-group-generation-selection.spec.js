@@ -72,7 +72,9 @@ test.describe('Group/Generation Selection', () => {
     await expect(dialog.locator('.border.rounded.bg-gray-50 :text("卒業生")')).toBeVisible();
 
     // Active generations should be checked, graduated should be unchecked
-    const checkedCount = await dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]:checked').count();
+    const checkedCount = await dialog
+      .locator('.border.rounded.bg-gray-50 input[type="checkbox"]:checked')
+      .count();
     expect(checkedCount).toBe(3);
 
     await managementPage.cancelEdit();
@@ -96,7 +98,9 @@ test.describe('Group/Generation Selection', () => {
     await expect(dialog.locator('.border.rounded.bg-gray-50 :text("卒業生")')).toBeVisible();
 
     // All should be checked (switching enables all generations including graduated)
-    const checkedCount = await dialog.locator('.border.rounded.bg-gray-50 input[type="checkbox"]:checked').count();
+    const checkedCount = await dialog
+      .locator('.border.rounded.bg-gray-50 input[type="checkbox"]:checked')
+      .count();
     expect(checkedCount).toBe(5);
 
     await managementPage.cancelEdit();
