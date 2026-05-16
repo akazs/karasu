@@ -13,7 +13,6 @@ const sakurazakaGenerations = [
       { fullname: '大園 玲', shortname: '大園' },
       { fullname: '大沼 晶保', shortname: '大沼' },
       { fullname: '幸阪 茉里乃', shortname: '幸阪' },
-      { fullname: '武元 唯衣', shortname: '武元' },
       { fullname: '田村 保乃', shortname: '田村' },
       { fullname: '藤吉 夏鈴', shortname: '藤吉' },
       { fullname: '増本 綺良', shortname: '増本' },
@@ -58,7 +57,10 @@ const sakurazakaGenerations = [
   },
   {
     name: '卒業生',
-    members: [{ fullname: '井上 梨名', shortname: '井上' }],
+    members: [
+      { fullname: '井上 梨名', shortname: '井上' },
+      { fullname: '武元 唯衣', shortname: '武元' }
+    ],
     enabled: false
   }
 ];
