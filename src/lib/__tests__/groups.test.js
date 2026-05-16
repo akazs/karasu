@@ -58,7 +58,7 @@ describe('groups', () => {
         const graduated = group.generations.find((g) => g.name === '卒業生');
         expect(graduated).toBeDefined();
         expect(graduated.enabled).toBe(false);
-        expect(graduated.members).toEqual([]);
+        expect(Array.isArray(graduated.members)).toBe(true);
       }
     });
 

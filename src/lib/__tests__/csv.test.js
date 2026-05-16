@@ -62,11 +62,13 @@ describe('csv', () => {
       const photos = buildEmptyPhotos(structured_groups);
       const csv = photosToCSV(photos, structured_groups, CUTS);
       const lines = csv.split('\n').filter((l) => l.length > 0);
-      // header + all members
+      // header + members from enabled generations only
       let totalMembers = 0;
       for (const group of structured_groups) {
         for (const gen of group.generations) {
-          totalMembers += gen.members.length;
+          if (gen.enabled) {
+            totalMembers += gen.members.length;
+          }
         }
       }
       expect(lines.length).toBe(1 + totalMembers);
@@ -74,10 +76,10 @@ describe('csv', () => {
 
     it('writes correct count values', () => {
       const photos = buildEmptyPhotos(structured_groups);
-      photos.set('sakurazaka:井上 梨名', [1, 2, 3, 4]);
+      photos.set('sakurazaka:遠藤 光莉', [1, 2, 3, 4]);
       const csv = photosToCSV(photos, structured_groups, CUTS);
-      const inoue_line = csv.split('\n').find((l) => l.includes('井上 梨名'));
-      expect(inoue_line).toBe('井上 梨名,1,2,3,4');
+      const endo_line = csv.split('\n').find((l) => l.includes('遠藤 光莉'));
+      expect(endo_line).toBe('遠藤 光莉,1,2,3,4');
     });
 
     it('respects group enabled flag', () => {
@@ -90,7 +92,7 @@ describe('csv', () => {
       // Hinatazaka member should not appear
       expect(csv).not.toContain('金村 美玖');
       // But sakurazaka member should
-      expect(csv).toContain('井上 梨名');
+      expect(csv).toContain('遠藤 光莉');
     });
 
     it('respects generation enabled flag', () => {
@@ -109,7 +111,7 @@ describe('csv', () => {
       // sakurazaka 4th gen member should not appear
       expect(csv).not.toContain('浅井 恋乃未');
       // but 2nd gen member should
-      expect(csv).toContain('井上 梨名');
+      expect(csv).toContain('遠藤 光莉');
     });
 
     it('returns only header when all groups are disabled', () => {
@@ -158,7 +160,7 @@ describe('csv', () => {
       const photos = buildEmptyPhotos(structured_groups);
       // structured_groups has no disabledMembers property
       const csv = photosToCSV(photos, structured_groups, CUTS);
-      expect(csv).toContain('井上 梨名');
+      expect(csv).toContain('遠藤 光莉');
     });
 
     it('excludes multiple disabled members from CSV output', () => {
