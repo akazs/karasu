@@ -15,7 +15,6 @@ const sakurazakaGenerations = [
       { fullname: '幸阪 茉里乃', shortname: '幸阪' },
       { fullname: '田村 保乃', shortname: '田村' },
       { fullname: '藤吉 夏鈴', shortname: '藤吉' },
-      { fullname: '増本 綺良', shortname: '増本' },
       { fullname: '松田 里奈', shortname: '松田' },
       { fullname: '森田 ひかる', shortname: '森田' },
       { fullname: '守屋 麗奈', shortname: '守屋' },
@@ -59,7 +58,8 @@ const sakurazakaGenerations = [
     name: '卒業生',
     members: [
       { fullname: '井上 梨名', shortname: '井上' },
-      { fullname: '武元 唯衣', shortname: '武元' }
+      { fullname: '武元 唯衣', shortname: '武元' },
+      { fullname: '増本 綺良', shortname: '増本' }
     ],
     enabled: false
   }
@@ -79,8 +79,7 @@ const hinataGenerations = [
     members: [
       { fullname: '上村 ひなの', shortname: '上村' },
       { fullname: '髙橋 未来虹', shortname: '髙橋' },
-      { fullname: '森本 茉莉', shortname: '森本' },
-      { fullname: '山口 陽世', shortname: '山口' }
+      { fullname: '森本 茉莉', shortname: '森本' }
     ],
     enabled: true
   },
@@ -119,7 +118,10 @@ const hinataGenerations = [
   },
   {
     name: '卒業生',
-    members: [{ fullname: '松田 好花', shortname: '松田' }],
+    members: [
+      { fullname: '松田 好花', shortname: '松田' },
+      { fullname: '山口 陽世', shortname: '山口' }
+    ],
     enabled: false
   }
 ];
