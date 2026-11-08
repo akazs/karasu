@@ -65,18 +65,18 @@ test.describe('Edit Mode', () => {
     await tablePage.enableEditMode();
     await page.waitForTimeout(300);
 
-    // Increment ヨリ for 井上 梨名 (first member, first cut)
-    await tablePage.incrementCell('井上 梨名', 0);
+    // Increment ヨリ for 大園 玲 (first cut)
+    await tablePage.incrementCell('大園 玲', 0);
 
     // Wait for debounced save
     await page.waitForTimeout(800);
 
     // Verify value increased to 1
-    const value = await tablePage.getCellValue('井上 梨名', 0);
+    const value = await tablePage.getCellValue('大園 玲', 0);
     expect(value).toBe(1);
 
     // Verify in localStorage
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 0, 0, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 0, 0, 0]);
   });
 
   test('should increment multiple times', async ({ page }) => {
@@ -88,10 +88,10 @@ test.describe('Edit Mode', () => {
 
     // Increment 5 times
     for (let i = 0; i < 5; i++) {
-      await tablePage.incrementCell('井上 梨名', 0);
+      await tablePage.incrementCell('大園 玲', 0);
     }
 
-    const value = await tablePage.getCellValue('井上 梨名', 0);
+    const value = await tablePage.getCellValue('大園 玲', 0);
     expect(value).toBe(5);
   });
 
@@ -104,13 +104,13 @@ test.describe('Edit Mode', () => {
 
     // First increment to 3
     for (let i = 0; i < 3; i++) {
-      await tablePage.incrementCell('井上 梨名', 0);
+      await tablePage.incrementCell('大園 玲', 0);
     }
 
     // Then decrement by 1
-    await tablePage.decrementCell('井上 梨名', 0);
+    await tablePage.decrementCell('大園 玲', 0);
 
-    const value = await tablePage.getCellValue('井上 梨名', 0);
+    const value = await tablePage.getCellValue('大園 玲', 0);
     expect(value).toBe(2);
   });
 
@@ -122,10 +122,10 @@ test.describe('Edit Mode', () => {
     await tablePage.enableEditMode();
 
     // Try to decrement from 0
-    await tablePage.decrementCell('井上 梨名', 0);
+    await tablePage.decrementCell('大園 玲', 0);
 
     // Should remain 0
-    const value = await tablePage.getCellValue('井上 梨名', 0);
+    const value = await tablePage.getCellValue('大園 玲', 0);
     expect(value).toBe(0);
   });
 
@@ -137,21 +137,21 @@ test.describe('Edit Mode', () => {
     await tablePage.enableEditMode();
 
     // Increment different cuts for same member
-    await tablePage.incrementCell('井上 梨名', 0); // ヨリ
-    await tablePage.incrementCell('井上 梨名', 0); // ヨリ again
-    await tablePage.incrementCell('井上 梨名', 1); // チュウ
-    await tablePage.incrementCell('井上 梨名', 3); // 座り
+    await tablePage.incrementCell('大園 玲', 0); // ヨリ
+    await tablePage.incrementCell('大園 玲', 0); // ヨリ again
+    await tablePage.incrementCell('大園 玲', 1); // チュウ
+    await tablePage.incrementCell('大園 玲', 3); // 座り
 
     // Wait for debounced save
     await page.waitForTimeout(800);
 
     // Verify each cut
-    expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(2); // ヨリ
-    expect(await tablePage.getCellValue('井上 梨名', 1)).toBe(1); // チュウ
-    expect(await tablePage.getCellValue('井上 梨名', 2)).toBe(0); // ヒキ
-    expect(await tablePage.getCellValue('井上 梨名', 3)).toBe(1); // 座り
+    expect(await tablePage.getCellValue('大園 玲', 0)).toBe(2); // ヨリ
+    expect(await tablePage.getCellValue('大園 玲', 1)).toBe(1); // チュウ
+    expect(await tablePage.getCellValue('大園 玲', 2)).toBe(0); // ヒキ
+    expect(await tablePage.getCellValue('大園 玲', 3)).toBe(1); // 座り
 
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [2, 1, 0, 1]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [2, 1, 0, 1]);
   });
 
   test('should toggle edit mode on and off', async ({ page }) => {
@@ -203,8 +203,8 @@ test.describe('Edit Mode', () => {
     await tablePage.enableEditMode();
 
     // Add data
-    await tablePage.incrementCell('井上 梨名', 0);
-    await tablePage.incrementCell('井上 梨名', 1);
+    await tablePage.incrementCell('大園 玲', 0);
+    await tablePage.incrementCell('大園 玲', 1);
     await page.waitForTimeout(800);
 
     // Toggle edit mode off and on (stay on table tab)
@@ -214,8 +214,8 @@ test.describe('Edit Mode', () => {
     await page.waitForTimeout(200);
 
     // Data should still be there
-    expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(1);
-    expect(await tablePage.getCellValue('井上 梨名', 1)).toBe(1);
+    expect(await tablePage.getCellValue('大園 玲', 0)).toBe(1);
+    expect(await tablePage.getCellValue('大園 玲', 1)).toBe(1);
   });
 
   test('should re-enable a member after its generation was auto-disabled', async ({ page }) => {
@@ -266,7 +266,7 @@ test.describe('Edit Mode', () => {
       await page.waitForTimeout(200);
     }
 
-    // Re-enable the first member (井上 梨名)
+    // Re-enable the first member
     const firstMemberCheckbox = gen2Container
       .locator('..')
       .locator('.ml-6 input[type="checkbox"]')

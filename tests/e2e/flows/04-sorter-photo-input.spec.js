@@ -76,7 +76,7 @@ test.describe('Sorter Photo Input', () => {
     await page.waitForTimeout(200);
 
     // Should see member buttons for 二期生
-    await expect(page.locator('button[aria-label="井上 梨名"]')).toBeVisible();
+    await expect(page.locator('button[aria-label="大園 玲"]')).toBeVisible();
     await expect(page.locator('button[aria-label="遠藤 光莉"]')).toBeVisible();
     await expect(page.locator('button[aria-label="山﨑 天"]')).toBeVisible();
 
@@ -89,12 +89,12 @@ test.describe('Sorter Photo Input', () => {
     await sorterPage.goto();
     await page.waitForTimeout(200);
 
-    // Select sakurazaka -> 二期生 -> 井上 梨名
+    // Select sakurazaka -> 二期生 -> 大園 玲
     await page.click('button[aria-label="櫻坂46"]');
     await page.waitForTimeout(100);
     await page.click('button[aria-label="二期生"]');
     await page.waitForTimeout(100);
-    await page.click('button[aria-label="井上 梨名"]');
+    await page.click('button[aria-label="大園 玲"]');
     await page.waitForTimeout(200);
 
     // Should see cut buttons
@@ -111,53 +111,53 @@ test.describe('Sorter Photo Input', () => {
   test('should add photo and return to group selection', async ({ page }) => {
     await sorterPage.goto();
 
-    // Full selection flow: sakurazaka -> 二期生 -> 井上 梨名 -> ヨリ
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    // Full selection flow: sakurazaka -> 二期生 -> 大園 玲 -> ヨリ
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
 
     // Should return to group selection
     const sakurazakaButton = page.locator('button[aria-label="櫻坂46"]');
     await expect(sakurazakaButton).toBeVisible();
 
     // Verify photo count in localStorage
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 0, 0, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 0, 0, 0]);
   });
 
   test('should increment photo count for same member', async ({ page }) => {
     await sorterPage.goto();
 
-    // Add 3 ヨリ photos for 井上 梨名
+    // Add 3 ヨリ photos for 大園 玲
     for (let i = 0; i < 3; i++) {
-      await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+      await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     }
 
     // Verify photo count is 3
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [3, 0, 0, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [3, 0, 0, 0]);
   });
 
   test('should add different cut types for same member', async ({ page }) => {
     await sorterPage.goto();
 
-    // Add different cuts for 井上 梨名
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'チュウ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヒキ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', '座り');
+    // Add different cuts for 大園 玲
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'チュウ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヒキ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', '座り');
 
     // Verify all cut types
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 1, 1, 1]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 1, 1, 1]);
   });
 
   test('should add photos for different members', async ({ page }) => {
     await sorterPage.goto();
 
     // Add for sakurazaka member
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
 
     // Add for hinatazaka member
     await sorterPage.addPhoto('日向坂46', '二期生', '金村 美玖', 'チュウ');
 
     // Verify both
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 0, 0, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 0, 0, 0]);
     await assertPhotoCount(page, 'hinatazaka', '金村 美玖', [0, 1, 0, 0]);
   });
 
@@ -165,9 +165,9 @@ test.describe('Sorter Photo Input', () => {
     await sorterPage.goto();
 
     // Add photos via sorter
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'チュウ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'チュウ');
 
     // Wait for debounced save to complete
     await page.waitForTimeout(800);
@@ -177,10 +177,10 @@ test.describe('Sorter Photo Input', () => {
     await page.waitForTimeout(300);
 
     // Verify counts in table
-    const yoriCount = await tablePage.getCellValue('井上 梨名', 0);
-    const chuCount = await tablePage.getCellValue('井上 梨名', 1);
-    const hikiCount = await tablePage.getCellValue('井上 梨名', 2);
-    const suwariCount = await tablePage.getCellValue('井上 梨名', 3);
+    const yoriCount = await tablePage.getCellValue('大園 玲', 0);
+    const chuCount = await tablePage.getCellValue('大園 玲', 1);
+    const hikiCount = await tablePage.getCellValue('大園 玲', 2);
+    const suwariCount = await tablePage.getCellValue('大園 玲', 3);
 
     expect(yoriCount).toBe(2);
     expect(chuCount).toBe(1);
@@ -222,7 +222,7 @@ test.describe('Sorter Photo Input', () => {
     await page.waitForTimeout(200);
 
     // Verify at member step
-    await expect(page.locator('button[aria-label="井上 梨名"]')).toBeVisible();
+    await expect(page.locator('button[aria-label="大園 玲"]')).toBeVisible();
 
     // Go back to generation selection
     await page.click('button[aria-label="back"]');
@@ -241,7 +241,7 @@ test.describe('Sorter Photo Input', () => {
     await page.waitForTimeout(100);
     await page.click('button[aria-label="二期生"]');
     await page.waitForTimeout(100);
-    await page.click('button[aria-label="井上 梨名"]');
+    await page.click('button[aria-label="大園 玲"]');
     await page.waitForTimeout(200);
 
     // Verify at cut step
@@ -252,7 +252,7 @@ test.describe('Sorter Photo Input', () => {
     await page.waitForTimeout(200);
 
     // Should be at member step
-    await expect(page.locator('button[aria-label="井上 梨名"]')).toBeVisible();
+    await expect(page.locator('button[aria-label="大園 玲"]')).toBeVisible();
   });
 
   test('should show hinatazaka members correctly', async ({ page }) => {

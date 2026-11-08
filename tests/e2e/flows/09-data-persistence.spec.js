@@ -48,15 +48,15 @@ test.describe('Data Persistence', () => {
   test('should persist photo counts after page reload', async ({ page }) => {
     // Add photos via sorter
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'チュウ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'チュウ');
     await sorterPage.addPhoto('日向坂46', '二期生', '金村 美玖', 'ヒキ');
 
     // Wait for debounced save (500ms debounce + buffer)
     await page.waitForTimeout(1000);
 
     // Verify data before reload
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 1, 0, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 1, 0, 0]);
     await assertPhotoCount(page, 'hinatazaka', '金村 美玖', [0, 0, 1, 0]);
 
     // Reload page
@@ -64,15 +64,15 @@ test.describe('Data Persistence', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify data after reload
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 1, 0, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 1, 0, 0]);
     await assertPhotoCount(page, 'hinatazaka', '金村 美玖', [0, 0, 1, 0]);
 
     // Navigate to table and verify UI shows correct values
     await tablePage.goto();
     await page.waitForTimeout(300);
 
-    expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(1); // ヨリ
-    expect(await tablePage.getCellValue('井上 梨名', 1)).toBe(1); // チュウ
+    expect(await tablePage.getCellValue('大園 玲', 0)).toBe(1); // ヨリ
+    expect(await tablePage.getCellValue('大園 玲', 1)).toBe(1); // チュウ
   });
 
   test('should persist table management data after reload', async ({ page }) => {
@@ -185,7 +185,7 @@ test.describe('Data Persistence', () => {
   test('should persist independent photo data per table', async ({ page }) => {
     // Add data to default table
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     await page.waitForTimeout(1000);
 
     // Create second table (becomes active)
@@ -211,8 +211,8 @@ test.describe('Data Persistence', () => {
     expect(defaultTable).toBeDefined();
     expect(secondTable).toBeDefined();
 
-    // Default table should have 井上 梨名 data
-    expect(defaultTable.photoData.sakurazaka['井上 梨名']).toEqual([1, 0, 0, 0]);
+    // Default table should have 大園 玲 data
+    expect(defaultTable.photoData.sakurazaka['大園 玲']).toEqual([1, 0, 0, 0]);
 
     // Second table should have 遠藤 光莉 data
     expect(secondTable.photoData.sakurazaka['遠藤 光莉']).toEqual([0, 1, 0, 0]);
@@ -228,8 +228,8 @@ test.describe('Data Persistence', () => {
     await tablePage.enableEditMode();
 
     // Edit data
-    await tablePage.incrementCell('井上 梨名', 0);
-    await tablePage.incrementCell('井上 梨名', 2);
+    await tablePage.incrementCell('大園 玲', 0);
+    await tablePage.incrementCell('大園 玲', 2);
 
     // Wait for debounced save
     await page.waitForTimeout(1000);
@@ -239,13 +239,13 @@ test.describe('Data Persistence', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify data persisted
-    await assertPhotoCount(page, 'sakurazaka', '井上 梨名', [1, 0, 1, 0]);
+    await assertPhotoCount(page, 'sakurazaka', '大園 玲', [1, 0, 1, 0]);
   });
 
   test('should clear all data correctly', async ({ page }) => {
     // Add some data first
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     await page.waitForTimeout(1000);
 
     // Create extra table

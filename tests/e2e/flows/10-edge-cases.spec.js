@@ -189,10 +189,10 @@ test.describe('Edge Cases', () => {
 
     // Increment 20 times
     for (let i = 0; i < 20; i++) {
-      await tablePage.incrementCell('井上 梨名', 0);
+      await tablePage.incrementCell('大園 玲', 0);
     }
 
-    const value = await tablePage.getCellValue('井上 梨名', 0);
+    const value = await tablePage.getCellValue('大園 玲', 0);
     expect(value).toBe(20);
 
     await page.screenshot({
@@ -203,7 +203,7 @@ test.describe('Edge Cases', () => {
   test('should handle clear current table data', async ({ page }) => {
     // Add some data first
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     await sorterPage.addPhoto('櫻坂46', '二期生', '遠藤 光莉', 'チュウ');
     await page.waitForTimeout(1000);
 
@@ -229,14 +229,14 @@ test.describe('Edge Cases', () => {
     await tablePage.goto();
     await page.waitForTimeout(300);
 
-    expect(await tablePage.getCellValue('井上 梨名', 0)).toBe(0);
+    expect(await tablePage.getCellValue('大園 玲', 0)).toBe(0);
     expect(await tablePage.getCellValue('遠藤 光莉', 1)).toBe(0);
   });
 
   test('should handle duplicate table correctly', async ({ page }) => {
     // Add data to the default table
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     await page.waitForTimeout(800);
 
     // Duplicate the table
@@ -250,7 +250,7 @@ test.describe('Edge Cases', () => {
     // Both tables should have the data
     const tables = await managementPage.getLocalStorage('karasu-tables');
     for (const table of tables.tables) {
-      expect(table.photoData.sakurazaka['井上 梨名']).toEqual([1, 0, 0, 0]);
+      expect(table.photoData.sakurazaka['大園 玲']).toEqual([1, 0, 0, 0]);
     }
   });
 

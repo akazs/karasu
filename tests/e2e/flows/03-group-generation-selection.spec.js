@@ -154,7 +154,7 @@ test.describe('Group/Generation Selection', () => {
     expect(await tablePage.memberRowExists('浅井 恋乃未')).toBe(false);
 
     // But 二期生 members should be visible
-    expect(await tablePage.memberRowExists('井上 梨名')).toBe(true);
+    expect(await tablePage.memberRowExists('大園 玲')).toBe(true);
   });
 
   test('should auto-skip group selection when only one group enabled', async ({ page }) => {
@@ -197,7 +197,7 @@ test.describe('Group/Generation Selection', () => {
     await page.waitForTimeout(500);
 
     // Should be at member selection (both group and generation auto-skipped)
-    const memberButton = page.locator('button[aria-label="井上 梨名"]');
+    const memberButton = page.locator('button[aria-label="大園 玲"]');
     await expect(memberButton).toBeVisible();
   });
 
@@ -208,7 +208,7 @@ test.describe('Group/Generation Selection', () => {
     await page.waitForTimeout(200);
 
     // Default should show sakurazaka members
-    expect(await tablePage.memberRowExists('井上 梨名')).toBe(true);
+    expect(await tablePage.memberRowExists('大園 玲')).toBe(true);
   });
 
   test('should persist group settings to localStorage', async ({ page }) => {

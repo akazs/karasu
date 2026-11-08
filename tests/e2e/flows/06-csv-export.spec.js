@@ -74,8 +74,8 @@ test.describe('CSV Export', () => {
 
     // Add some photo data first
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'チュウ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'チュウ');
 
     // Go to management and export CSV
     await managementPage.goto();
@@ -115,8 +115,8 @@ test.describe('CSV Export', () => {
 
     // Add data for specific members
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     await sorterPage.addPhoto('櫻坂46', '二期生', '遠藤 光莉', 'チュウ');
 
     // Export CSV
@@ -133,7 +133,7 @@ test.describe('CSV Export', () => {
     });
 
     // Verify member data
-    await assertCSVContainsMember(csv, '井上 梨名', [2, 0, 0, 0]);
+    await assertCSVContainsMember(csv, '大園 玲', [2, 0, 0, 0]);
     await assertCSVContainsMember(csv, '遠藤 光莉', [0, 1, 0, 0]);
   });
 
@@ -146,7 +146,7 @@ test.describe('CSV Export', () => {
 
     // Add data for both groups
     await sorterPage.goto();
-    await sorterPage.addPhoto('櫻坂46', '二期生', '井上 梨名', 'ヨリ');
+    await sorterPage.addPhoto('櫻坂46', '二期生', '大園 玲', 'ヨリ');
     await sorterPage.addPhoto('日向坂46', '二期生', '金村 美玖', 'ヒキ');
 
     // Export CSV
@@ -163,11 +163,11 @@ test.describe('CSV Export', () => {
     });
 
     // Should contain members from both groups
-    expect(csv).toContain('井上 梨名');
+    expect(csv).toContain('大園 玲');
     expect(csv).toContain('金村 美玖');
 
     // Verify correct counts
-    await assertCSVContainsMember(csv, '井上 梨名', [1, 0, 0, 0]);
+    await assertCSVContainsMember(csv, '大園 玲', [1, 0, 0, 0]);
     await assertCSVContainsMember(csv, '金村 美玖', [0, 0, 1, 0]);
   });
 
@@ -251,7 +251,7 @@ test.describe('CSV Export', () => {
     expect(csv).not.toContain('金村 美玖');
 
     // Should contain sakurazaka members
-    expect(csv).toContain('井上 梨名');
+    expect(csv).toContain('大園 玲');
   });
 
   test('should have correct CSV header format', async ({ page, context }) => {

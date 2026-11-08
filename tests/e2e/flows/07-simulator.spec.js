@@ -1,4 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { structured_groups } from '../../../src/lib/groups.js';
+
+const expectedMemberCount = structured_groups
+  .filter((group) => group.enabled)
+  .flatMap((group) => group.generations)
+  .filter((generation) => generation.enabled)
+  .reduce((count, generation) => count + generation.members.length, 0);
 
 /**
  * Flow 7: Photo Draw Simulator
@@ -51,12 +58,12 @@ test.describe('Photo Draw Simulator', () => {
     const membersInput = page.locator('#n_members');
     const value = await membersInput.inputValue();
 
-    // With both groups and all generations enabled, total members should be > 0
+    // With the default enabled groups and generations, total members should be > 0
     const numMembers = parseInt(value);
     expect(numMembers).toBeGreaterThan(0);
 
-    // Total members: sakurazaka (13+11+9=33) + hinatazaka (3+4+11+10=28) = 61
-    expect(numMembers).toBe(61);
+    // Exclude graduated generations, which are disabled by default.
+    expect(numMembers).toBe(expectedMemberCount);
   });
 
   test('should display simulation results', async ({ page }) => {
@@ -143,7 +150,7 @@ test.describe('Photo Draw Simulator', () => {
 
     const resultText = await resultsSection.textContent();
 
-    // With 61 members and 4 cuts = 244 total cuts
-    expect(resultText).toContain('244');
+    // Default results should use four cuts per enabled member.
+    expect(resultText).toContain(`${expectedMemberCount * 4} カット中`);
   });
 });
